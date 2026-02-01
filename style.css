@@ -1,60 +1,84 @@
-/* =========================
-   Brightness boost (safe overrides)
-   Paste at END of file
-========================= */
-
+*{box-sizing:border-box}
 body{
-  background:#0a1022;              /* slightly brighter than #070b18 */
-  color:#f2f7ff;                   /* brighter text */
+  margin:0;
+  font-family:system-ui,Arial;
+  background:#0a1022;
+  color:#f2f7ff;
 }
 
 .bgGlow{
+  position:fixed; inset:0;
   background:
-    radial-gradient(950px 520px at 15% 15%, rgba(130, 175, 255, .28), transparent 58%),
-    radial-gradient(850px 520px at 85% 20%, rgba(120, 255, 210, .20), transparent 62%),
-    radial-gradient(980px 700px at 45% 90%, rgba(255, 190, 140, .18), transparent 60%);
+    radial-gradient(900px 500px at 15% 15%, rgba(130,175,255,.25), transparent 55%),
+    radial-gradient(800px 500px at 85% 20%, rgba(120,255,210,.18), transparent 60%);
 }
 
+.app{max-width:980px;margin:auto;padding:16px}
 .card{
-  background: rgba(255,255,255,0.085);   /* was 0.06 */
-  border: 1px solid rgba(255,255,255,0.14);
-  box-shadow: 0 20px 50px rgba(0,0,0,0.32);
+  background:rgba(255,255,255,.08);
+  border-radius:18px;
+  padding:18px;
 }
+
+.brand{display:flex;gap:14px;align-items:center}
+
+/* FINAL LOGO FIX */
+.appIconWrap{
+  width:56px;height:56px;min-width:56px;
+  background:rgba(255,255,255,.12);
+  border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.appIcon{
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{display:flex;flex-direction:column;font-size:.9em}
+label.full{grid-column:1/-1}
 
 input{
-  background: rgba(0,0,0,0.20);          /* slightly lighter */
-  border: 1px solid rgba(255,255,255,0.18);
-}
-
-.muted{ opacity: .85; }                  /* was .75 */
-
-.qsub{ opacity:.92; }                    /* was .86 */
-.pct{ opacity:.92; }                     /* was .85 */
-
-.opt{
-  background: rgba(255,255,255,0.06);    /* was rgba(0,0,0,0.18) */
-  border: 1px solid rgba(255,255,255,0.18);
-}
-
-.opt.selected{
-  border-color: rgba(83,255,192,.75);
-  background: rgba(83,255,192,0.16);
+  padding:10px;border-radius:10px;border:none;
 }
 
 .btn{
-  box-shadow: 0 12px 28px rgba(0,0,0,0.28);
-  filter: saturate(1.05) brightness(1.02);
+  padding:12px 14px;border-radius:14px;
+  border:none;font-weight:700;
+  background:#74b9ff;color:#000;
+  cursor:pointer;
 }
+.btn.ghost{background:#ffffff22;color:#fff}
 
-.btn.ghost{
-  background: rgba(255,255,255,0.10);   /* was 0.08 */
-  border: 1px solid rgba(255,255,255,0.20);
+.options{margin-top:14px;display:flex;flex-direction:column;gap:10px}
+.opt{
+  padding:12px;border-radius:14px;
+  background:#ffffff18;
+  cursor:pointer;
 }
+.opt.selected{background:#53ffc033}
 
-.insights,
-.bigScore,
-.box,
+.nav{display:flex;justify-content:space-between;margin-top:14px}
+
+.scoreRow{display:flex;gap:14px;margin-top:12px}
+.bigScore{background:#00000030;padding:12px;border-radius:14px;min-width:220px}
+.score{font-size:2.4em;font-weight:900}
+
+.arenaScores{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.box{background:#00000030;padding:10px;border-radius:12px}
+
+.leaderboard{margin-top:10px;display:flex;flex-direction:column;gap:8px}
 .lbrow{
-  background: rgba(255,255,255,0.06);   /* brighter panels */
-  border: 1px solid rgba(255,255,255,0.14);
+  display:grid;
+  grid-template-columns:70px 1fr 60px;
+  padding:10px;border-radius:12px;
+  background:#ffffff18;
+}
+
+@media(max-width:700px){
+  .grid{grid-template-columns:1fr}
+  .scoreRow{flex-direction:column}
+  .arenaScores{grid-template-columns:repeat(2,1fr)}
 }
