@@ -1,12 +1,7 @@
-/* =========================
-   CONFIG
-========================= */
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwv6RkxDakPptLFkBntJx7Q9gZO_46ymanX-lctuh-rvvLKXXgv9lKLFitcmwZYTXsMjQ/exec";
 const LS_KEY = "dps_tajcity_cf_v9";
 
-/* =========================
-   Badge banding
-========================= */
+/* ---------------- Badge banding ---------------- */
 function scoreBand(overall){
   if (overall >= 90) return { badge:"🏆 Eco Champion", where:"Outstanding habits. You’re already low-footprint—now maintain consistency and inspire others." };
   if (overall >= 75) return { badge:"🌟 Green Leader", where:"Strong practices across categories. A few routine upgrades can make you even better." };
@@ -15,9 +10,7 @@ function scoreBand(overall){
   return { badge:"🚀 Ready for Change", where:"Big improvement potential. Pick just two habits this week and stick to them—results come fast." };
 }
 
-/* =========================
-   Quiz structure (15 Q)
-========================= */
+/* ---------------- Quiz structure ---------------- */
 const ARENAS = ["transport","home","devices","food","waste"];
 const LABEL = {
   transport:"🚗 Transport",
@@ -28,7 +21,6 @@ const LABEL = {
 };
 
 const QUIZ = [
-  /* 🚗 TRANSPORT (3) */
   { arena:"transport", pill:"🚗 Transport", tip:"Shared travel reduces per-family footprint.", text:"How does your child usually go to school?", options:[
     {label:"Walk / Cycle", pts:5, note:"Zero fuel + healthier routine"},
     {label:"School bus / shared van", pts:4, note:"Shared commute lowers per-family emissions"},
@@ -46,7 +38,6 @@ const QUIZ = [
     {label:"Rare", pts:1, note:"Low mileage increases fuel use"},
   ]},
 
-  /* 🏠 HOME ENERGY (3) */
   { arena:"home", pill:"🏠 Home Energy", tip:"Cooling choices change electricity use a lot.", text:"AC usage on most days is…", options:[
     {label:"No AC", pts:5, note:"Lowest electricity load"},
     {label:"0–2 hours/day", pts:4, note:"Controlled usage"},
@@ -65,7 +56,6 @@ const QUIZ = [
     {label:"Mostly old bulbs/tubes", pts:1, note:"Switching to LED helps a lot"},
   ]},
 
-  /* 📱 DEVICES (3) */
   { arena:"devices", pill:"📱 Devices", tip:"Standby power is small but constant.", text:"At night, plugs for TV/chargers are…", options:[
     {label:"Mostly switched off", pts:5, note:"Excellent routine"},
     {label:"Sometimes switched off", pts:3, note:"Pick 2–3 plugs daily"},
@@ -84,7 +74,6 @@ const QUIZ = [
     {label:"Throw with regular waste", pts:1, note:"Avoid"},
   ]},
 
-  /* 🍲 FOOD (3) */
   { arena:"food", pill:"🍲 Food", tip:"Food waste creates avoidable emissions.", text:"How often does food get wasted at home?", options:[
     {label:"Rarely", pts:5, note:"Good planning"},
     {label:"Sometimes", pts:3, note:"Plan portions + storage"},
@@ -101,7 +90,6 @@ const QUIZ = [
     {label:"Mostly open cooking for long time", pts:1, note:"Higher fuel use"},
   ]},
 
-  /* 🗑️ WASTE (3) */
   { arena:"waste", pill:"🗑️ Waste", tip:"Segregation improves recycling and reduces landfill load.", text:"Do you segregate wet/dry waste at home?", options:[
     {label:"Yes, regularly", pts:5, note:"Great habit"},
     {label:"Sometimes", pts:3, note:"Try consistent daily"},
@@ -119,9 +107,7 @@ const QUIZ = [
   ]},
 ];
 
-/* =========================
-   State + DOM
-========================= */
+/* ---------------- State ---------------- */
 let state = {
   profile:{ parentName:"", phone:"", address:"", childClass:"" },
   index:0,
@@ -159,21 +145,11 @@ const recommendationsEl = el("recommendations");
 
 const btnRestart = el("btnRestart");
 const btnRefreshLB = el("btnRefreshLB");
-const leaderboardEl = el("leaderboard");
 const submitStatus = el("submitStatus");
+const leaderboardEl = el("leaderboard");
 
-/* =========================
-   Utils
-========================= */
+/* ---------------- Storage ---------------- */
 function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
-function load(){
-  try{
-    const raw = localStorage.getItem(LS_KEY);
-    if(!raw) return false;
-    state = JSON.parse(raw);
-    return true;
-  }catch{ return false; }
-}
 function clearSave(){ localStorage.removeItem(LS_KEY); }
 
 function show(which){
@@ -191,13 +167,16 @@ function esc(s){
     .replaceAll("'","&#039;");
 }
 
-/* =========================
-   Scoring
-========================= */
+function getSubmissionId(){
+  if(state.submissionId) return state.submissionId;
+  state.submissionId = `sub_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+  save();
+  return state.submissionId;
+}
+
+/* ---------------- Scoring ---------------- */
 function calcScores(){
   const agg = Object.fromEntries(ARENAS.map(a => [a, {got:0, max:0}]));
-
-  const chosen = [];
 
   QUIZ.forEach((q, qi) => {
     const maxPts = Math.max(...q.options.map(o => o.pts));
@@ -205,9 +184,7 @@ function calcScores(){
 
     const pick = state.answers[qi];
     if(pick !== undefined){
-      const opt = q.options[pick];
-      agg[q.arena].got += opt.pts;
-      chosen.push({ arena:q.arena, q:q.text, pts:opt.pts, label:opt.label });
+      agg[q.arena].got += q.options[pick].pts;
     }
   });
 
@@ -221,32 +198,30 @@ function calcScores(){
     (arenaScores.transport + arenaScores.home + arenaScores.devices + arenaScores.food + arenaScores.waste) / 5
   );
 
-  return { overall, arenaScores, chosen };
+  return { overall, arenaScores };
 }
 
-/* =========================
-   Recommendations
-========================= */
-function buildRecommendations({ overall, arenaScores, chosen }){
+/* ---------------- Recommendations ---------------- */
+function buildRecommendations({ overall, arenaScores }){
   const band = scoreBand(overall);
 
   const sorted = Object.entries(arenaScores).sort((a,b)=>a[1]-b[1]);
   const weakest = sorted[0]?.[0];
-  const second = sorted[1]?.[0];
 
   const cityContext = `
     <p><b>City context</b></p>
     <ul>
-      <li><b>During school hours and peak market times</b>, traffic congestion often leads to engine idling, increasing local air pollution near pedestrians.</li>
-      <li><b>Small efficiency gaps</b>—like open doors/windows while cooling—can raise electricity use without improving comfort.</li>
-      <li>For most families, the <b>largest practical reductions</b> come from shared commuting, sensible cooling, and daily waste segregation.</li>
+      <li><b>School hours and market peak time</b> often bring slow-moving traffic and idling near pedestrians.</li>
+      <li><b>Cooling can become inefficient</b> when doors/windows are left open—electricity use increases without better comfort.</li>
+      <li>For most families, the biggest practical gains come from <b>shared commute, sensible cooling, and daily waste separation</b>.</li>
     </ul>
   `;
 
   const doByArena = {
     transport: [
       "Prefer school bus or a consistent carpool for routine commute.",
-      "Switch off the engine while waiting near the school gate."
+      "Switch off the engine while waiting near the school gate.",
+      "Maintain tyre pressure and regular service for better mileage."
     ],
     home: [
       "Use fan first; if AC is needed, keep it around 26°C and keep doors/windows closed.",
@@ -289,28 +264,15 @@ function buildRecommendations({ overall, arenaScores, chosen }){
     ]
   };
 
-  const doList = [
-    ...(doByArena[weakest] || []).slice(0,2),
-    ...(doByArena[second] || []).slice(0,1),
-  ].filter(Boolean);
-
+  const doList = (doByArena[weakest] || []).slice(0,3);
   const avoidList = (avoidByArena[weakest] || []).slice(0,2);
 
   const nextSteps = (overall >= 90) ? [
     "Maintain consistency and inspire one more family (carpool/LED/segregation).",
     "Track one habit for 14 days until it becomes automatic."
-  ] : (overall >= 75) ? [
-    "Pick 2 upgrades this month: engine-off waiting + LED replacement in one high-use room.",
-    "Add one weekly habit: leftover-meal day or a plastic-free market routine."
-  ] : (overall >= 60) ? [
-    "This week: choose 2 habits (switch off plugs + reduce short private-car trips).",
-    "Next 2 weeks: add one upgrade (LED replacement or consistent waste segregation)."
-  ] : (overall >= 45) ? [
-    "Start with 2 easy wins: engine-off waiting + wet/dry waste separation.",
-    "Within 14 days: replace LEDs in one high-use room."
   ] : [
-    "This week: lock 2 habits—engine-off waiting + wet/dry waste separation.",
-    "Next 2 weeks: shift one routine trip to shared travel and use fan-first + 26°C cooling routine."
+    "Pick two easy upgrades and keep them consistent for 14 days.",
+    "Recheck your score after 2 weeks to see improvement."
   ];
 
   return `
@@ -326,9 +288,7 @@ function buildRecommendations({ overall, arenaScores, chosen }){
   `;
 }
 
-/* =========================
-   UI Render
-========================= */
+/* ---------------- Render quiz ---------------- */
 function renderQuestion(){
   const q = QUIZ[state.index];
 
@@ -349,8 +309,8 @@ function renderQuestion(){
     div.onclick = () => {
       state.answers[state.index] = i;
       save();
-      renderQuestion();
       btnNext.disabled = false;
+      renderQuestion();
     };
     optionsEl.appendChild(div);
   });
@@ -359,8 +319,9 @@ function renderQuestion(){
   btnNext.disabled = (state.answers[state.index] === undefined);
 }
 
+/* ---------------- Render results ---------------- */
 function renderResults(){
-  const { overall, arenaScores, chosen } = calcScores();
+  const { overall, arenaScores } = calcScores();
   const band = scoreBand(overall);
 
   overallScoreEl.textContent = overall;
@@ -375,123 +336,10 @@ function renderResults(){
     arenaScoresEl.appendChild(box);
   });
 
-  recommendationsEl.innerHTML = buildRecommendations({ overall, arenaScores, chosen });
+  recommendationsEl.innerHTML = buildRecommendations({ overall, arenaScores });
 }
 
-/* =========================
-   Submission helpers
-========================= */
-function buildAnswerPayload(){
-  const out = {};
-  QUIZ.forEach((q, qi) => {
-    const pick = state.answers[qi];
-    out[`Q${qi+1} (${q.arena})`] = (pick !== undefined) ? q.options[pick].label : "";
-  });
-  return out;
-}
-
-function getSubmissionId(){
-  if(state.submissionId) return state.submissionId;
-  state.submissionId = `sub_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-  save();
-  return state.submissionId;
-}
-
-async function submitToSheet(){
-  if (state._submittedOnce) return;
-
-  submitStatus.textContent = "Saving to Google Sheet...";
-  state._submittedOnce = true;
-  save();
-
-  const { overall, arenaScores, chosen } = calcScores();
-  const band = scoreBand(overall);
-  const recHTML = buildRecommendations({ overall, arenaScores, chosen });
-
-  const payload = {
-    submissionId: getSubmissionId(),
-    parentName: state.profile.parentName,
-    phone: state.profile.phone,
-    address: state.profile.address,
-    childClass: state.profile.childClass,
-    scores: {
-      overall,
-      transport: arenaScores.transport,
-      home: arenaScores.home,
-      devices: arenaScores.devices,
-      food: arenaScores.food,
-      waste: arenaScores.waste
-    },
-    badgeLabel: band.badge,
-    recommendationsText: recHTML.replace(/<[^>]*>?/gm, ""),
-    answers: buildAnswerPayload()
-  };
-
-  try{
-    await fetch(APPS_SCRIPT_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type":"text/plain;charset=utf-8" },
-      body: JSON.stringify(payload)
-    });
-    submitStatus.textContent = "✅ Saved. Refreshing leaderboard...";
-  }catch{
-    submitStatus.textContent = "❌ Save failed. Tap Refresh Leaderboard to retry.";
-    state._submittedOnce = false;
-    save();
-  }
-}
-
-/* =========================
-   Leaderboard
-========================= */
-async function loadLeaderboard(){
-  leaderboardEl.innerHTML = "Loading...";
-
-  try{
-    const url = `${APPS_SCRIPT_URL}?action=leaderboard&limit=20`;
-    const res = await fetch(url);
-    const json = await res.json();
-    if(!json.ok) throw new Error(json.error || "Leaderboard fetch failed");
-
-    const all = [...(json.podium || []), ...(json.others || [])];
-
-    if(!all.length){
-      leaderboardEl.innerHTML = `<div class="status">No submissions yet.</div>`;
-      return;
-    }
-
-    const medal = (r) =>
-      r === 1 ? "🥇" :
-      r === 2 ? "🥈" :
-      r === 3 ? "🥉" :
-      `#${r}`;
-
-    leaderboardEl.innerHTML = "";
-
-    all.forEach(row => {
-      const band = scoreBand(Number(row.overall) || 0);
-      const div = document.createElement("div");
-      div.className = "lbrow";
-      div.innerHTML = `
-        <div><b>${medal(row.rank)}</b></div>
-        <div>
-          <div style="font-weight:850">${esc(row.name || "Anonymous")}</div>
-          <div style="opacity:.85;font-size:.92em">${esc(row.className || "-")} • ${band.badge}</div>
-        </div>
-        <div style="text-align:right;"><b>${row.overall}</b></div>
-      `;
-      leaderboardEl.appendChild(div);
-    });
-
-  }catch(e){
-    leaderboardEl.innerHTML = `<div class="status">❌ ${e.message}</div>`;
-  }
-}
-
-/* =========================
-   Validation
-========================= */
+/* ---------------- Validate profile ---------------- */
 function saveProfileOrAlert(){
   const parentName = (parentNameEl.value || "").trim();
   const phone = (phoneEl.value || "").trim();
@@ -522,9 +370,106 @@ function saveProfileOrAlert(){
   };
 }
 
-/* =========================
-   Events
-========================= */
+/* ---------------- Build answers payload ---------------- */
+function buildAnswerPayload(){
+  const out = {};
+  QUIZ.forEach((q, qi) => {
+    const pick = state.answers[qi];
+    out[`Q${qi+1} (${q.arena})`] = (pick !== undefined) ? q.options[pick].label : "";
+  });
+  return out;
+}
+
+/* ---------------- Submit ---------------- */
+async function submitToSheet(){
+  if(state._submittedOnce) return;
+
+  submitStatus.textContent = "Saving to Google Sheet...";
+  state._submittedOnce = true;
+  save();
+
+  const { overall, arenaScores } = calcScores();
+  const band = scoreBand(overall);
+
+  const payload = {
+    submissionId: getSubmissionId(),
+    parentName: state.profile.parentName,
+    phone: state.profile.phone,
+    address: state.profile.address,
+    childClass: state.profile.childClass,
+    scores: {
+      overall,
+      transport: arenaScores.transport,
+      home: arenaScores.home,
+      devices: arenaScores.devices,
+      food: arenaScores.food,
+      waste: arenaScores.waste
+    },
+    badgeLabel: band.badge,
+    answers: buildAnswerPayload()
+  };
+
+  try{
+    await fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: {"Content-Type":"text/plain;charset=utf-8"},
+      body: JSON.stringify(payload)
+    });
+    submitStatus.textContent = "✅ Saved. Refreshing leaderboard...";
+  }catch{
+    submitStatus.textContent = "❌ Save failed. Tap Refresh Leaderboard to retry.";
+    state._submittedOnce = false;
+    save();
+  }
+}
+
+/* ---------------- Leaderboard ---------------- */
+async function loadLeaderboard(){
+  leaderboardEl.innerHTML = "Loading...";
+
+  try{
+    const res = await fetch(`${APPS_SCRIPT_URL}?action=leaderboard&limit=20`);
+    const json = await res.json();
+    if(!json.ok) throw new Error(json.error || "Leaderboard fetch failed");
+
+    const all = [...(json.podium || []), ...(json.others || [])];
+
+    if(!all.length){
+      leaderboardEl.innerHTML = `<div class="status">No submissions yet.</div>`;
+      return;
+    }
+
+    const medal = (r) =>
+      r === 1 ? "🥇" :
+      r === 2 ? "🥈" :
+      r === 3 ? "🥉" :
+      `#${r}`;
+
+    leaderboardEl.innerHTML = "";
+
+    all.forEach(row => {
+      const band = scoreBand(Number(row.overall) || 0);
+
+      const div = document.createElement("div");
+      div.className = "lbrow";
+      div.innerHTML = `
+        <div><b>${medal(row.rank)}</b></div>
+        <div>
+          <div style="font-weight:850">${esc(row.name || row.parentName || "Anonymous")}</div>
+          <div style="opacity:.85;font-size:.92em">${esc(row.className || row.childClass || "-")} • ${band.badge}</div>
+        </div>
+        <div style="text-align:right;"><b>${row.overall}</b></div>
+      `;
+      leaderboardEl.appendChild(div);
+    });
+
+  }catch(e){
+    leaderboardEl.innerHTML = `<div class="status">❌ ${esc(e.message)}</div>`;
+  }
+}
+
+/* ---------------- Events ---------------- */
 btnStart.onclick = () => {
   const profile = saveProfileOrAlert();
   if(!profile) return;
@@ -571,11 +516,13 @@ btnRestart.onclick = () => {
     _submittedOnce:false,
     submissionId:null
   };
+
   parentNameEl.value = "";
   phoneEl.value = "";
   addressEl.value = "";
   childClassEl.value = "";
   submitStatus.textContent = "";
+
   show("profile");
 };
 
@@ -586,8 +533,5 @@ btnRefreshLB.onclick = async () => {
   await loadLeaderboard();
 };
 
-/* =========================
-   Init
-========================= */
-load();
+/* ---------------- Init ---------------- */
 show("profile");
