@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>DPS Tajcity Agra • Carbon Footprint Check</title>
+  <title>DPS Tajcity Agra • Family Carbon Footprint Check</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -12,16 +12,20 @@
   <div class="app">
     <header class="header">
       <div class="brand">
-        <img class="schoolLogo" src="dps-logo.jpg" alt="DPS Tajcity Logo">
+        <!-- same place where globe was -->
+        <div class="appIconWrap">
+          <img class="appIcon" src="dps-logo.jpg" alt="DPS Tajcity logo" />
+        </div>
+
         <div>
-          <h1>Delhi Public School Tajcity, Agra</h1>
-          <p class="sub">Family Carbon Footprint Check • 15 questions • practical next steps</p>
+          <h1>DPS Tajcity Agra • Family Carbon Footprint Check</h1>
+          <p class="sub">Parents edition • 15 questions • practical improvement plan</p>
         </div>
       </div>
     </header>
 
     <main class="card">
-      <!-- STEP 1: Profile -->
+      <!-- STEP 1 -->
       <section id="stepProfile">
         <h2>Parent Details</h2>
         <p class="hint">Please fill details and answer 15 questions. Your score will appear only at the end.</p>
@@ -47,7 +51,7 @@
         </div>
       </section>
 
-      <!-- STEP 2: Quiz -->
+      <!-- STEP 2 -->
       <section id="stepQuiz" style="display:none;">
         <div class="toprow">
           <div>
@@ -70,7 +74,7 @@
         </div>
       </section>
 
-      <!-- STEP 3: Results -->
+      <!-- STEP 3 -->
       <section id="stepResults" style="display:none;">
         <h2>Your Family Report</h2>
 
@@ -108,6 +112,6 @@
     </main>
   </div>
 
-  <script src="app.js?v=1" defer></script>
+  <script src="app.js?v=2" defer></script>
 </body>
 </html>
