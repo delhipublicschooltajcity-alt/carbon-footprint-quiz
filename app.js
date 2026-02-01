@@ -491,9 +491,10 @@ async function loadLeaderboard(){
     const podium = json.podium || [];
     const others = json.others || [];
 
+    // ✅ Render logically as 1,2,3
     const slots = [
-      {rank:2, cls:"silver", label:"🥈 2nd"},
       {rank:1, cls:"gold", label:"🥇 1st"},
+      {rank:2, cls:"silver", label:"🥈 2nd"},
       {rank:3, cls:"bronze", label:"🥉 3rd"},
     ];
 
@@ -505,12 +506,17 @@ async function loadLeaderboard(){
         const div = document.createElement("div");
         div.className = `pcard ${slt.cls}`;
         if(!p){
-          div.innerHTML = `<div class="rank">${slt.label}</div><div class="name">—</div><div class="cls">—</div><div class="score">—</div>`;
+          div.innerHTML = `
+            <div class="rank">${slt.label}</div>
+            <div class="name">—</div>
+            <div class="cls">—</div>
+            <div class="score">—</div>
+          `;
         } else {
           div.innerHTML = `
             <div class="rank">${slt.label}</div>
-            <div class="name">${esc(p.name)}</div>
-            <div class="cls">${esc(p.className)}</div>
+            <div class="name">${esc(p.name || "Anonymous")}</div>
+            <div class="cls">${esc(p.className || "-")}</div>
             <div class="score">${p.overall}</div>
           `;
         }
@@ -529,7 +535,9 @@ async function loadLeaderboard(){
       div.className = "lbrow";
       div.innerHTML = `
         <div><b>#${r.rank}</b></div>
-        <div>${esc(r.name)} • ${esc(r.className)} <span style="color:#a9b7d6;">• ${esc(r.badge || "")}</span></div>
+        <div>${esc(r.name || "Anonymous")} • ${esc(r.className || "-")}
+          <span style="color:#a9b7d6;">• ${esc(r.badge || "")}</span>
+        </div>
         <div style="text-align:right;"><b>${r.overall}</b></div>
       `;
       leaderboardEl.appendChild(div);
@@ -538,6 +546,7 @@ async function loadLeaderboard(){
     leaderboardEl.innerHTML = `<div class="status">❌ ${e.message}</div>`;
   }
 }
+
 
 function checkResume(){
   const ok = load();
