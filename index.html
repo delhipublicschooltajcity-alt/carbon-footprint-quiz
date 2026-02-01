@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+
   <div class="bgGlow"></div>
 
   <div class="app">
@@ -25,24 +26,27 @@
 
     <main class="card">
 
-      <!-- STEP 1 -->
+      <!-- STEP 1: PROFILE -->
       <section id="stepProfile">
         <h2>Parent Details</h2>
         <p class="hint">
           Please fill details and answer 15 questions. Your score will appear only at the end.
-        <span class="muted"><i>(Details are used only for the school survey)</i></span>
+          <span class="muted"><i>(Details are used only for the school survey)</i></span>
         </p>
 
         <div class="grid">
           <label>Parent Name
             <input id="parentName" type="text" placeholder="e.g., Rahul Sharma" />
           </label>
+
           <label>Phone Number
             <input id="phone" type="tel" placeholder="e.g., 98XXXXXXXX" />
           </label>
+
           <label class="full">Address
             <input id="address" type="text" placeholder="e.g., Tajganj, Agra" />
           </label>
+
           <label>Child Class / Section (format: 6-B)
             <input id="childClass" type="text" placeholder="e.g., 6-B" />
           </label>
@@ -54,7 +58,7 @@
         </div>
       </section>
 
-      <!-- STEP 2 -->
+      <!-- STEP 2: QUIZ -->
       <section id="stepQuiz" style="display:none;">
         <div class="toprow">
           <div>
@@ -64,7 +68,9 @@
           </div>
 
           <div class="progress">
-            <div class="bar"><div class="fill" id="progFill"></div></div>
+            <div class="bar">
+              <div class="fill" id="progFill"></div>
+            </div>
             <div class="pct" id="progText"></div>
           </div>
         </div>
@@ -77,7 +83,7 @@
         </div>
       </section>
 
-      <!-- STEP 3 -->
+      <!-- STEP 3: RESULTS -->
       <section id="stepResults" style="display:none;">
         <h2>Your Family Report</h2>
 
@@ -107,9 +113,9 @@
         <hr />
 
         <h3>🏆 Leaderboard</h3>
-
         <div class="leaderboard" id="leaderboard"></div>
       </section>
+
     </main>
   </div>
 
