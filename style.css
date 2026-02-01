@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DPS Tajcity Agra • Carbon Footprint Check</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bgGlow"></div>
+
+  <div class="app">
+    <header class="header">
+      <div class="brand">
+        <img class="schoolLogo" src="dps-logo.jpg" alt="DPS Tajcity Logo">
+        <div>
+          <h1>Delhi Public School Tajcity, Agra</h1>
+          <p class="sub">Family Carbon Footprint Check • 15 questions • practical next steps</p>
+        </div>
+      </div>
+    </header>
+
+    <main class="card">
+      <!-- STEP 1: Profile -->
+      <section id="stepProfile">
+        <h2>Parent Details</h2>
+        <p class="hint">Please fill details and answer 15 questions. Your score will appear only at the end.</p>
+
+        <div class="grid">
+          <label>Parent Name
+            <input id="parentName" type="text" placeholder="e.g., Rahul Sharma" />
+          </label>
+          <label>Phone Number
+            <input id="phone" type="tel" placeholder="e.g., 98XXXXXXXX" />
+          </label>
+          <label class="full">Address
+            <input id="address" type="text" placeholder="e.g., Tajganj, Agra" />
+          </label>
+          <label>Child Class / Section
+            <input id="childClass" type="text" placeholder="e.g., 6-B" />
+          </label>
+        </div>
+
+        <div class="row">
+          <button class="btn" id="btnStart">Start →</button>
+          <button class="btn ghost" id="btnResume" style="display:none;">Resume</button>
+        </div>
+      </section>
+
+      <!-- STEP 2: Quiz -->
+      <section id="stepQuiz" style="display:none;">
+        <div class="toprow">
+          <div>
+            <div class="pill" id="arenaPill"></div>
+            <div class="qtitle" id="qText"></div>
+            <div class="qsub" id="qSub"></div>
+          </div>
+
+          <div class="progress">
+            <div class="bar"><div class="fill" id="progFill"></div></div>
+            <div class="pct" id="progText"></div>
+          </div>
+        </div>
+
+        <div class="options" id="options"></div>
+
+        <div class="nav">
+          <button class="btn ghost" id="btnBack">← Back</button>
+          <button class="btn" id="btnNext" disabled>Next →</button>
+        </div>
+      </section>
+
+      <!-- STEP 3: Results -->
+      <section id="stepResults" style="display:none;">
+        <h2>Your Family Report</h2>
+
+        <div class="scoreRow">
+          <div class="bigScore">
+            <div class="score" id="overallScore">0</div>
+            <div class="badge" id="badgeText">—</div>
+            <div class="small" id="whereYouAre">—</div>
+          </div>
+
+          <div class="arenaScores" id="arenaScores"></div>
+        </div>
+
+        <div class="insights">
+          <h3>Agra next steps (what to do, what to avoid, and what to do next)</h3>
+          <div id="recommendations" class="recText"></div>
+        </div>
+
+        <div class="actions">
+          <button class="btn" id="btnSubmit">Submit</button>
+          <button class="btn ghost" id="btnRestart">Restart</button>
+          <button class="btn ghost" id="btnRefreshLB">Refresh Leaderboard</button>
+        </div>
+
+        <p class="status" id="submitStatus"></p>
+
+        <hr />
+
+        <h3>🏆 Leaderboard</h3>
+        <div class="podium" id="podium"></div>
+
+        <h4 class="othersTitle">Others</h4>
+        <div class="leaderboard" id="leaderboard"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js?v=1" defer></script>
+</body>
+</html>
