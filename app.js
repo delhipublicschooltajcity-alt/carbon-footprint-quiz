@@ -66,10 +66,10 @@ const QUIZ = [
     {label:"6+ hours", pts:1, note:"High usage"},
   ]},
   { arena:"devices", pill:"📱 Devices", tip:"Reuse reduces new manufacturing emissions.", text:"Old electronics are usually…", options:[
-    {label:"Reused / repaired / donated", pts:5, note:"Best option"},
-    {label:"Sent to e-waste recycler", pts:4, note:"Safe disposal"},
-    {label:"Kept unused at home", pts:2, note:"Try donate/recycle"},
-    {label:"Thrown with regular waste", pts:1, note:"Avoid"},
+    {label:"Reuse / repair / donate", pts:5, note:"Best option"},
+    {label:"Send to e-waste recycler", pts:4, note:"Safe disposal"},
+    {label:"Keep unused at home", pts:2, note:"Try donate/recycle"},
+    {label:"Throw with regular waste", pts:1, note:"Avoid"},
   ]},
 
   { arena:"food", pill:"🍲 Food", tip:"Food waste creates avoidable emissions.", text:"How often does food get wasted at home?", options:[
@@ -195,27 +195,64 @@ function stripHtml(html){
   return tmp.textContent || tmp.innerText || "";
 }
 
+/* ✅ UPDATED: Recommendations now use "City context" and bullet pointers.
+   ✅ No "Agra next steps" text.
+   ✅ No "Complete all questions..." fallback when score is very high.
+*/
 function buildRecommendations({ overall, arenaScores, chosen }){
   const band = scoreBand(overall);
+
   const sorted = Object.entries(arenaScores).sort((a,b)=>a[1]-b[1]);
   const weakest = sorted[0]?.[0];
   const second = sorted[1]?.[0];
 
-  const worst = chosen.slice().sort((a,b)=>a.pts-b.pts).slice(0,4);
-  const specific = [];
+  const worst = chosen.slice().sort((a,b)=>a.pts-b.pts);
 
+  const specific = [];
   worst.forEach(w => {
-    if (w.q.includes("go to school") && w.label.includes("Private car")) specific.push("Try school bus or a consistent carpool for at least 3 days a week—this is usually the biggest quick win.");
-    if (w.q.includes("waiting near school") && (w.label.includes("Mostly") || w.label.includes("Sometimes"))) specific.push("Switch off the engine while waiting near the school gate. It reduces local exhaust where children gather.");
-    if (w.q.includes("temperature") && (w.label.includes("Below") || w.label.includes("Not sure"))) specific.push("For summer cooling, keep AC around 26°C and use a fan first. It’s a simple habit that reduces electricity use.");
-    if (w.q.includes("lighting") && w.label.includes("old")) specific.push("Replace the most-used room bulbs with LED first—fast, visible improvement.");
-    if (w.q.includes("food get wasted") && w.label.includes("Often")) specific.push("Plan portions and keep one “leftover meal” day each week to cut food waste.");
-    if (w.q.includes("segregate") && (w.label.includes("No") || w.label.includes("Sometimes"))) specific.push("Start waste segregation with two bins (wet/dry). It improves recycling and reduces landfill load.");
-    if (w.q.includes("Single-use plastic") && w.label.includes("Often")) specific.push("Keep a cloth bag in your vehicle and carry a steel bottle to reduce single-use plastic.");
+    if (w.pts > 3) return;
+
+    if (w.q.includes("go to school") && w.label.includes("Private car")) {
+      specific.push("School commute: Try school bus or a consistent carpool 3 days/week instead of private car.");
+    }
+    if (w.q.includes("waiting near school") && (w.label.includes("Mostly") || w.label.includes("Sometimes"))) {
+      specific.push("School gate queue: Switch off the engine during waiting to reduce local exhaust exposure.");
+    }
+    if (w.q.includes("service + tyre") && (w.label.includes("Occasional") || w.label.includes("Rare"))) {
+      specific.push("Vehicle efficiency: Maintain tyre pressure + regular service to improve mileage and reduce fuel burn.");
+    }
+    if (w.q.includes("temperature") && (w.label.includes("Below") || w.label.includes("Not sure"))) {
+      specific.push("Cooling: Set AC around 26°C and use fan first—lower settings increase electricity use sharply.");
+    }
+    if (w.q.includes("lighting") && w.label.includes("old")) {
+      specific.push("Lighting: Replace the most-used room bulbs with LED first—fastest visible improvement.");
+    }
+    if (w.q.includes("screen time") && (w.label.includes("4–6") || w.label.includes("6+"))) {
+      specific.push("Screen time: Reduce background screens (TV on without watching). It improves health and cuts power use.");
+    }
+    if (w.q.includes("Old electronics") && w.label.includes("Keep unused")) {
+      specific.push("Old devices: Donate/reuse/recycle instead of storing unused at home (reduces e-waste and new manufacturing demand).");
+    }
+    if (w.q.includes("food get wasted") && (w.label.includes("Sometimes") || w.label.includes("Often"))) {
+      specific.push("Food waste: Plan portions and keep one “leftover meal” day weekly to avoid unnecessary waste.");
+    }
+    if (w.q.includes("segregate") && (w.label.includes("No") || w.label.includes("Sometimes"))) {
+      specific.push("Waste segregation: Start daily wet/dry separation with two bins—improves recycling and reduces landfill load.");
+    }
+    if (w.q.includes("Single-use plastic") && (w.label.includes("Sometimes") || w.label.includes("Often"))) {
+      specific.push("Single-use plastic: Keep a cloth bag in your vehicle and carry a reusable bottle.");
+    }
   });
 
-  const agraContext = `
-    <p><b>City context:</b> Around school hours and busy market areas, traffic queues are common. Avoidable idling and short private-car trips increase local emissions. Summers also increase electricity load due to cooling—so commuting habits, sensible cooling, and waste routines usually give the biggest realistic improvement for families here.</p>
+  const uniqueSpecific = [...new Set(specific)];
+
+  const cityContext = `
+    <p><b>City context</b></p>
+    <ul>
+      <li><b>School-hour queues</b> and market traffic often lead to idling—this adds avoidable emissions near pedestrians.</li>
+      <li><b>Summer heat</b> increases home electricity load due to cooling (fans/AC).</li>
+      <li><b>Daily routines</b> like shared commuting, efficient cooling, and waste segregation give the biggest realistic impact for families.</li>
+    </ul>
   `;
 
   const doByArena = {
@@ -257,11 +294,11 @@ function buildRecommendations({ overall, arenaScores, chosen }){
     ],
     devices: [
       "Avoid throwing e-waste with regular garbage.",
-      "Avoid charging devices overnight unnecessarily."
+      "Avoid leaving chargers plugged in 24/7."
     ],
     food: [
       "Avoid cooking extra that often gets wasted.",
-      "Avoid packaged/imported items when local seasonal options are available."
+      "Avoid frequent packaged/over-processed foods when fresh options are available."
     ],
     waste: [
       "Avoid mixing wet and dry waste—it reduces recycling.",
@@ -271,41 +308,113 @@ function buildRecommendations({ overall, arenaScores, chosen }){
 
   const nextStepsByTier = (s) => {
     if (s >= 90) return [
-      "Maintain your best habits and help one more family improve (carpool/LED/waste segregation).",
-      "Track one routine for 14 days (engine-off waiting or 2-bin segregation) and keep it consistent."
+      "Maintain consistency and help one more family improve (carpool/LED/waste segregation).",
+      "Track one habit for 14 days (engine-off waiting OR wet/dry segregation) and make it automatic."
     ];
     if (s >= 75) return [
       "Pick 2 upgrades: engine-off waiting + LED replacement in one high-use room.",
-      "Add one weekly habit: leftover-meal day or plastic-free market routine."
+      "Add one weekly habit: leftover-meal day or a plastic-free market routine."
     ];
     if (s >= 60) return [
-      "This week: choose 2 quick habits (carpool twice + switch off plugs at night).",
-      "Next 2 weeks: add one upgrade (LED replacement or waste segregation)."
+      "This week: choose 2 habits (carpool twice + switch off plugs at night).",
+      "Next 2 weeks: add one upgrade (LED replacement or consistent waste segregation)."
     ];
     if (s >= 45) return [
-      "Start with 2 simplest wins: engine-off waiting and LED in the most-used room.",
-      "Add waste segregation (wet/dry) within 7 days."
+      "Start with 2 easiest wins: engine-off waiting + LED in the most-used room.",
+      "Add wet/dry waste separation within 7 days."
     ];
     return [
-      "This week: lock two habits—engine-off waiting + 2-bin waste segregation.",
-      "Next 2 weeks: reduce short private-car trips and set a cooling routine (fan first, 26°C)."
+      "This week: lock 2 habits—engine-off waiting + wet/dry waste segregation.",
+      "Next 2 weeks: reduce short private-car trips and follow fan-first + 26°C cooling routine."
     ];
   };
 
-  const doList = [...(doByArena[weakest]||[]).slice(0,2), ...((doByArena[second]||[]).slice(0,1))].filter(Boolean);
+  const doList = [
+    ...(doByArena[weakest] || []).slice(0,2),
+    ...((doByArena[second] || []).slice(0,1))
+  ].filter(Boolean);
+
   const avoidList = (avoidByArena[weakest] || []).slice(0,2);
   const nextSteps = nextStepsByTier(overall);
 
-  const intro = `<p><b>${band.badge}:</b> ${band.where}</p>${agraContext}`;
-  const quick = specific.length
-    ? `<p><b>Your easiest improvements (based on your answers):</b></p><ul>${specific.slice(0,4).map(x=>`<li>${x}</li>`).join("")}</ul>`
-    : `<p><b>Your easiest improvements:</b> Complete all questions to unlock specific guidance.</p>`;
+  const title = `<p><b>Next steps (what to do, what to avoid, and what to do next)</b></p>`;
+  const intro = `<p><b>${band.badge}:</b> ${band.where}</p>`;
 
-  return intro
-    + quick
-    + `<p><b>What to do next:</b></p><ul>${doList.map(x=>`<li>${x}</li>`).join("")}</ul>`
-    + `<p><b>What to avoid:</b></p><ul>${avoidList.map(x=>`<li>${x}</li>`).join("")}</ul>`
-    + `<p><b>Next steps:</b></p><ul>${nextSteps.map(x=>`<li>${x}</li>`).join("")}</ul>`;
+  let easyBlock = "";
+  if (uniqueSpecific.length === 0) {
+    if (overall >= 95) {
+      easyBlock = `
+        <p><b>Your easiest improvements</b></p>
+        <ul>
+          <li>You’re already doing very well. Focus on <b>maintaining consistency</b> and <b>influencing others</b> (carpool, LED, segregation).</li>
+        </ul>
+      `;
+    } else {
+      easyBlock = `
+        <p><b>Your easiest improvements</b></p>
+        <ul>
+          <li>Your answers look strong overall. The fastest gains usually come from <b>commute habits</b>, <b>AC setpoint</b>, and <b>waste segregation</b>.</li>
+        </ul>
+      `;
+    }
+  } else {
+    easyBlock = `
+      <p><b>Your easiest improvements (based on your answers)</b></p>
+      <ul>${uniqueSpecific.slice(0,5).map(x=>`<li>${x}</li>`).join("")}</ul>
+    `;
+  }
+
+  const doHtml = `<p><b>What to do next</b></p><ul>${doList.map(x=>`<li>${x}</li>`).join("")}</ul>`;
+  const avoidHtml = `<p><b>What to avoid</b></p><ul>${avoidList.map(x=>`<li>${x}</li>`).join("")}</ul>`;
+  const stepsHtml = `<p><b>Next steps</b></p><ul>${nextSteps.map(x=>`<li>${x}</li>`).join("")}</ul>`;
+
+  return title + intro + cityContext + easyBlock + doHtml + avoidHtml + stepsHtml;
+}
+
+async function submitToSheet(){
+  submitStatus.textContent = "Submitting...";
+  btnSubmit.disabled = true;
+
+  const { overall, arenaScores, chosen } = calcScores();
+  const band = scoreBand(overall);
+  const recHTML = buildRecommendations({ overall, arenaScores, chosen });
+
+  state.recommendationsHTML = recHTML;
+  save();
+
+  const payload = {
+    parentName: state.profile.parentName,
+    phone: state.profile.phone,
+    address: state.profile.address,
+    childClass: state.profile.childClass,
+    scores: {
+      overall,
+      transport: arenaScores.transport,
+      home: arenaScores.home,
+      devices: arenaScores.devices,
+      food: arenaScores.food,
+      waste: arenaScores.waste
+    },
+    badgeLabel: band.badge,
+    recommendationsText: stripHtml(recHTML),
+    answers: buildAnswerPayload()
+  };
+
+  try{
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+    const json = await res.json();
+    if(!json.ok) throw new Error(json.error || "Submit failed");
+    submitStatus.textContent = "✅ Submitted. Refreshing leaderboard...";
+    await loadLeaderboard();
+  }catch(e){
+    submitStatus.textContent = `❌ Submit failed: ${e.message}`;
+  }finally{
+    btnSubmit.disabled = false;
+  }
 }
 
 function renderQuestion(){
@@ -363,46 +472,32 @@ function renderResults(){
   save();
 }
 
-async function submitToSheet(){
-  submitStatus.textContent = "Submitting...";
-  btnSubmit.disabled = true;
+function saveProfileOrAlert(){
+  const parentName = parentNameEl.value.trim();
+  const phone = phoneEl.value.trim();
+  const address = addressEl.value.trim();
+  const childClass = childClassEl.value.trim();
 
-  const { overall, arenaScores } = calcScores();
-  const band = scoreBand(overall);
-
-  const payload = {
-    parentName: state.profile.parentName,
-    phone: state.profile.phone,
-    address: state.profile.address,
-    childClass: state.profile.childClass,
-    scores: {
-      overall,
-      transport: arenaScores.transport,
-      home: arenaScores.home,
-      devices: arenaScores.devices,
-      food: arenaScores.food,
-      waste: arenaScores.waste
-    },
-    badgeLabel: band.badge,
-    recommendationsText: stripHtml(state.recommendationsHTML || ""),
-    answers: buildAnswerPayload()
-  };
-
-  try{
-    const res = await fetch(APPS_SCRIPT_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(payload)
-    });
-    const json = await res.json();
-    if(!json.ok) throw new Error(json.error || "Submit failed");
-    submitStatus.textContent = "✅ Submitted. Refreshing leaderboard...";
-    await loadLeaderboard();
-  }catch(e){
-    submitStatus.textContent = `❌ Submit failed: ${e.message}`;
-  }finally{
-    btnSubmit.disabled = false;
+  if(!parentName || !phone || !address || !childClass){
+    alert("Please fill Parent Name, Phone, Address, and Child Class.");
+    return null;
   }
+  return { parentName, phone, address, childClass };
+}
+
+function buildAnswerPayload(){
+  const out = {};
+  QUIZ.forEach((q, qi) => {
+    const pick = state.answers[qi];
+    out[`Q${qi+1} (${q.arena})`] = (pick !== undefined) ? q.options[pick].label : "";
+  });
+  return out;
+}
+
+function stripHtml(html){
+  const tmp = document.createElement("div");
+  tmp.innerHTML = html || "";
+  return tmp.textContent || tmp.innerText || "";
 }
 
 function esc(s){
@@ -489,17 +584,10 @@ function checkResume(){
 }
 
 btnStart.onclick = () => {
-  const parentName = parentNameEl.value.trim();
-  const phone = phoneEl.value.trim();
-  const address = addressEl.value.trim();
-  const childClass = childClassEl.value.trim();
+  const profile = saveProfileOrAlert();
+  if(!profile) return;
 
-  if(!parentName || !phone || !address || !childClass){
-    alert("Please fill Parent Name, Phone, Address, and Child Class.");
-    return;
-  }
-
-  state.profile = { parentName, phone, address, childClass };
+  state.profile = profile;
   state.index = 0;
   state.answers = {};
   save();
