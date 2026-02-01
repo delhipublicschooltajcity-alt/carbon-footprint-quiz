@@ -1,113 +1,216 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>DPS Tajcity Agra • Carbon Footprint Check</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div class="bgGlow"></div>
+:root{
+  --bg:#070b16;
+  --muted:#a9b7d6;
+  --text:#eef3ff;
+  --accent:#4ade80;
+  --accent2:#60a5fa;
+}
 
-  <div class="app">
-    <header class="header">
-      <div class="brand">
-        <img class="schoolLogo" src="dps-logo.jpg" alt="DPS Tajcity Logo">
-        <div>
-          <h1>Delhi Public School Tajcity, Agra</h1>
-          <p class="sub">Family Carbon Footprint Check • 15 questions • practical next steps</p>
-        </div>
-      </div>
-    </header>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  background: radial-gradient(1200px 900px at 15% 0%, #0f2a66, var(--bg));
+  color:var(--text);
+  overflow-x:hidden;
+}
 
-    <main class="card">
-      <!-- STEP 1: Profile -->
-      <section id="stepProfile">
-        <h2>Parent Details</h2>
-        <p class="hint">Please fill details and answer 15 questions. Your score will appear only at the end.</p>
+.bgGlow{
+  position:fixed; inset:-200px;
+  background: radial-gradient(700px 500px at 70% 20%, rgba(74,222,128,.16), transparent 60%),
+              radial-gradient(700px 500px at 20% 70%, rgba(96,165,250,.18), transparent 60%);
+  filter: blur(20px);
+  pointer-events:none;
+  z-index:-1;
+}
 
-        <div class="grid">
-          <label>Parent Name
-            <input id="parentName" type="text" placeholder="e.g., Rahul Sharma" />
-          </label>
-          <label>Phone Number
-            <input id="phone" type="tel" placeholder="e.g., 98XXXXXXXX" />
-          </label>
-          <label class="full">Address
-            <input id="address" type="text" placeholder="e.g., Tajganj, Agra" />
-          </label>
-          <label>Child Class / Section
-            <input id="childClass" type="text" placeholder="e.g., 6-B" />
-          </label>
-        </div>
+.app{max-width:980px;margin:0 auto;padding:26px}
 
-        <div class="row">
-          <button class="btn" id="btnStart">Start →</button>
-          <button class="btn ghost" id="btnResume" style="display:none;">Resume</button>
-        </div>
-      </section>
+.header .brand{display:flex;gap:14px;align-items:center}
 
-      <!-- STEP 2: Quiz -->
-      <section id="stepQuiz" style="display:none;">
-        <div class="toprow">
-          <div>
-            <div class="pill" id="arenaPill"></div>
-            <div class="qtitle" id="qText"></div>
-            <div class="qsub" id="qSub"></div>
-          </div>
+/* ✅ globe replaced by logo but fixed size */
+.appIconWrap{
+  width:44px;
+  height:44px;
+  border-radius:14px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow: 0 12px 30px rgba(0,0,0,.30);
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.appIcon{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
 
-          <div class="progress">
-            <div class="bar"><div class="fill" id="progFill"></div></div>
-            <div class="pct" id="progText"></div>
-          </div>
-        </div>
+.header h1{margin:0;font-size:28px;font-weight:900}
+.sub{margin:6px 0 0;color:var(--muted);font-weight:600}
 
-        <div class="options" id="options"></div>
+.card{
+  margin-top:14px;
+  background: rgba(14,22,48,.86);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 18px 50px rgba(0,0,0,.28);
+}
 
-        <div class="nav">
-          <button class="btn ghost" id="btnBack">← Back</button>
-          <button class="btn" id="btnNext" disabled>Next →</button>
-        </div>
-      </section>
+h2{margin:0 0 8px;font-size:22px}
+.hint{margin:0 0 12px;color:var(--muted)}
 
-      <!-- STEP 3: Results -->
-      <section id="stepResults" style="display:none;">
-        <h2>Your Family Report</h2>
+.grid{display:grid;grid-template-columns: 1fr 1fr;gap:12px;margin:12px 0}
+label{display:flex;flex-direction:column;gap:6px;color:var(--muted);font-size:13px}
+label.full{grid-column:1 / -1}
+input{
+  padding: 11px 12px;
+  border-radius: 12px;
+  border:1px solid rgba(255,255,255,.12);
+  background:#0a1126;
+  color:var(--text);
+  outline:none;
+}
+input:focus{border-color: rgba(96,165,250,.55); box-shadow: 0 0 0 4px rgba(96,165,250,.12)}
 
-        <div class="scoreRow">
-          <div class="bigScore">
-            <div class="score" id="overallScore">0</div>
-            <div class="badge" id="badgeText">—</div>
-            <div class="small" id="whereYouAre">—</div>
-          </div>
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 
-          <div class="arenaScores" id="arenaScores"></div>
-        </div>
+.btn{
+  border:0;border-radius:14px;
+  padding: 10px 14px;
+  background: linear-gradient(90deg, var(--accent2), var(--accent));
+  color:#04121e;
+  font-weight:900;
+  cursor:pointer;
+}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.ghost{
+  background: transparent;
+  border:1px solid rgba(255,255,255,.18);
+  color:var(--text);
+}
 
-        <div class="insights">
-          <h3>Agra next steps (what to do, what to avoid, and what to do next)</h3>
-          <div id="recommendations" class="recText"></div>
-        </div>
+.toprow{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
+.pill{
+  display:inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(96,165,250,.14);
+  border:1px solid rgba(96,165,250,.30);
+  font-weight:900;
+  font-size:12px;
+}
+.qtitle{margin-top:10px;font-size:19px;font-weight:900}
+.qsub{margin-top:6px;color:var(--muted);font-size:13px}
 
-        <div class="actions">
-          <button class="btn" id="btnSubmit">Submit</button>
-          <button class="btn ghost" id="btnRestart">Restart</button>
-          <button class="btn ghost" id="btnRefreshLB">Refresh Leaderboard</button>
-        </div>
+.progress{min-width:240px}
+.bar{height:10px;border-radius:999px;background: rgba(255,255,255,.10);overflow:hidden}
+.fill{height:100%;width:0%;background: linear-gradient(90deg, var(--accent2), var(--accent))}
+.pct{margin-top:6px;color:var(--muted);font-size:12px;text-align:right}
 
-        <p class="status" id="submitStatus"></p>
+.options{margin:14px 0;display:grid;gap:10px}
+.opt{
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(10,17,38,.72);
+  cursor:pointer;
+  transition: transform .06s ease, border-color .12s ease;
+}
+.opt:hover{transform: translateY(-1px); border-color: rgba(255,255,255,.20)}
+.opt.selected{border-color: rgba(74,222,128,.70); box-shadow: 0 0 0 3px rgba(74,222,128,.14) inset}
+.opt .o1{font-weight:900}
+.opt .o2{color:var(--muted);font-size:13px;margin-top:6px}
 
-        <hr />
+.nav{display:flex;justify-content:space-between;gap:12px}
 
-        <h3>🏆 Leaderboard</h3>
-        <div class="podium" id="podium"></div>
+.scoreRow{display:flex;gap:14px;align-items:stretch;flex-wrap:wrap}
+.bigScore{
+  flex:0 0 260px;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.10);
+}
+.score{font-size:58px;font-weight:950;line-height:1}
+.badge{
+  margin-top:10px;
+  display:inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(74,222,128,.14);
+  border:1px solid rgba(74,222,128,.28);
+  font-weight:900;
+}
+.small{margin-top:8px;color:var(--muted);font-size:13px}
 
-        <h4 class="othersTitle">Others</h4>
-        <div class="leaderboard" id="leaderboard"></div>
-      </section>
-    </main>
-  </div>
+.arenaScores{flex:1;display:grid;grid-template-columns: 1fr 1fr;gap:10px;min-width:260px}
+.box{
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.10);
+}
+.box .k{color:var(--muted);font-size:12px;font-weight:800}
+.box .v{font-size:22px;font-weight:950}
 
-  <script src="app.js?v=1" defer></script>
-</body>
-</html>
+.insights{
+  margin-top:14px;
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.10);
+}
+.recText{line-height:1.6}
+.recText p{margin:10px 0}
+.recText ul{margin:8px 0 0 20px}
+.recText li{margin:6px 0}
+
+.actions{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap}
+.status{color:var(--muted)}
+
+.podium{
+  display:grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap:10px;
+  margin-top:10px;
+}
+.pcard{
+  border-radius: 16px;
+  padding: 12px;
+  background: rgba(10,17,38,.72);
+  border:1px solid rgba(255,255,255,.12);
+  text-align:center;
+}
+.pcard .rank{font-weight:950;font-size:14px;color:var(--muted)}
+.pcard .name{margin-top:6px;font-weight:900}
+.pcard .cls{margin-top:4px;color:var(--muted);font-size:12px}
+.pcard .score{margin-top:10px;font-size:26px;font-weight:950}
+
+.pcard.gold{border-color: rgba(255,215,0,.28)}
+.pcard.silver{border-color: rgba(192,192,192,.28)}
+.pcard.bronze{border-color: rgba(205,127,50,.28)}
+
+.othersTitle{margin:14px 0 6px;color:var(--muted);font-weight:900}
+
+.leaderboard{display:grid;gap:8px}
+.lbrow{
+  display:grid;
+  grid-template-columns: 60px 1fr 90px;
+  gap:10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(10,17,38,.72);
+  border:1px solid rgba(255,255,255,.10);
+}
+
+@media (max-width: 720px){
+  .grid{grid-template-columns:1fr}
+  .toprow{flex-direction:column}
+  .arenaScores{grid-template-columns:1fr}
+  .podium{grid-template-columns:1fr}
+  .lbrow{grid-template-columns: 50px 1fr 80px}
+}
