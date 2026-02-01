@@ -105,7 +105,7 @@ const QUIZ = [
   ]},
 ];
 
-let state = { profile:{ parentName:"",phone:"",address:"",childClass:"" }, index:0, answers:{} };
+let state = { profile:{ parentName:"",phone:"",address:"",childClass:"" }, index:0, answers:{}, _submittedOnce:false };
 
 const el = (id) => document.getElementById(id);
 const stepProfile = el("stepProfile");
@@ -134,7 +134,6 @@ const whereYouAreEl = el("whereYouAre");
 const arenaScoresEl = el("arenaScores");
 const recommendationsEl = el("recommendations");
 
-const btnSubmit = el("btnSubmit");
 const btnRestart = el("btnRestart");
 const btnRefreshLB = el("btnRefreshLB");
 const submitStatus = el("submitStatus");
@@ -195,13 +194,8 @@ function stripHtml(html){
   return tmp.textContent || tmp.innerText || "";
 }
 
-/* ✅ UPDATED: Recommendations now use "City context" and bullet pointers.
-   ✅ No "Agra next steps" text.
-   ✅ No "Complete all questions..." fallback when score is very high.
-*/
 function buildRecommendations({ overall, arenaScores, chosen }){
   const band = scoreBand(overall);
-
   const sorted = Object.entries(arenaScores).sort((a,b)=>a[1]-b[1]);
   const weakest = sorted[0]?.[0];
   const second = sorted[1]?.[0];
@@ -212,36 +206,16 @@ function buildRecommendations({ overall, arenaScores, chosen }){
   worst.forEach(w => {
     if (w.pts > 3) return;
 
-    if (w.q.includes("go to school") && w.label.includes("Private car")) {
-      specific.push("School commute: Try school bus or a consistent carpool 3 days/week instead of private car.");
-    }
-    if (w.q.includes("waiting near school") && (w.label.includes("Mostly") || w.label.includes("Sometimes"))) {
-      specific.push("School gate queue: Switch off the engine during waiting to reduce local exhaust exposure.");
-    }
-    if (w.q.includes("service + tyre") && (w.label.includes("Occasional") || w.label.includes("Rare"))) {
-      specific.push("Vehicle efficiency: Maintain tyre pressure + regular service to improve mileage and reduce fuel burn.");
-    }
-    if (w.q.includes("temperature") && (w.label.includes("Below") || w.label.includes("Not sure"))) {
-      specific.push("Cooling: Set AC around 26°C and use fan first—lower settings increase electricity use sharply.");
-    }
-    if (w.q.includes("lighting") && w.label.includes("old")) {
-      specific.push("Lighting: Replace the most-used room bulbs with LED first—fastest visible improvement.");
-    }
-    if (w.q.includes("screen time") && (w.label.includes("4–6") || w.label.includes("6+"))) {
-      specific.push("Screen time: Reduce background screens (TV on without watching). It improves health and cuts power use.");
-    }
-    if (w.q.includes("Old electronics") && w.label.includes("Keep unused")) {
-      specific.push("Old devices: Donate/reuse/recycle instead of storing unused at home (reduces e-waste and new manufacturing demand).");
-    }
-    if (w.q.includes("food get wasted") && (w.label.includes("Sometimes") || w.label.includes("Often"))) {
-      specific.push("Food waste: Plan portions and keep one “leftover meal” day weekly to avoid unnecessary waste.");
-    }
-    if (w.q.includes("segregate") && (w.label.includes("No") || w.label.includes("Sometimes"))) {
-      specific.push("Waste segregation: Start daily wet/dry separation with two bins—improves recycling and reduces landfill load.");
-    }
-    if (w.q.includes("Single-use plastic") && (w.label.includes("Sometimes") || w.label.includes("Often"))) {
-      specific.push("Single-use plastic: Keep a cloth bag in your vehicle and carry a reusable bottle.");
-    }
+    if (w.q.includes("go to school") && w.label.includes("Private car")) specific.push("School commute: Try school bus or a consistent carpool 3 days/week instead of private car.");
+    if (w.q.includes("waiting near school") && (w.label.includes("Mostly") || w.label.includes("Sometimes"))) specific.push("School gate queue: Switch off the engine during waiting to reduce local exhaust exposure.");
+    if (w.q.includes("service + tyre") && (w.label.includes("Occasional") || w.label.includes("Rare"))) specific.push("Vehicle efficiency: Maintain tyre pressure + regular service to improve mileage and reduce fuel burn.");
+    if (w.q.includes("temperature") && (w.label.includes("Below") || w.label.includes("Not sure"))) specific.push("Cooling: Set AC around 26°C and use fan first—lower settings increase electricity use sharply.");
+    if (w.q.includes("lighting") && w.label.includes("old")) specific.push("Lighting: Replace the most-used room bulbs with LED first—fastest visible improvement.");
+    if (w.q.includes("screen time") && (w.label.includes("4–6") || w.label.includes("6+"))) specific.push("Screen time: Reduce background screens (TV on without watching). It improves health and cuts power use.");
+    if (w.q.includes("Old electronics") && w.label.includes("Keep unused")) specific.push("Old devices: Donate/reuse/recycle instead of storing unused at home (reduces e-waste and new manufacturing demand).");
+    if (w.q.includes("food get wasted") && (w.label.includes("Sometimes") || w.label.includes("Often"))) specific.push("Food waste: Plan portions and keep one “leftover meal” day weekly to avoid unnecessary waste.");
+    if (w.q.includes("segregate") && (w.label.includes("No") || w.label.includes("Sometimes"))) specific.push("Waste segregation: Start daily wet/dry separation with two bins—improves recycling and reduces landfill load.");
+    if (w.q.includes("Single-use plastic") && (w.label.includes("Sometimes") || w.label.includes("Often"))) specific.push("Single-use plastic: Keep a cloth bag in your vehicle and carry a reusable bottle.");
   });
 
   const uniqueSpecific = [...new Set(specific)];
@@ -372,8 +346,12 @@ function buildRecommendations({ overall, arenaScores, chosen }){
 }
 
 async function submitToSheet(){
+  // ✅ prevent double submit
+  if (state._submittedOnce) return;
+
   submitStatus.textContent = "Submitting...";
-  btnSubmit.disabled = true;
+  state._submittedOnce = true;
+  save();
 
   const { overall, arenaScores, chosen } = calcScores();
   const band = scoreBand(overall);
@@ -408,12 +386,13 @@ async function submitToSheet(){
     });
     const json = await res.json();
     if(!json.ok) throw new Error(json.error || "Submit failed");
-    submitStatus.textContent = "✅ Submitted. Refreshing leaderboard...";
-    await loadLeaderboard();
+
+    submitStatus.textContent = "✅ Submitted. Leaderboard updated.";
   }catch(e){
-    submitStatus.textContent = `❌ Submit failed: ${e.message}`;
-  }finally{
-    btnSubmit.disabled = false;
+    submitStatus.textContent = `❌ Auto-submit failed: ${e.message}`;
+    // allow retry later
+    state._submittedOnce = false;
+    save();
   }
 }
 
@@ -483,21 +462,6 @@ function saveProfileOrAlert(){
     return null;
   }
   return { parentName, phone, address, childClass };
-}
-
-function buildAnswerPayload(){
-  const out = {};
-  QUIZ.forEach((q, qi) => {
-    const pick = state.answers[qi];
-    out[`Q${qi+1} (${q.arena})`] = (pick !== undefined) ? q.options[pick].label : "";
-  });
-  return out;
-}
-
-function stripHtml(html){
-  const tmp = document.createElement("div");
-  tmp.innerHTML = html || "";
-  return tmp.textContent || tmp.innerText || "";
 }
 
 function esc(s){
@@ -590,6 +554,7 @@ btnStart.onclick = () => {
   state.profile = profile;
   state.index = 0;
   state.answers = {};
+  state._submittedOnce = false; // ✅ reset submit state for new attempt
   save();
 
   show("quiz");
@@ -604,7 +569,7 @@ btnBack.onclick = () => {
   renderQuestion();
 };
 
-btnNext.onclick = () => {
+btnNext.onclick = async () => {
   if(state.answers[state.index] === undefined) return;
   state.index += 1;
   save();
@@ -612,24 +577,29 @@ btnNext.onclick = () => {
   if(state.index >= QUIZ.length){
     show("results");
     renderResults();
-    loadLeaderboard();
+
+    // ✅ Auto-submit and then refresh leaderboard
+    await submitToSheet();
+    await loadLeaderboard();
   } else {
     renderQuestion();
   }
 };
 
-btnSubmit.onclick = submitToSheet;
-
 btnRestart.onclick = () => {
   clearSave();
-  state = { profile:{ parentName:"",phone:"",address:"",childClass:"" }, index:0, answers:{} };
+  state = { profile:{ parentName:"",phone:"",address:"",childClass:"" }, index:0, answers:{}, _submittedOnce:false };
   parentNameEl.value = ""; phoneEl.value = ""; addressEl.value = ""; childClassEl.value = "";
   submitStatus.textContent = "";
   show("profile");
   checkResume();
 };
 
-btnRefreshLB.onclick = loadLeaderboard;
+btnRefreshLB.onclick = async () => {
+  // ✅ If submit failed earlier, this retries submit too
+  await submitToSheet();
+  await loadLeaderboard();
+};
 
 checkResume();
 show("profile");
