@@ -1,6 +1,7 @@
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwv6RkxDakPptLFkBntJx7Q9gZO_46ymanX-lctuh-rvvLKXXgv9lKLFitcmwZYTXsMjQ/exec";
-const LS_KEY = "dps_tajcity_cf_v5";
+const LS_KEY = "dps_tajcity_cf_v9";
 
+/* ---------------- Badge banding ---------------- */
 function scoreBand(overall){
   if (overall >= 90) return { badge:"🏆 Eco Champion", where:"Outstanding habits. You’re already low-footprint—now maintain consistency and inspire others." };
   if (overall >= 75) return { badge:"🌟 Green Leader", where:"Strong practices across categories. A few routine upgrades can make you even better." };
@@ -9,6 +10,7 @@ function scoreBand(overall){
   return { badge:"🚀 Ready for Change", where:"Big improvement potential. Pick just two habits this week and stick to them—results come fast." };
 }
 
+/* ---------------- Quiz structure ---------------- */
 const ARENAS = ["transport","home","devices","food","waste"];
 const LABEL = {
   transport:"🚗 Transport",
@@ -77,12 +79,12 @@ const QUIZ = [
     {label:"Sometimes", pts:3, note:"Plan portions + storage"},
     {label:"Often", pts:1, note:"Big improvement area"},
   ]},
-  { arena:"food", pill:"🍲 Food", tip:"Seasonal/local food usually needs less transport & cold storage.", text:"Your fruits/vegetables are mostly…", options:[
+  { arena:"food", pill:"🍲 Food", tip:"Seasonal/local food often needs less transport & storage.", text:"Your fruits/vegetables are mostly…", options:[
     {label:"Local + seasonal", pts:5, note:"Best choice"},
     {label:"Mixed", pts:3, note:"Try more seasonal/local"},
     {label:"Mostly packaged/imported", pts:1, note:"Higher footprint"},
   ]},
-  { arena:"food", pill:"🍲 Food", tip:"Covered cooking saves gas/electricity.", text:"Cooking habits are mostly…", options:[
+  { arena:"food", pill:"🍲 Food", tip:"Covered cooking saves fuel.", text:"Cooking habits are mostly…", options:[
     {label:"Pressure cooker / covered cooking often", pts:5, note:"Efficient"},
     {label:"Mixed", pts:3, note:"Can optimize"},
     {label:"Mostly open cooking for long time", pts:1, note:"Higher fuel use"},
@@ -105,7 +107,14 @@ const QUIZ = [
   ]},
 ];
 
-let state = { profile:{ parentName:"",phone:"",address:"",childClass:"" }, index:0, answers:{}, _submittedOnce:false };
+/* ---------------- State ---------------- */
+let state = {
+  profile:{ parentName:"",phone:"",address:"",childClass:"" },
+  index:0,
+  answers:{},
+  _submittedOnce:false,
+  submissionId:null
+};
 
 const el = (id) => document.getElementById(id);
 const stepProfile = el("stepProfile");
@@ -143,8 +152,12 @@ const leaderboardEl = el("leaderboard");
 
 function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
 function load(){
-  try{ const raw=localStorage.getItem(LS_KEY); if(!raw) return false; state=JSON.parse(raw); return true; }
-  catch{ return false; }
+  try{
+    const raw=localStorage.getItem(LS_KEY);
+    if(!raw) return false;
+    state=JSON.parse(raw);
+    return true;
+  }catch{ return false; }
 }
 function clearSave(){ localStorage.removeItem(LS_KEY); }
 
@@ -152,6 +165,28 @@ function show(which){
   stepProfile.style.display = which==="profile" ? "block" : "none";
   stepQuiz.style.display = which==="quiz" ? "block" : "none";
   stepResults.style.display = which==="results" ? "block" : "none";
+}
+
+function esc(s){
+  return String(s||"")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function stripHtml(html){
+  const tmp = document.createElement("div");
+  tmp.innerHTML = html || "";
+  return tmp.textContent || tmp.innerText || "";
+}
+
+function getSubmissionId(){
+  if(state.submissionId) return state.submissionId;
+  state.submissionId = `sub_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+  save();
+  return state.submissionId;
 }
 
 function calcScores(){
@@ -188,48 +223,101 @@ function buildAnswerPayload(){
   return out;
 }
 
-function stripHtml(html){
-  const tmp = document.createElement("div");
-  tmp.innerHTML = html || "";
-  return tmp.textContent || tmp.innerText || "";
-}
-
-/* Recommendations (same as your last version — keeping it unchanged) */
+/* ---------------- Recommendation engine (rewritten) ---------------- */
 function buildRecommendations({ overall, arenaScores, chosen }){
   const band = scoreBand(overall);
+
+  // weakest categories
   const sorted = Object.entries(arenaScores).sort((a,b)=>a[1]-b[1]);
   const weakest = sorted[0]?.[0];
   const second = sorted[1]?.[0];
 
+  // gather concrete improvements from low-point answers
   const worst = chosen.slice().sort((a,b)=>a.pts-b.pts);
-
   const specific = [];
   worst.forEach(w => {
     if (w.pts > 3) return;
 
-    if (w.q.includes("go to school") && w.label.includes("Private car")) specific.push("School commute: Try school bus or a consistent carpool 3 days/week instead of private car.");
-    if (w.q.includes("waiting near school") && (w.label.includes("Mostly") || w.label.includes("Sometimes"))) specific.push("School gate queue: Switch off the engine during waiting to reduce local exhaust exposure.");
-    if (w.q.includes("service + tyre") && (w.label.includes("Occasional") || w.label.includes("Rare"))) specific.push("Vehicle efficiency: Maintain tyre pressure + regular service to improve mileage and reduce fuel burn.");
-    if (w.q.includes("temperature") && (w.label.includes("Below") || w.label.includes("Not sure"))) specific.push("Cooling: Set AC around 26°C and use fan first—lower settings increase electricity use sharply.");
-    if (w.q.includes("lighting") && w.label.includes("old")) specific.push("Lighting: Replace the most-used room bulbs with LED first—fastest visible improvement.");
-    if (w.q.includes("screen time") && (w.label.includes("4–6") || w.label.includes("6+"))) specific.push("Screen time: Reduce background screens (TV on without watching). It improves health and cuts power use.");
-    if (w.q.includes("Old electronics") && w.label.includes("Keep unused")) specific.push("Old devices: Donate/reuse/recycle instead of storing unused at home (reduces e-waste and new manufacturing demand).");
-    if (w.q.includes("food get wasted") && (w.label.includes("Sometimes") || w.label.includes("Often"))) specific.push("Food waste: Plan portions and keep one “leftover meal” day weekly to avoid unnecessary waste.");
-    if (w.q.includes("segregate") && (w.label.includes("No") || w.label.includes("Sometimes"))) specific.push("Waste segregation: Start daily wet/dry separation with two bins—improves recycling and reduces landfill load.");
-    if (w.q.includes("Single-use plastic") && (w.label.includes("Sometimes") || w.label.includes("Often"))) specific.push("Single-use plastic: Keep a cloth bag in your vehicle and carry a reusable bottle.");
+    if (w.q.includes("go to school") && w.label.includes("Private car"))
+      specific.push("School commute: Try school bus or a consistent carpool 3 days/week instead of private car.");
+
+    if (w.q.includes("waiting near school") && (w.label.includes("Mostly") || w.label.includes("Sometimes")))
+      specific.push("School gate queue: Switch off the engine while waiting to reduce local exhaust exposure.");
+
+    if (w.q.includes("service + tyre") && (w.label.includes("Occasional") || w.label.includes("Rare")))
+      specific.push("Vehicle efficiency: Maintain correct tyre pressure and regular servicing to improve mileage and reduce fuel use.");
+
+    if (w.q.includes("temperature") && (w.label.includes("Below") || w.label.includes("Not sure")))
+      specific.push("Cooling: Use fan first; if AC is needed, keep it around 26°C and keep doors/windows closed.");
+
+    if (w.q.includes("lighting") && w.label.includes("old"))
+      specific.push("Lighting: Replace the most-used room bulbs with LED first—fast, visible savings.");
+
+    if (w.q.includes("At night, plugs") && (w.label.includes("Sometimes") || w.label.includes("Rarely")))
+      specific.push("Night routine: Switch off TV/set-top box/chargers to cut standby electricity use.");
+
+    if (w.q.includes("screen time") && (w.label.includes("4–6") || w.label.includes("6+")))
+      specific.push("Screens: Reduce background screens. It helps health and lowers power use.");
+
+    if (w.q.includes("Old electronics") && w.label.includes("Keep unused"))
+      specific.push("Old devices: Donate/reuse/recycle instead of storing unused at home.");
+
+    if (w.q.includes("food get wasted") && (w.label.includes("Sometimes") || w.label.includes("Often")))
+      specific.push("Food waste: Plan portions and keep one leftover-meal day weekly to avoid waste.");
+
+    if (w.q.includes("segregate") && (w.label.includes("No") || w.label.includes("Sometimes")))
+      specific.push("Waste segregation: Start daily wet/dry separation with two bins—best first step.");
+
+    if (w.q.includes("Single-use plastic") && (w.label.includes("Sometimes") || w.label.includes("Often")))
+      specific.push("Plastic: Keep a cloth bag in your vehicle and carry a reusable bottle.");
   });
 
   const uniqueSpecific = [...new Set(specific)];
 
+  // City context (new, less boring, still factual)
   const cityContext = `
     <p><b>City context</b></p>
     <ul>
-      <li><b>School-hour queues</b> and market traffic often lead to idling—this adds avoidable emissions near pedestrians.</li>
-      <li><b>Summer heat</b> increases home electricity load due to cooling (fans/AC).</li>
-      <li><b>Daily routines</b> like shared commuting, efficient cooling, and waste segregation give the biggest realistic impact for families.</li>
+      <li><b>During school hours and peak market times</b>, traffic congestion often leads to engine idling, increasing local air pollution near pedestrians and residential areas.</li>
+      <li><b>Cooling efficiency drops sharply</b> when doors or windows are left open, causing fans and air-conditioners to consume more electricity without improving comfort.</li>
+      <li>For most families, the <b>largest and most practical reductions</b> come from shared commuting, sensible cooling habits, and consistent waste segregation.</li>
     </ul>
   `;
 
+  // consistent intro style across tiers
+  const intro = `
+    <p><b>${band.badge}</b></p>
+    <p>${band.where}</p>
+  `;
+
+  // “Easiest improvements” logic:
+  // - If very high score and no weak signals, show a positive “maintain + inspire”
+  // - Else show 3–5 personalized items
+  let easyBlock = "";
+  if (overall >= 95 && uniqueSpecific.length === 0){
+    easyBlock = `
+      <p><b>Your easiest improvement</b></p>
+      <ul>
+        <li>You’re already doing very well. Focus on <b>consistency</b> and helping one more family adopt 1 habit (carpool / LED / segregation).</li>
+      </ul>
+    `;
+  } else if (uniqueSpecific.length > 0){
+    easyBlock = `
+      <p><b>Your easiest improvements (based on your answers)</b></p>
+      <ul>${uniqueSpecific.slice(0,5).map(x=>`<li>${x}</li>`).join("")}</ul>
+    `;
+  } else {
+    // middle scores but no specific low triggers: give smart general
+    easyBlock = `
+      <p><b>Your easiest improvements</b></p>
+      <ul>
+        <li>Pick one routine you can repeat daily: <b>engine-off waiting</b> or <b>wet/dry waste separation</b>.</li>
+        <li>Pick one upgrade you can do once: <b>LED in a high-use room</b>.</li>
+      </ul>
+    `;
+  }
+
+  // Actions by arena (to-do / avoid)
   const doByArena = {
     transport: [
       "Prefer school bus or a consistent carpool for routine commute.",
@@ -242,7 +330,7 @@ function buildRecommendations({ overall, arenaScores, chosen }){
       "Use natural ventilation in morning/evening when weather allows."
     ],
     devices: [
-      "Switch off TV/set-top box/chargers at night to reduce standby use.",
+      "Switch off TV/set-top box/chargers at night to reduce standby electricity use.",
       "Avoid background screens when no one is watching.",
       "Reuse/repair/donate old devices instead of storing unused."
     ],
@@ -269,7 +357,7 @@ function buildRecommendations({ overall, arenaScores, chosen }){
     ],
     devices: [
       "Avoid throwing e-waste with regular garbage.",
-      "Avoid leaving chargers plugged in 24/7."
+      "Avoid leaving chargers plugged in continuously when not in use."
     ],
     food: [
       "Avoid cooking extra that often gets wasted.",
@@ -281,13 +369,22 @@ function buildRecommendations({ overall, arenaScores, chosen }){
     ]
   };
 
+  // choose best “do” based on weakest and second weakest categories
+  const doList = [
+    ...(doByArena[weakest] || []).slice(0,2),
+    ...((doByArena[second] || []).slice(0,1))
+  ].filter(Boolean);
+
+  const avoidList = (avoidByArena[weakest] || []).slice(0,2);
+
+  // Tier-specific next steps (same tone)
   const nextStepsByTier = (s) => {
     if (s >= 90) return [
-      "Maintain consistency and help one more family improve (carpool/LED/waste segregation).",
-      "Track one habit for 14 days (engine-off waiting OR wet/dry segregation) and make it automatic."
+      "Maintain your best habits and make one improvement social: invite one more family into a carpool or waste segregation routine.",
+      "Track one habit for 14 days (engine-off waiting OR wet/dry segregation) until it becomes automatic."
     ];
     if (s >= 75) return [
-      "Pick 2 upgrades: engine-off waiting + LED replacement in one high-use room.",
+      "Pick 2 upgrades this month: engine-off waiting + LED replacement in one high-use room.",
       "Add one weekly habit: leftover-meal day or a plastic-free market routine."
     ];
     if (s >= 60) return [
@@ -295,62 +392,26 @@ function buildRecommendations({ overall, arenaScores, chosen }){
       "Next 2 weeks: add one upgrade (LED replacement or consistent waste segregation)."
     ];
     if (s >= 45) return [
-      "Start with 2 easiest wins: engine-off waiting + LED in the most-used room.",
-      "Add wet/dry waste separation within 7 days."
+      "Start with 2 easy wins: engine-off waiting + wet/dry waste separation.",
+      "Within 14 days: replace LEDs in one high-use room and reduce short private-car trips."
     ];
     return [
-      "This week: lock 2 habits—engine-off waiting + wet/dry waste segregation.",
-      "Next 2 weeks: reduce short private-car trips and follow fan-first + 26°C cooling routine."
+      "This week: lock 2 habits—engine-off waiting + wet/dry waste separation.",
+      "Next 2 weeks: shift one routine trip to shared travel and follow fan-first + 26°C cooling routine."
     ];
   };
 
-  const doList = [
-    ...(doByArena[weakest] || []).slice(0,2),
-    ...((doByArena[second] || []).slice(0,1))
-  ].filter(Boolean);
-
-  const avoidList = (avoidByArena[weakest] || []).slice(0,2);
   const nextSteps = nextStepsByTier(overall);
 
-  const title = `<p><b>Next steps (what to do, what to avoid, and what to do next)</b></p>`;
-  const intro = `<p><b>${band.badge}:</b> ${band.where}</p>`;
-
-  let easyBlock = "";
-  if (uniqueSpecific.length === 0) {
-    if (overall >= 95) {
-      easyBlock = `
-        <p><b>Your easiest improvements</b></p>
-        <ul>
-          <li>You’re already doing very well. Focus on <b>maintaining consistency</b> and <b>influencing others</b> (carpool, LED, segregation).</li>
-        </ul>
-      `;
-    } else {
-      easyBlock = `
-        <p><b>Your easiest improvements</b></p>
-        <ul>
-          <li>Your answers look strong overall. The fastest gains usually come from <b>commute habits</b>, <b>AC setpoint</b>, and <b>waste segregation</b>.</li>
-        </ul>
-      `;
-    }
-  } else {
-    easyBlock = `
-      <p><b>Your easiest improvements (based on your answers)</b></p>
-      <ul>${uniqueSpecific.slice(0,5).map(x=>`<li>${x}</li>`).join("")}</ul>
-    `;
-  }
-
-  const doHtml = `<p><b>What to do next</b></p><ul>${doList.map(x=>`<li>${x}</li>`).join("")}</ul>`;
+  const doHtml = `<p><b>What to do</b></p><ul>${doList.map(x=>`<li>${x}</li>`).join("")}</ul>`;
   const avoidHtml = `<p><b>What to avoid</b></p><ul>${avoidList.map(x=>`<li>${x}</li>`).join("")}</ul>`;
-  const stepsHtml = `<p><b>Next steps</b></p><ul>${nextSteps.map(x=>`<li>${x}</li>`).join("")}</ul>`;
+  const stepsHtml = `<p><b>What to do next</b></p><ul>${nextSteps.map(x=>`<li>${x}</li>`).join("")}</ul>`;
 
-  return title + intro + cityContext + easyBlock + doHtml + avoidHtml + stepsHtml;
+  // NOTE: No title heading here — heading is only in HTML (so no duplication)
+  return intro + cityContext + easyBlock + doHtml + avoidHtml + stepsHtml;
 }
 
-/**
- * ✅ CORS-proof submit:
- * - Uses sendBeacon (no response needed)
- * - Then loads leaderboard after delay
- */
+/* ---------------- Submission (CORS-safe) ---------------- */
 async function submitToSheet(){
   if (state._submittedOnce) return;
 
@@ -363,6 +424,7 @@ async function submitToSheet(){
   const recHTML = buildRecommendations({ overall, arenaScores, chosen });
 
   const payload = {
+    submissionId: getSubmissionId(),
     parentName: state.profile.parentName,
     phone: state.profile.phone,
     address: state.profile.address,
@@ -383,11 +445,8 @@ async function submitToSheet(){
   const body = JSON.stringify(payload);
 
   try{
-    // sendBeacon sends without CORS issues (fire-and-forget)
     const ok = navigator.sendBeacon(APPS_SCRIPT_URL, new Blob([body], { type: "text/plain;charset=utf-8" }));
-
     if (!ok) {
-      // fallback: no-cors fetch
       await fetch(APPS_SCRIPT_URL, {
         method: "POST",
         mode: "no-cors",
@@ -395,16 +454,15 @@ async function submitToSheet(){
         body
       });
     }
-
     submitStatus.textContent = "✅ Saved. Refreshing leaderboard...";
-  } catch (e) {
+  } catch {
     submitStatus.textContent = "❌ Save failed. Tap Refresh Leaderboard to retry.";
     state._submittedOnce = false;
     save();
-    return;
   }
 }
 
+/* ---------------- UI ---------------- */
 function renderQuestion(){
   const q = QUIZ[state.index];
   arenaPill.textContent = q.pill;
@@ -452,10 +510,10 @@ function renderResults(){
   });
 
   recommendationsEl.innerHTML = buildRecommendations({ overall, arenaScores, chosen });
-
   save();
 }
 
+/* ---------------- Validation ---------------- */
 function saveProfileOrAlert(){
   const parentName = parentNameEl.value.trim();
   const phone = phoneEl.value.trim();
@@ -466,18 +524,27 @@ function saveProfileOrAlert(){
     alert("Please fill Parent Name, Phone, Address, and Child Class.");
     return null;
   }
-  return { parentName, phone, address, childClass };
+
+  const digits = phone.replace(/\D/g, "");
+  if(digits.length !== 10){
+    alert("Please enter a valid 10-digit phone number.");
+    return null;
+  }
+
+  if(!/^\d{1,2}\s*-\s*[A-Za-z]$/.test(childClass)){
+    alert("Child Class format should be like 6-B, 10-A, 12-C.");
+    return null;
+  }
+
+  return {
+    parentName,
+    phone: digits,
+    address,
+    childClass: childClass.replace(/\s+/g,"")
+  };
 }
 
-function esc(s){
-  return String(s||"")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-}
-
+/* ---------------- Leaderboard ---------------- */
 async function loadLeaderboard(){
   podiumEl.innerHTML = "";
   leaderboardEl.innerHTML = "Loading...";
@@ -491,7 +558,6 @@ async function loadLeaderboard(){
     const podium = json.podium || [];
     const others = json.others || [];
 
-    // ✅ Render logically as 1,2,3
     const slots = [
       {rank:1, cls:"gold", label:"🥇 1st"},
       {rank:2, cls:"silver", label:"🥈 2nd"},
@@ -547,7 +613,7 @@ async function loadLeaderboard(){
   }
 }
 
-
+/* ---------------- Resume + navigation ---------------- */
 function checkResume(){
   const ok = load();
   const hasAnswers = ok && state?.answers && Object.keys(state.answers).length > 0;
@@ -561,6 +627,7 @@ function checkResume(){
   }
 }
 
+/* ---------------- Events ---------------- */
 btnStart.onclick = () => {
   const profile = saveProfileOrAlert();
   if(!profile) return;
@@ -569,6 +636,7 @@ btnStart.onclick = () => {
   state.index = 0;
   state.answers = {};
   state._submittedOnce = false;
+  state.submissionId = null;
   save();
 
   show("quiz");
@@ -592,7 +660,6 @@ btnNext.onclick = async () => {
     show("results");
     renderResults();
 
-    // Save + refresh leaderboard after a short delay
     await submitToSheet();
     setTimeout(loadLeaderboard, 1200);
   } else {
@@ -602,7 +669,7 @@ btnNext.onclick = async () => {
 
 btnRestart.onclick = () => {
   clearSave();
-  state = { profile:{ parentName:"",phone:"",address:"",childClass:"" }, index:0, answers:{}, _submittedOnce:false };
+  state = { profile:{ parentName:"",phone:"",address:"",childClass:"" }, index:0, answers:{}, _submittedOnce:false, submissionId:null };
   parentNameEl.value = ""; phoneEl.value = ""; addressEl.value = ""; childClassEl.value = "";
   submitStatus.textContent = "";
   show("profile");
@@ -610,7 +677,7 @@ btnRestart.onclick = () => {
 };
 
 btnRefreshLB.onclick = async () => {
-  // Retry save (in case it failed earlier), then refresh
+  // retry save (in case it failed), then refresh
   state._submittedOnce = false;
   save();
   await submitToSheet();
