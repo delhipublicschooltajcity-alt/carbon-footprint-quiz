@@ -2,34 +2,11 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwv6RkxDakPptLF
 const LS_KEY = "dps_tajcity_cf_v4";
 
 function scoreBand(overall){
-  if (overall >= 90) {
-    return {
-      badge: "🏆 Eco Champion",
-      where: "Outstanding habits. You’re already low-footprint—now maintain consistency and inspire others."
-    };
-  }
-  if (overall >= 75) {
-    return {
-      badge: "🌟 Green Leader",
-      where: "Strong practices across categories. A few routine upgrades can make you even better."
-    };
-  }
-  if (overall >= 60) {
-    return {
-      badge: "✅ Eco Smart",
-      where: "Good direction. With 2–3 consistent changes, you can reduce footprint noticeably in a month."
-    };
-  }
-  if (overall >= 45) {
-    return {
-      badge: "🌱 Getting Started",
-      where: "You have a good base. Start with the easiest wins—shared travel, LED, and reducing waste."
-    };
-  }
-  return {
-    badge: "🚀 Ready for Change",
-    where: "Big improvement potential. Pick just two habits this week and stick to them—results come fast."
-  };
+  if (overall >= 90) return { badge:"🏆 Eco Champion", where:"Outstanding habits. You’re already low-footprint—now maintain consistency and inspire others." };
+  if (overall >= 75) return { badge:"🌟 Green Leader", where:"Strong practices across categories. A few routine upgrades can make you even better." };
+  if (overall >= 60) return { badge:"✅ Eco Smart", where:"Good direction. With 2–3 consistent changes, you can reduce footprint noticeably in a month." };
+  if (overall >= 45) return { badge:"🌱 Getting Started", where:"You have a good base. Start with the easiest wins—shared travel, LED, and reducing waste." };
+  return { badge:"🚀 Ready for Change", where:"Big improvement potential. Pick just two habits this week and stick to them—results come fast." };
 }
 
 const ARENAS = ["transport","home","devices","food","waste"];
@@ -128,11 +105,7 @@ const QUIZ = [
   ]},
 ];
 
-let state = {
-  profile: { parentName:"", phone:"", address:"", childClass:"" },
-  index: 0,
-  answers: {}
-};
+let state = { profile:{ parentName:"",phone:"",address:"",childClass:"" }, index:0, answers:{} };
 
 const el = (id) => document.getElementById(id);
 const stepProfile = el("stepProfile");
@@ -189,12 +162,11 @@ function calcScores(){
   QUIZ.forEach((q, qi) => {
     const maxPts = Math.max(...q.options.map(o => o.pts));
     agg[q.arena].max += maxPts;
-
     const pick = state.answers[qi];
     if(pick !== undefined){
       const opt = q.options[pick];
       agg[q.arena].got += opt.pts;
-      chosen.push({ arena:q.arena, qi, q:q.text, pts:opt.pts, label:opt.label });
+      chosen.push({ arena:q.arena, q:q.text, pts:opt.pts, label:opt.label });
     }
   });
 
@@ -204,10 +176,7 @@ function calcScores(){
     arenaScores[a] = max ? Math.round((got/max)*100) : 0;
   });
 
-  const overall = Math.round(
-    (arenaScores.transport + arenaScores.home + arenaScores.devices + arenaScores.food + arenaScores.waste) / 5
-  );
-
+  const overall = Math.round((arenaScores.transport + arenaScores.home + arenaScores.devices + arenaScores.food + arenaScores.waste) / 5);
   return { overall, arenaScores, chosen };
 }
 
@@ -228,39 +197,25 @@ function stripHtml(html){
 
 function buildRecommendations({ overall, arenaScores, chosen }){
   const band = scoreBand(overall);
-  const sortedArenas = Object.entries(arenaScores).sort((a,b)=>a[1]-b[1]);
-  const weakest = sortedArenas[0]?.[0];
-  const secondWeakest = sortedArenas[1]?.[0];
+  const sorted = Object.entries(arenaScores).sort((a,b)=>a[1]-b[1]);
+  const weakest = sorted[0]?.[0];
+  const second = sorted[1]?.[0];
 
   const worst = chosen.slice().sort((a,b)=>a.pts-b.pts).slice(0,4);
-
   const specific = [];
+
   worst.forEach(w => {
-    if (w.q.includes("go to school") && w.label.includes("Private car")) {
-      specific.push("Your school commute is the biggest quick win: try school bus or a consistent carpool for at least 3 days a week.");
-    }
-    if (w.q.includes("waiting near school") && (w.label.includes("Mostly kept on") || w.label.includes("Sometimes"))) {
-      specific.push("Near school gates, switch off the engine during waiting. It reduces local exhaust where children gather.");
-    }
-    if (w.q.includes("temperature") && (w.label.includes("Below") || w.label.includes("Not sure"))) {
-      specific.push("For summer cooling, set AC around 26°C and use a fan first. It’s a simple habit that cuts electricity use.");
-    }
-    if (w.q.includes("lighting") && w.label.includes("old")) {
-      specific.push("Lighting is an easy upgrade: replace the most-used room bulbs with LED first.");
-    }
-    if (w.q.includes("food get wasted") && w.label.includes("Often")) {
-      specific.push("Food waste is avoidable: plan portions and keep one “leftover meal” day each week.");
-    }
-    if (w.q.includes("segregate") && (w.label.includes("No") || w.label.includes("Sometimes"))) {
-      specific.push("Start waste segregation with two bins (wet/dry). It improves recycling and reduces landfill load.");
-    }
-    if (w.q.includes("Single-use plastic") && w.label.includes("Often")) {
-      specific.push("Reduce single-use plastic: keep a cloth bag in your vehicle and carry a steel bottle.");
-    }
+    if (w.q.includes("go to school") && w.label.includes("Private car")) specific.push("Try school bus or a consistent carpool for at least 3 days a week—this is usually the biggest quick win.");
+    if (w.q.includes("waiting near school") && (w.label.includes("Mostly") || w.label.includes("Sometimes"))) specific.push("Switch off the engine while waiting near the school gate. It reduces local exhaust where children gather.");
+    if (w.q.includes("temperature") && (w.label.includes("Below") || w.label.includes("Not sure"))) specific.push("For summer cooling, keep AC around 26°C and use a fan first. It’s a simple habit that reduces electricity use.");
+    if (w.q.includes("lighting") && w.label.includes("old")) specific.push("Replace the most-used room bulbs with LED first—fast, visible improvement.");
+    if (w.q.includes("food get wasted") && w.label.includes("Often")) specific.push("Plan portions and keep one “leftover meal” day each week to cut food waste.");
+    if (w.q.includes("segregate") && (w.label.includes("No") || w.label.includes("Sometimes"))) specific.push("Start waste segregation with two bins (wet/dry). It improves recycling and reduces landfill load.");
+    if (w.q.includes("Single-use plastic") && w.label.includes("Often")) specific.push("Keep a cloth bag in your vehicle and carry a steel bottle to reduce single-use plastic.");
   });
 
   const agraContext = `
-    <p><b>Agra context:</b> Around school hours and busy market areas, traffic queues are common. Avoidable idling and short private-car trips increase local emissions. Summers also increase electricity load due to cooling. That’s why the biggest realistic improvements usually come from commuting habits, sensible cooling, and daily waste routines.</p>
+    <p><b>Agra context:</b> Around school hours and busy market areas, traffic queues are common. Avoidable idling and short private-car trips increase local emissions. Summers also increase electricity load due to cooling—so commuting habits, sensible cooling, and waste routines usually give the biggest realistic improvement for families here.</p>
   `;
 
   const doByArena = {
@@ -316,7 +271,7 @@ function buildRecommendations({ overall, arenaScores, chosen }){
 
   const nextStepsByTier = (s) => {
     if (s >= 90) return [
-      "Maintain your best habits and encourage one more family to improve (carpool/LED/waste segregation).",
+      "Maintain your best habits and help one more family improve (carpool/LED/waste segregation).",
       "Track one routine for 14 days (engine-off waiting or 2-bin segregation) and keep it consistent."
     ];
     if (s >= 75) return [
@@ -337,26 +292,20 @@ function buildRecommendations({ overall, arenaScores, chosen }){
     ];
   };
 
-  const weakestDo = doByArena[weakest] || [];
-  const secondDo = doByArena[secondWeakest] || [];
-  const doList = [...weakestDo.slice(0,2), ...(secondDo.slice(0,1))].filter(Boolean);
+  const doList = [...(doByArena[weakest]||[]).slice(0,2), ...((doByArena[second]||[]).slice(0,1))].filter(Boolean);
   const avoidList = (avoidByArena[weakest] || []).slice(0,2);
   const nextSteps = nextStepsByTier(overall);
 
-  const personalIntro = `
-    <p><b>${band.badge}:</b> ${band.where}</p>
-    ${agraContext}
-  `;
-
-  const personalQuickGains = specific.length
+  const intro = `<p><b>${band.badge}:</b> ${band.where}</p>${agraContext}`;
+  const quick = specific.length
     ? `<p><b>Your easiest improvements (based on your answers):</b></p><ul>${specific.slice(0,4).map(x=>`<li>${x}</li>`).join("")}</ul>`
     : `<p><b>Your easiest improvements:</b> Complete all questions to unlock specific guidance.</p>`;
 
-  const doHtml = `<p><b>What to do next:</b></p><ul>${doList.map(x=>`<li>${x}</li>`).join("")}</ul>`;
-  const avoidHtml = `<p><b>What to avoid:</b></p><ul>${avoidList.map(x=>`<li>${x}</li>`).join("")}</ul>`;
-  const stepsHtml = `<p><b>Next steps:</b></p><ul>${nextSteps.map(x=>`<li>${x}</li>`).join("")}</ul>`;
-
-  return personalIntro + personalQuickGains + doHtml + avoidHtml + stepsHtml;
+  return intro
+    + quick
+    + `<p><b>What to do next:</b></p><ul>${doList.map(x=>`<li>${x}</li>`).join("")}</ul>`
+    + `<p><b>What to avoid:</b></p><ul>${avoidList.map(x=>`<li>${x}</li>`).join("")}</ul>`
+    + `<p><b>Next steps:</b></p><ul>${nextSteps.map(x=>`<li>${x}</li>`).join("")}</ul>`;
 }
 
 function renderQuestion(){
@@ -594,6 +543,5 @@ btnRestart.onclick = () => {
 
 btnRefreshLB.onclick = loadLeaderboard;
 
-// Init
 checkResume();
 show("profile");
