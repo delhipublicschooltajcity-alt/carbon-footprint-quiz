@@ -215,7 +215,7 @@ function buildRecommendations({ overall, arenaScores, chosen }){
   });
 
   const agraContext = `
-    <p><b>Agra context:</b> Around school hours and busy market areas, traffic queues are common. Avoidable idling and short private-car trips increase local emissions. Summers also increase electricity load due to cooling—so commuting habits, sensible cooling, and waste routines usually give the biggest realistic improvement for families here.</p>
+    <p><b>City context:</b> Around school hours and busy market areas, traffic queues are common. Avoidable idling and short private-car trips increase local emissions. Summers also increase electricity load due to cooling—so commuting habits, sensible cooling, and waste routines usually give the biggest realistic improvement for families here.</p>
   `;
 
   const doByArena = {
