@@ -8,117 +8,103 @@
 </head>
 <body>
 
-  <div class="bgGlow"></div>
+<div class="bgGlow"></div>
 
-  <div class="app">
-    <header class="header">
-      <div class="brand">
-        <div class="appIconWrap">
-          <img class="appIcon" src="dps-logo.jpg" alt="DPS Tajcity logo" />
-        </div>
+<div class="app">
+  <header class="header">
+    <div class="brand">
+      <div class="appIconWrap">
+        <img src="dps-logo.jpg" class="appIcon" alt="DPS Tajcity logo">
+      </div>
+      <div>
+        <h1>DPS Tajcity Agra • Family Carbon Footprint Check</h1>
+        <p class="sub">Parents edition • 15 questions • practical improvement plan</p>
+      </div>
+    </div>
+  </header>
 
+  <main class="card">
+
+    <!-- PROFILE -->
+    <section id="stepProfile">
+      <h2>Parent Details</h2>
+      <p class="hint">
+        Please fill details and answer 15 questions. Your score appears at the end.
+        <span class="muted"><i>(Details are used only for the school survey)</i></span>
+      </p>
+
+      <div class="grid">
+        <label>Parent Name
+          <input id="parentName" />
+        </label>
+        <label>Phone Number
+          <input id="phone" />
+        </label>
+        <label class="full">Address
+          <input id="address" />
+        </label>
+        <label>Child Class (e.g. 6-B)
+          <input id="childClass" />
+        </label>
+      </div>
+
+      <div class="row">
+        <button class="btn" id="btnStart">Start →</button>
+      </div>
+    </section>
+
+    <!-- QUIZ -->
+    <section id="stepQuiz" style="display:none">
+      <div class="toprow">
         <div>
-          <h1>DPS Tajcity Agra • Family Carbon Footprint Check</h1>
-          <p class="sub">Parents edition • 15 questions • practical improvement plan</p>
+          <div class="pill" id="arenaPill"></div>
+          <div class="qtitle" id="qText"></div>
+          <div class="qsub" id="qSub"></div>
+        </div>
+        <div class="progress">
+          <div class="bar"><div class="fill" id="progFill"></div></div>
+          <div class="pct" id="progText"></div>
         </div>
       </div>
-    </header>
 
-    <main class="card">
+      <div class="options" id="options"></div>
 
-      <!-- STEP 1: PROFILE -->
-      <section id="stepProfile">
-        <h2>Parent Details</h2>
-        <p class="hint">
-          Please fill details and answer 15 questions. Your score will appear only at the end.
-          <span class="muted"><i>(Details are used only for the school survey)</i></span>
-        </p>
+      <div class="nav">
+        <button class="btn ghost" id="btnBack">← Back</button>
+        <button class="btn" id="btnNext" disabled>Next →</button>
+      </div>
+    </section>
 
-        <div class="grid">
-          <label>Parent Name
-            <input id="parentName" type="text" placeholder="e.g., Rahul Sharma" />
-          </label>
+    <!-- RESULTS -->
+    <section id="stepResults" style="display:none">
+      <h2>Your Family Report</h2>
 
-          <label>Phone Number
-            <input id="phone" type="tel" placeholder="e.g., 98XXXXXXXX" />
-          </label>
-
-          <label class="full">Address
-            <input id="address" type="text" placeholder="e.g., Tajganj, Agra" />
-          </label>
-
-          <label>Child Class / Section (format: 6-B)
-            <input id="childClass" type="text" placeholder="e.g., 6-B" />
-          </label>
+      <div class="scoreRow">
+        <div class="bigScore">
+          <div class="score" id="overallScore"></div>
+          <div class="badge" id="badgeText"></div>
+          <div class="small" id="whereYouAre"></div>
         </div>
+        <div class="arenaScores" id="arenaScores"></div>
+      </div>
 
-        <div class="row">
-          <button class="btn" id="btnStart">Start →</button>
-          <button class="btn ghost" id="btnResume" style="display:none;">Resume</button>
-        </div>
-      </section>
+      <div class="insights">
+        <h3>Next steps (what to do, what to avoid, and what to do next)</h3>
+        <div id="recommendations"></div>
+      </div>
 
-      <!-- STEP 2: QUIZ -->
-      <section id="stepQuiz" style="display:none;">
-        <div class="toprow">
-          <div>
-            <div class="pill" id="arenaPill"></div>
-            <div class="qtitle" id="qText"></div>
-            <div class="qsub" id="qSub"></div>
-          </div>
+      <div class="actions">
+        <button class="btn ghost" id="btnRestart">Restart</button>
+        <button class="btn ghost" id="btnRefreshLB">Refresh Leaderboard</button>
+      </div>
 
-          <div class="progress">
-            <div class="bar">
-              <div class="fill" id="progFill"></div>
-            </div>
-            <div class="pct" id="progText"></div>
-          </div>
-        </div>
+      <h3>🏆 Leaderboard</h3>
+      <div class="leaderboard" id="leaderboard"></div>
+    </section>
 
-        <div class="options" id="options"></div>
+  </main>
+</div>
 
-        <div class="nav">
-          <button class="btn ghost" id="btnBack">← Back</button>
-          <button class="btn" id="btnNext" disabled>Next →</button>
-        </div>
-      </section>
-
-      <!-- STEP 3: RESULTS -->
-      <section id="stepResults" style="display:none;">
-        <h2>Your Family Report</h2>
-
-        <div class="scoreRow">
-          <div class="bigScore">
-            <div class="score" id="overallScore">0</div>
-            <div class="badge" id="badgeText">—</div>
-            <div class="small" id="whereYouAre">—</div>
-          </div>
-
-          <div class="arenaScores" id="arenaScores"></div>
-        </div>
-
-        <div class="insights">
-          <h3>Next steps (what to do, what to avoid, and what to do next)</h3>
-          <div id="recommendations" class="recText"></div>
-        </div>
-
-        <!-- Only two buttons -->
-        <div class="actions">
-          <button class="btn ghost" id="btnRestart">Restart</button>
-          <button class="btn ghost" id="btnRefreshLB">Refresh Leaderboard</button>
-        </div>
-
-        <p class="status" id="submitStatus"></p>
-
-        <hr />
-
-        <h3>🏆 Leaderboard</h3>
-        <div class="leaderboard" id="leaderboard"></div>
-      </section>
-
-    </main>
-  </div>
-
-  <script src="app.js?v=9" defer></script>
+<script src="app.js" defer></script>
 </body>
 </html>
