@@ -546,7 +546,6 @@ function saveProfileOrAlert(){
 
 /* ---------------- Leaderboard ---------------- */
 async function loadLeaderboard(){
-  podiumEl.innerHTML = "";
   leaderboardEl.innerHTML = "Loading...";
 
   try{
@@ -555,63 +554,47 @@ async function loadLeaderboard(){
     const json = await res.json();
     if(!json.ok) throw new Error(json.error || "Leaderboard fetch failed");
 
-    const podium = json.podium || [];
-    const others = json.others || [];
+    const all = [...(json.podium || []), ...(json.others || [])];
 
-    const slots = [
-      {rank:1, cls:"gold", label:"🥇 1st"},
-      {rank:2, cls:"silver", label:"🥈 2nd"},
-      {rank:3, cls:"bronze", label:"🥉 3rd"},
-    ];
-
-    if(!podium.length){
-      podiumEl.innerHTML = `<div class="status">No submissions yet.</div>`;
-    } else {
-      slots.forEach(slt => {
-        const p = podium.find(x => x.rank === slt.rank);
-        const div = document.createElement("div");
-        div.className = `pcard ${slt.cls}`;
-        if(!p){
-          div.innerHTML = `
-            <div class="rank">${slt.label}</div>
-            <div class="name">—</div>
-            <div class="cls">—</div>
-            <div class="score">—</div>
-          `;
-        } else {
-          div.innerHTML = `
-            <div class="rank">${slt.label}</div>
-            <div class="name">${esc(p.name || "Anonymous")}</div>
-            <div class="cls">${esc(p.className || "-")}</div>
-            <div class="score">${p.overall}</div>
-          `;
-        }
-        podiumEl.appendChild(div);
-      });
-    }
-
-    if(!others.length){
-      leaderboardEl.innerHTML = `<div class="status">No other entries.</div>`;
+    if(!all.length){
+      leaderboardEl.innerHTML = `<div class="status">No submissions yet.</div>`;
       return;
     }
 
     leaderboardEl.innerHTML = "";
-    others.forEach(r => {
+
+const medal = (r) =>
+  r === 1 ? "🥇" :
+  r === 2 ? "🥈" :
+  r === 3 ? "🥉" :
+  `#${r}`;
+
+    all.forEach(row => {
       const div = document.createElement("div");
       div.className = "lbrow";
       div.innerHTML = `
-        <div><b>#${r.rank}</b></div>
-        <div>${esc(r.name || "Anonymous")} • ${esc(r.className || "-")}
-          <span style="color:#a9b7d6;">• ${esc(r.badge || "")}</span>
-        </div>
-        <div style="text-align:right;"><b>${r.overall}</b></div>
+        <div><b>${medal(row.rank)}</b></div>
+        const band = scoreBand(row.overall);
+
+div.innerHTML = `
+  <div><b>${medal(row.rank)} ${row.rank}</b></div>
+  <div>
+    ${esc(row.name || "Anonymous")} • ${esc(row.className || "-")}
+    <div style="opacity:.8;font-size:.9em">${band.badge}</div>
+  </div>
+  <div style="text-align:right;"><b>${row.overall}</b></div>
+`;
+
+        <div style="text-align:right;"><b>${row.overall}</b></div>
       `;
       leaderboardEl.appendChild(div);
     });
+
   }catch(e){
     leaderboardEl.innerHTML = `<div class="status">❌ ${e.message}</div>`;
   }
 }
+
 
 /* ---------------- Resume + navigation ---------------- */
 function checkResume(){
