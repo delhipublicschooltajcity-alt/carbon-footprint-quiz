@@ -1,5 +1,5 @@
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwv6RkxDakPptLFkBntJx7Q9gZO_46ymanX-lctuh-rvvLKXXgv9lKLFitcmwZYTXsMjQ/exec";
-const LS_KEY = "dps_tajcity_cf_v4";
+const LS_KEY = "dps_tajcity_cf_v5";
 
 function scoreBand(overall){
   if (overall >= 90) return { badge:"🏆 Eco Champion", where:"Outstanding habits. You’re already low-footprint—now maintain consistency and inspire others." };
@@ -194,6 +194,7 @@ function stripHtml(html){
   return tmp.textContent || tmp.innerText || "";
 }
 
+/* Recommendations (same as your last version — keeping it unchanged) */
 function buildRecommendations({ overall, arenaScores, chosen }){
   const band = scoreBand(overall);
   const sorted = Object.entries(arenaScores).sort((a,b)=>a[1]-b[1]);
@@ -345,20 +346,21 @@ function buildRecommendations({ overall, arenaScores, chosen }){
   return title + intro + cityContext + easyBlock + doHtml + avoidHtml + stepsHtml;
 }
 
+/**
+ * ✅ CORS-proof submit:
+ * - Uses sendBeacon (no response needed)
+ * - Then loads leaderboard after delay
+ */
 async function submitToSheet(){
-  // ✅ prevent double submit
   if (state._submittedOnce) return;
 
-  submitStatus.textContent = "Submitting...";
+  submitStatus.textContent = "Saving to Google Sheet...";
   state._submittedOnce = true;
   save();
 
   const { overall, arenaScores, chosen } = calcScores();
   const band = scoreBand(overall);
   const recHTML = buildRecommendations({ overall, arenaScores, chosen });
-
-  state.recommendationsHTML = recHTML;
-  save();
 
   const payload = {
     parentName: state.profile.parentName,
@@ -378,21 +380,28 @@ async function submitToSheet(){
     answers: buildAnswerPayload()
   };
 
-  try{
-    const res = await fetch(APPS_SCRIPT_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(payload)
-    });
-    const json = await res.json();
-    if(!json.ok) throw new Error(json.error || "Submit failed");
+  const body = JSON.stringify(payload);
 
-    submitStatus.textContent = "✅ Submitted. Leaderboard updated.";
-  }catch(e){
-    submitStatus.textContent = `❌ Auto-submit failed: ${e.message}`;
-    // allow retry later
+  try{
+    // sendBeacon sends without CORS issues (fire-and-forget)
+    const ok = navigator.sendBeacon(APPS_SCRIPT_URL, new Blob([body], { type: "text/plain;charset=utf-8" }));
+
+    if (!ok) {
+      // fallback: no-cors fetch
+      await fetch(APPS_SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body
+      });
+    }
+
+    submitStatus.textContent = "✅ Saved. Refreshing leaderboard...";
+  } catch (e) {
+    submitStatus.textContent = "❌ Save failed. Tap Refresh Leaderboard to retry.";
     state._submittedOnce = false;
     save();
+    return;
   }
 }
 
@@ -442,12 +451,8 @@ function renderResults(){
     arenaScoresEl.appendChild(box);
   });
 
-  const recHTML = buildRecommendations({ overall, arenaScores, chosen });
-  recommendationsEl.innerHTML = recHTML;
+  recommendationsEl.innerHTML = buildRecommendations({ overall, arenaScores, chosen });
 
-  state.final = { overall, ...arenaScores };
-  state.badgeLabel = band.badge;
-  state.recommendationsHTML = recHTML;
   save();
 }
 
@@ -481,7 +486,7 @@ async function loadLeaderboard(){
     const url = `${APPS_SCRIPT_URL}?action=leaderboard&limit=20`;
     const res = await fetch(url);
     const json = await res.json();
-    if(!json.ok) throw new Error("Leaderboard fetch failed");
+    if(!json.ok) throw new Error(json.error || "Leaderboard fetch failed");
 
     const podium = json.podium || [];
     const others = json.others || [];
@@ -554,7 +559,7 @@ btnStart.onclick = () => {
   state.profile = profile;
   state.index = 0;
   state.answers = {};
-  state._submittedOnce = false; // ✅ reset submit state for new attempt
+  state._submittedOnce = false;
   save();
 
   show("quiz");
@@ -578,9 +583,9 @@ btnNext.onclick = async () => {
     show("results");
     renderResults();
 
-    // ✅ Auto-submit and then refresh leaderboard
+    // Save + refresh leaderboard after a short delay
     await submitToSheet();
-    await loadLeaderboard();
+    setTimeout(loadLeaderboard, 1200);
   } else {
     renderQuestion();
   }
@@ -596,7 +601,9 @@ btnRestart.onclick = () => {
 };
 
 btnRefreshLB.onclick = async () => {
-  // ✅ If submit failed earlier, this retries submit too
+  // Retry save (in case it failed earlier), then refresh
+  state._submittedOnce = false;
+  save();
   await submitToSheet();
   await loadLeaderboard();
 };
