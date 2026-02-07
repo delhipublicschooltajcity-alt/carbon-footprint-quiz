@@ -6,7 +6,6 @@ body{
   background:#070b18;
 }
 
-/* glow MUST NOT block clicks */
 .bgGlow{
   position: fixed;
   inset: 0;
@@ -163,7 +162,7 @@ input::placeholder{ opacity:.55; }
   gap:14px;
 }
 
-/* Arena block (3 questions together) */
+/* Arena block */
 .qblock{
   padding:12px;
   border-radius:14px;
