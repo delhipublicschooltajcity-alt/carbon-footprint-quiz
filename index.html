@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>DPS Tajcity Agra • Family Carbon Footprint Check</title>
-  <link rel="stylesheet" href="style.css?v=v13" />
+  <link rel="stylesheet" href="style.css?v=v15" />
 </head>
 <body>
   <div class="bgGlow"></div>
@@ -84,25 +84,19 @@
 
         <div class="scoreRow">
           <div class="bigScore">
-            <div class="score" id="overallScore">0</div>
             <div class="badge" id="badgeText">—</div>
             <div class="small" id="whereYouAre">—</div>
 
             <div class="small" style="margin-top:10px;">
-              <b>Estimated total CO₂ footprint</b>
+              <b>Estimated total CO₂ footprint (family of 4)</b>
               <div class="co2big" id="co2Total">—</div>
-              <div class="muted2">This is an approximate indicator based on habits (not a lab measurement).</div>
+              <div class="muted2">Approximate indicator based on habits (not a lab measurement).</div>
             </div>
 
             <div class="compareBox" style="margin-top:14px;">
               <div class="compareTitle">Comparison (tCO₂e/year)</div>
               <div id="compareBars"></div>
-              <div class="muted2">Assuming a family size shown below.</div>
-              <div class="row" style="margin-top:10px;">
-                <button class="btn ghost mini" id="btnFamMinus" type="button">–</button>
-                <div class="famSize">Family size: <b id="famSize">4</b></div>
-                <button class="btn ghost mini" id="btnFamPlus" type="button">+</button>
-              </div>
+              <div class="muted2">Fixed family size: <b>4</b></div>
             </div>
           </div>
 
@@ -123,13 +117,13 @@
 
         <hr />
 
-        <h3>🏆 Leaderboard (Lower CO₂ is better)</h3>
+        <h3>🏆 Leaderboard (Lowest CO₂ is best)</h3>
         <div class="leaderboard" id="leaderboard"></div>
       </section>
 
     </main>
   </div>
 
-  <script src="app.js?v=v13" defer></script>
+  <script src="app.js?v=v15" defer></script>
 </body>
 </html>
