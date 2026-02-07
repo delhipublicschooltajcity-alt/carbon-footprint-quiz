@@ -1,9 +1,9 @@
 /* =========================
-   app.js (FULL) — Arena-wise pages (3 questions together) + CO₂ estimate + leaderboard CO₂
+   app.js — FULL
    ========================= */
 
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwv6RkxDakPptLFkBntJx7Q9gZO_46ymanX-lctuh-rvvLKXXgv9lKLFitcmwZYTXsMjQ/exec";
-const LS_KEY = "dps_tajcity_cf_v12"; // ✅ bump to force fresh state
+const LS_KEY = "dps_tajcity_cf_v12";
 
 /* ---------------- Footprint banding (LOWER is better) ---------------- */
 function scoreBand(footprint){
@@ -39,7 +39,6 @@ const LABEL = {
 };
 
 const QUIZ = [
-  // TRANSPORT (3)
   { arena:"transport", text:"How does your child usually go to school?", options:[
     {label:"Walk / Cycle", pts:5},
     {label:"School bus / shared van", pts:4},
@@ -57,7 +56,6 @@ const QUIZ = [
     {label:"Rare", pts:1},
   ]},
 
-  // HOME (3)
   { arena:"home", text:"AC usage at home on most days is…", options:[
     {label:"No AC", pts:5},
     {label:"0–2 hours/day", pts:4},
@@ -77,7 +75,6 @@ const QUIZ = [
     {label:"Mostly old bulbs/tubes", pts:1},
   ]},
 
-  // DEVICES (3)
   { arena:"devices", text:"At night, plugs for TV/chargers are…", options:[
     {label:"Mostly switched off", pts:5},
     {label:"Sometimes switched off", pts:3},
@@ -96,7 +93,6 @@ const QUIZ = [
     {label:"Many times/day", pts:2},
   ]},
 
-  // FOOD (3)
   { arena:"food", text:"How often does food get wasted at home?", options:[
     {label:"Rarely", pts:5},
     {label:"Sometimes", pts:3},
@@ -114,7 +110,6 @@ const QUIZ = [
     {label:"Not sure", pts:3},
   ]},
 
-  // WASTE (3)
   { arena:"waste", text:"Do you segregate wet and dry waste at home?", options:[
     {label:"Yes, regularly", pts:5},
     {label:"Sometimes", pts:3},
@@ -135,8 +130,8 @@ const QUIZ = [
 /* ---------------- State ---------------- */
 let state = {
   profile:{ parentName:"", phone:"", address:"", childClass:"" },
-  arenaIndex:0,     // ✅ one page per arena
-  answers:{},       // key: questionIndex -> optionIndex
+  arenaIndex:0,
+  answers:{},
   _submittedOnce:false,
   submissionId:null
 };
@@ -154,8 +149,8 @@ const childClassEl = el("childClass");
 
 const btnStart = el("btnStart");
 const arenaPill = el("arenaPill");
-const qText = el("qText");   // arena heading
-const qSub = el("qSub");     // kept empty
+const qText = el("qText");
+const qSub = el("qSub");
 const optionsEl = el("options");
 const btnBack = el("btnBack");
 const btnNext = el("btnNext");
@@ -165,7 +160,7 @@ const progText = el("progText");
 const overallScoreEl = el("overallScore");
 const badgeTextEl = el("badgeText");
 const whereYouAreEl = el("whereYouAre");
-const co2LineEl = el("co2Line"); // ✅ added in HTML
+const co2LineEl = el("co2Line");
 const arenaScoresEl = el("arenaScores");
 const recommendationsEl = el("recommendations");
 
@@ -200,7 +195,7 @@ function getSubmissionId(){
   return state.submissionId;
 }
 
-/* ---------------- Helpers: arena questions ---------------- */
+/* ---------------- Helpers ---------------- */
 function getArenaQuestionIndexes(arena){
   const idx = [];
   QUIZ.forEach((q, qi) => { if(q.arena === arena) idx.push(qi); });
@@ -211,7 +206,7 @@ function isArenaComplete(arena){
   return qIdx.every(qi => state.answers[qi] !== undefined);
 }
 
-/* ---------------- Scoring (footprint: LOWER is better) ---------------- */
+/* ---------------- Scoring ---------------- */
 function calcScores(){
   const agg = Object.fromEntries(ARENAS.map(a => [a, {got:0, max:0}]));
 
@@ -230,9 +225,9 @@ function calcScores(){
 
   ARENAS.forEach(a => {
     const {got, max} = agg[a];
-    const eco = max ? Math.round((got/max)*100) : 0;     // higher = better
+    const eco = max ? Math.round((got/max)*100) : 0;
     arenaEco[a] = eco;
-    arenaFootprint[a] = 100 - eco;                      // lower = better
+    arenaFootprint[a] = 100 - eco; // lower is better
   });
 
   const ecoOverall = Math.round(
@@ -243,20 +238,19 @@ function calcScores(){
   return { footprintOverall, arenaFootprint };
 }
 
-/* ---------------- Recommendations + score meaning ---------------- */
+/* ---------------- Recommendations ---------------- */
 function buildRecommendations({ footprintOverall, arenaFootprint }){
   const band = scoreBand(footprintOverall);
 
-  // higher footprint => weakest area
   const sorted = Object.entries(arenaFootprint).sort((a,b)=>b[1]-a[1]);
   const weakest = sorted[0]?.[0];
 
   const cityContext = `
     <p><b>City context</b></p>
     <ul>
-      <li><b>School gate traffic</b> often increases idling and local air pollution.</li>
-      <li><b>Cooling</b> becomes inefficient if doors/windows are left open.</li>
-      <li>Big practical gains come from <b>shared travel, efficient appliances, and daily waste separation</b>.</li>
+      <li><b>School gate traffic</b> increases idling and local air pollution.</li>
+      <li><b>Cooling</b> becomes inefficient if doors/windows are open.</li>
+      <li>Big gains come from <b>shared travel, efficient appliances, and daily waste separation</b>.</li>
     </ul>
   `;
 
@@ -276,7 +270,7 @@ function buildRecommendations({ footprintOverall, arenaFootprint }){
     ],
     food: [
       "Plan portions to reduce leftovers and food waste.",
-      "If possible, shift some cooking to induction for daily small/medium meals."
+      "If possible, shift some cooking to induction for daily meals."
     ],
     waste: [
       "Segregate wet and dry waste daily (two bins).",
@@ -318,16 +312,14 @@ function buildRecommendations({ footprintOverall, arenaFootprint }){
     "Recheck your score after 2 weeks to see improvement."
   ];
 
-  const co2 = estimateCO2FromFootprintScore(footprintOverall);
-
   const scoreMeaning = `
     <hr/>
     <p><b>What this score means</b></p>
     <ul>
-      <li><b>Lower score = lower estimated carbon emissions</b> based on daily habits (travel, electricity, food, and waste).</li>
+      <li><b>Lower score = lower estimated carbon emissions</b> based on daily habits.</li>
       <li>Your estimated footprint is <b>${fmtCO2(footprintOverall)}</b>.</li>
-      <li>This is an <b>approximate indicator</b>, not a lab measurement in exact kg CO₂.</li>
-      <li><b>World context:</b> Many households fall in a “medium” band. If your score is <b>0–20</b>, your habits are generally <b>better than typical</b>. If it is <b>50+</b>, there are <b>clear improvement areas</b> compared to common best practices.</li>
+      <li>This is an <b>approximate indicator</b>, not an exact measurement.</li>
+      <li><b>World context:</b> Score <b>0–20</b> is usually <b>better than typical</b>. Score <b>50+</b> suggests <b>clear improvement areas</b>.</li>
     </ul>
   `;
 
@@ -345,7 +337,7 @@ function buildRecommendations({ footprintOverall, arenaFootprint }){
   `;
 }
 
-/* ---------------- Render arena page (3 questions together) ---------------- */
+/* ---------------- Render arena page ---------------- */
 function renderArenaPage(){
   const arena = ARENAS[state.arenaIndex];
   const qIdx = getArenaQuestionIndexes(arena);
@@ -404,7 +396,6 @@ function renderResults(){
   overallScoreEl.textContent = footprintOverall;
   badgeTextEl.textContent = band.badge;
   whereYouAreEl.textContent = band.where;
-
   if(co2LineEl) co2LineEl.textContent = fmtCO2(footprintOverall);
 
   arenaScoresEl.innerHTML = "";
@@ -442,12 +433,7 @@ function saveProfileOrAlert(){
     return null;
   }
 
-  return {
-    parentName,
-    phone: digits,
-    address,
-    childClass: cls
-  };
+  return { parentName, phone: digits, address, childClass: cls };
 }
 
 /* ---------------- Build answers payload ---------------- */
@@ -554,7 +540,7 @@ async function loadLeaderboard(){
   }
 }
 
-/* ---------------- Events ---------------- */
+/* ---------------- Init / Events ---------------- */
 btnStart.onclick = () => {
   const profile = saveProfileOrAlert();
   if(!profile) return;
@@ -612,10 +598,8 @@ btnRestart.onclick = () => {
   show("profile");
 };
 
-// ✅ Refresh leaderboard should NOT submit
 btnRefreshLB.onclick = async () => {
   await loadLeaderboard();
 };
 
-/* ---------------- Init ---------------- */
 show("profile");
