@@ -1,5 +1,5 @@
 /* =========================
-   style.css (FULL)
+   style.css (FULL) — adds arena question blocks
    ========================= */
 
 /* ===== Base ===== */
@@ -152,7 +152,6 @@ input::placeholder{ opacity:.55; }
   margin-bottom:8px;
 }
 .qtitle{ font-size:1.22rem; font-weight:760; line-height:1.25; }
-/* tips line is empty now, keep styling minimal */
 .qsub{ margin-top:6px; opacity:.86; font-size:.96rem; min-height: 0; }
 
 .progress{ min-width:160px; text-align:right; }
@@ -174,8 +173,28 @@ input::placeholder{ opacity:.55; }
   margin-top:14px;
   display:flex;
   flex-direction:column;
+  gap:12px;
+}
+
+/* ✅ Arena block */
+.qblock{
+  padding:12px;
+  border-radius:16px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.14);
+}
+.qblockTitle{
+  font-weight:800;
+  margin-bottom:10px;
+  line-height:1.25;
+}
+.qblockOptions{
+  display:flex;
+  flex-direction:column;
   gap:10px;
 }
+
+/* options */
 .opt{
   padding:12px;
   border-radius:14px;
