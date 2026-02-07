@@ -1,31 +1,56 @@
-/* =========================
-   app.js — FULL
-   ========================= */
-
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwv6RkxDakPptLFkBntJx7Q9gZO_46ymanX-lctuh-rvvLKXXgv9lKLFitcmwZYTXsMjQ/exec";
-const LS_KEY = "dps_tajcity_cf_v12";
+const LS_KEY = "dps_tajcity_cf_v13";
+
+/* =========================
+   Baselines (per-person)
+   - Global avg: 6.6 tCO2e/year (per capita)
+   - India avg: 1.89 tCO2/year (per capita)
+   We'll convert to "family" by multiplying by familySize (default 4)
+========================= */
+const BASE_GLOBAL_PER_PERSON_T = 6.6;
+const BASE_INDIA_PER_PERSON_T = 1.89;
+
+let familySize = 4;
 
 /* ---------------- Footprint banding (LOWER is better) ---------------- */
 function scoreBand(footprint){
-  if (footprint <= 10) return { badge:"🏆 Eco Champion", where:"Excellent! Very low footprint habits. Keep it consistent and inspire others." };
-  if (footprint <= 20) return { badge:"🌟 Green Leader", where:"Low footprint overall. A couple of small upgrades can make it even better." };
-  if (footprint <= 35) return { badge:"✅ Eco Smart", where:"Good progress. Pick 2–3 habits to reduce footprint further this month." };
-  if (footprint <= 55) return { badge:"🌱 Getting Started", where:"Good base. Start with easy wins like shared travel, efficient cooling, and daily waste separation." };
-  return { badge:"🚀 Ready for Change", where:"High footprint today. Choose just two improvements this week and stay consistent." };
+  if (footprint <= 10) return { badge:"🏆 Eco Champion", where:"Excellent! Very low footprint habits." };
+  if (footprint <= 20) return { badge:"🌟 Green Leader", where:"Low footprint overall. A couple of small upgrades can improve further." };
+  if (footprint <= 35) return { badge:"✅ Eco Smart", where:"Good progress. Improve 1–2 habits to reduce footprint further." };
+  if (footprint <= 55) return { badge:"🌱 Getting Started", where:"Good base. Start with easy wins (shared travel, efficient cooling, waste separation)." };
+  return { badge:"🚀 Ready for Change", where:"High footprint today. Choose two improvements this week and stay consistent." };
 }
 
-/* ---------------- CO₂ estimate (simple indicator) ---------------- */
-function estimateCO2FromFootprintScore(score){
-  // Indicator mapping (not direct measurement):
-  // 0   -> ~1.5 tCO₂e/year
-  // 100 -> ~6.0 tCO₂e/year
-  const s = Math.max(0, Math.min(100, Number(score) || 0));
-  const t = 1.5 + (s/100) * 4.5;
-  return { t: Math.round(t * 10) / 10, kg: Math.round(t * 1000) };
+/* ---------------- CO2 model (simple + explainable) ----------------
+   Convert footprint score (0..100) -> total tCO2e/year.
+   Keep range realistic for families (India urban): 2 to 12 tCO2e/year for family of 4.
+   You can tune min/max later.
+------------------------------------------------------------------- */
+function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+
+function estimateFamilyCO2FromScore(score){
+  const s = clamp(Number(score) || 0, 0, 100);
+  const minT = 2.0;      // very low family footprint
+  const maxT = 12.0;     // high family footprint
+  const t = minT + (s/100) * (maxT - minT);
+  return Math.round(t * 10) / 10; // 1 decimal
 }
-function fmtCO2(score){
-  const e = estimateCO2FromFootprintScore(score);
-  return `≈ ${e.t} tCO₂e/year (${e.kg} kg)`;
+
+/* Split CO2 into areas using weights (must sum to 1.0) */
+const AREA_WEIGHTS = {
+  transport: 0.22,
+  home:      0.26,
+  devices:   0.10,
+  food:      0.28,
+  waste:     0.14
+};
+
+/* range tag for each area */
+function areaVerdict(areaScore){
+  // areaScore is footprint 0..100 (lower better)
+  if (areaScore <= 20) return { tag:"✅ Good", text:"Low impact in this area." };
+  if (areaScore <= 45) return { tag:"⚠️ Can Improve", text:"Some improvement possible." };
+  return { tag:"🚨 Needs Focus", text:"Highest improvement potential." };
 }
 
 /* ---------------- Quiz structure ---------------- */
@@ -45,7 +70,7 @@ const QUIZ = [
     {label:"Carpool with other parents", pts:4},
     {label:"Private car (only family)", pts:1},
   ]},
-  { arena:"transport", text:"When waiting near school, the car/vehicle engine is…", options:[
+  { arena:"transport", text:"When waiting near school, the vehicle engine is…", options:[
     {label:"Always switched off", pts:5},
     {label:"Sometimes switched off", pts:3},
     {label:"Mostly kept on", pts:1},
@@ -62,7 +87,7 @@ const QUIZ = [
     {label:"2–5 hours/day", pts:3},
     {label:"5+ hours/day", pts:1},
   ]},
-  { arena:"home", text:"If you use AC at home, what type is mostly used?", options:[
+  { arena:"home", text:"If you use AC, which type is mostly used?", options:[
     {label:"No AC", pts:5},
     {label:"Split AC (inverter / newer)", pts:4},
     {label:"Split AC (older)", pts:3},
@@ -98,12 +123,12 @@ const QUIZ = [
     {label:"Sometimes", pts:3},
     {label:"Often", pts:1},
   ]},
-  { arena:"food", text:"Your fruits/vegetables at home are mostly…", options:[
+  { arena:"food", text:"Fruits/vegetables at home are mostly…", options:[
     {label:"Local + seasonal", pts:5},
     {label:"Mixed", pts:3},
     {label:"Mostly packaged/imported", pts:1},
   ]},
-  { arena:"food", text:"At home, cooking is mainly done using…", options:[
+  { arena:"food", text:"Cooking at home is mainly done using…", options:[
     {label:"Induction mostly", pts:5},
     {label:"Mix of induction + gas", pts:4},
     {label:"Gas mostly", pts:3},
@@ -115,12 +140,12 @@ const QUIZ = [
     {label:"Sometimes", pts:3},
     {label:"No", pts:1},
   ]},
-  { arena:"waste", text:"Where do you usually put kitchen waste (food peels/leftovers)?", options:[
+  { arena:"waste", text:"Kitchen waste (peels/leftovers) is usually…", options:[
     {label:"Compost at home / give for composting", pts:5},
     {label:"Sometimes compost, sometimes mixed", pts:3},
     {label:"Thrown with all waste", pts:1},
   ]},
-  { arena:"waste", text:"Single-use plastic (bags/cups) use at home is…", options:[
+  { arena:"waste", text:"Single-use plastic (bags/cups) use is…", options:[
     {label:"Rare", pts:5},
     {label:"Sometimes", pts:3},
     {label:"Often", pts:1},
@@ -160,9 +185,14 @@ const progText = el("progText");
 const overallScoreEl = el("overallScore");
 const badgeTextEl = el("badgeText");
 const whereYouAreEl = el("whereYouAre");
-const co2LineEl = el("co2Line");
 const arenaScoresEl = el("arenaScores");
 const recommendationsEl = el("recommendations");
+
+const co2TotalEl = el("co2Total");
+const compareBarsEl = el("compareBars");
+const famSizeEl = el("famSize");
+const btnFamMinus = el("btnFamMinus");
+const btnFamPlus = el("btnFamPlus");
 
 const btnRestart = el("btnRestart");
 const btnRefreshLB = el("btnRefreshLB");
@@ -170,7 +200,7 @@ const submitStatus = el("submitStatus");
 const leaderboardEl = el("leaderboard");
 
 /* ---------------- Storage ---------------- */
-function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+function save(){ localStorage.setItem(LS_KEY, JSON.stringify({state, familySize})); }
 function clearSave(){ localStorage.removeItem(LS_KEY); }
 
 function show(which){
@@ -202,11 +232,13 @@ function getArenaQuestionIndexes(arena){
   return idx;
 }
 function isArenaComplete(arena){
-  const qIdx = getArenaQuestionIndexes(arena);
-  return qIdx.every(qi => state.answers[qi] !== undefined);
+  return getArenaQuestionIndexes(arena).every(qi => state.answers[qi] !== undefined);
 }
 
-/* ---------------- Scoring ---------------- */
+/* ---------------- Scoring ----------------
+   We compute eco% per area -> footprint score per area = 100 - eco%
+   Lower footprint score = better
+----------------------------------------- */
 function calcScores(){
   const agg = Object.fromEntries(ARENAS.map(a => [a, {got:0, max:0}]));
 
@@ -227,7 +259,7 @@ function calcScores(){
     const {got, max} = agg[a];
     const eco = max ? Math.round((got/max)*100) : 0;
     arenaEco[a] = eco;
-    arenaFootprint[a] = 100 - eco; // lower is better
+    arenaFootprint[a] = 100 - eco;
   });
 
   const ecoOverall = Math.round(
@@ -238,6 +270,57 @@ function calcScores(){
   return { footprintOverall, arenaFootprint };
 }
 
+/* ---------------- CO2 split by areas ---------------- */
+function calcCO2Breakdown(footprintOverall, arenaFootprint){
+  const totalT = estimateFamilyCO2FromScore(footprintOverall);
+
+  // scale each area by (weight * relative footprint intensity)
+  // relative intensity: 0.6 .. 1.4 (based on area score)
+  const intensity = {};
+  ARENAS.forEach(a => {
+    const s = clamp(arenaFootprint[a], 0, 100);
+    intensity[a] = 0.6 + (s/100) * 0.8; // 0.6..1.4
+  });
+
+  // raw contribution
+  let sum = 0;
+  const raw = {};
+  ARENAS.forEach(a => {
+    raw[a] = AREA_WEIGHTS[a] * intensity[a];
+    sum += raw[a];
+  });
+
+  // normalized to totalT
+  const out = {};
+  ARENAS.forEach(a => {
+    out[a] = Math.round((totalT * (raw[a]/sum)) * 10) / 10;
+  });
+
+  return { totalT, byAreaT: out };
+}
+
+/* ---------------- Comparison bars ---------------- */
+function renderComparisonBars(yourT){
+  const indiaT = Math.round((BASE_INDIA_PER_PERSON_T * familySize) * 10) / 10;
+  const globalT = Math.round((BASE_GLOBAL_PER_PERSON_T * familySize) * 10) / 10;
+
+  const maxV = Math.max(yourT, indiaT, globalT, 0.1);
+
+  const rows = [
+    { name:"Your family", val: yourT },
+    { name:"India avg", val: indiaT },
+    { name:"Global avg", val: globalT }
+  ];
+
+  compareBarsEl.innerHTML = rows.map(r => `
+    <div class="cbar">
+      <div class="cbarName">${esc(r.name)}</div>
+      <div class="cbarTrack"><div class="cbarFill" style="width:${Math.round((r.val/maxV)*100)}%"></div></div>
+      <div class="cbarVal">${r.val.toFixed(1)}</div>
+    </div>
+  `).join("");
+}
+
 /* ---------------- Recommendations ---------------- */
 function buildRecommendations({ footprintOverall, arenaFootprint }){
   const band = scoreBand(footprintOverall);
@@ -245,99 +328,46 @@ function buildRecommendations({ footprintOverall, arenaFootprint }){
   const sorted = Object.entries(arenaFootprint).sort((a,b)=>b[1]-a[1]);
   const weakest = sorted[0]?.[0];
 
-  const cityContext = `
-    <p><b>City context</b></p>
-    <ul>
-      <li><b>School gate traffic</b> increases idling and local air pollution.</li>
-      <li><b>Cooling</b> becomes inefficient if doors/windows are open.</li>
-      <li>Big gains come from <b>shared travel, efficient appliances, and daily waste separation</b>.</li>
-    </ul>
-  `;
-
   const doByArena = {
     transport: [
       "Prefer school bus or a consistent carpool for routine commute.",
       "Switch off the engine while waiting near the school gate.",
-      "Maintain tyre pressure and regular service for better mileage."
+      "Maintain tyre pressure and regular service."
     ],
     home: [
-      "If buying new AC, prefer inverter split AC with a good star rating.",
-      "Replace remaining bulbs with LED—start from the most-used rooms."
+      "Prefer inverter split AC (if buying new).",
+      "Use LED bulbs in the most-used rooms first.",
+      "Avoid running AC with doors/windows open."
     ],
     devices: [
-      "Switch off TV/set-top box/chargers at night to reduce standby power.",
-      "Reduce unnecessary screen-on time (background TV)."
+      "Switch off TV/set-top box/chargers at night.",
+      "Reduce background screen time."
     ],
     food: [
-      "Plan portions to reduce leftovers and food waste.",
-      "If possible, shift some cooking to induction for daily meals."
+      "Plan portions to reduce food waste.",
+      "Prefer local + seasonal produce when possible."
     ],
     waste: [
       "Segregate wet and dry waste daily (two bins).",
-      "Reduce single-use plastic by keeping cloth bags handy."
+      "Reduce single-use plastic by keeping cloth bags."
     ]
   };
-
-  const avoidByArena = {
-    transport: [
-      "Avoid idling in long queues near school.",
-      "Avoid private car for very short trips when walking/shared options are practical."
-    ],
-    home: [
-      "Avoid running AC with doors/windows open.",
-      "Avoid very old/inefficient AC for long hours if alternatives exist."
-    ],
-    devices: [
-      "Avoid leaving chargers plugged in continuously.",
-      "Avoid unnecessary repeated heating cycles."
-    ],
-    food: [
-      "Avoid cooking extra that often gets wasted.",
-      "Avoid frequent packaged food when fresh options are available."
-    ],
-    waste: [
-      "Avoid mixing wet and dry waste—it reduces recycling.",
-      "Avoid frequent use of single-use plastic bags/cups."
-    ]
-  };
-
-  const doList = (doByArena[weakest] || []).slice(0,3);
-  const avoidList = (avoidByArena[weakest] || []).slice(0,2);
-
-  const nextSteps = (footprintOverall <= 10) ? [
-    "Maintain consistency and inspire one more family (carpool/LED/segregation).",
-    "Track one habit for 14 days until it becomes automatic."
-  ] : [
-    "Pick two easy upgrades and keep them consistent for 14 days.",
-    "Recheck your score after 2 weeks to see improvement."
-  ];
-
-  const scoreMeaning = `
-    <hr/>
-    <p><b>What this score means</b></p>
-    <ul>
-      <li><b>Lower score = lower estimated carbon emissions</b> based on daily habits.</li>
-      <li>Your estimated footprint is <b>${fmtCO2(footprintOverall)}</b>.</li>
-      <li>This is an <b>approximate indicator</b>, not an exact measurement.</li>
-      <li><b>World context:</b> Score <b>0–20</b> is usually <b>better than typical</b>. Score <b>50+</b> suggests <b>clear improvement areas</b>.</li>
-    </ul>
-  `;
 
   return `
     <p><b>${band.badge}</b></p>
     <p>${band.where}</p>
-    ${cityContext}
-    <p><b>What to do</b></p>
-    <ul>${doList.map(x=>`<li>${x}</li>`).join("")}</ul>
-    <p><b>What to avoid</b></p>
-    <ul>${avoidList.map(x=>`<li>${x}</li>`).join("")}</ul>
-    <p><b>What to do next</b></p>
-    <ul>${nextSteps.map(x=>`<li>${x}</li>`).join("")}</ul>
-    ${scoreMeaning}
+    <p><b>Top 3 actions to improve first</b></p>
+    <ul>${(doByArena[weakest]||[]).slice(0,3).map(x=>`<li>${x}</li>`).join("")}</ul>
+    <hr/>
+    <p><b>Meaning</b></p>
+    <ul>
+      <li><b>Lower score</b> means lower estimated CO₂ emissions (based on habits).</li>
+      <li>We also show <b>area-wise CO₂</b> so you know where impact is high.</li>
+    </ul>
   `;
 }
 
-/* ---------------- Render arena page ---------------- */
+/* ---------------- Render arena page (3 questions together) ---------------- */
 function renderArenaPage(){
   const arena = ARENAS[state.arenaIndex];
   const qIdx = getArenaQuestionIndexes(arena);
@@ -388,21 +418,36 @@ function renderArenaPage(){
   btnNext.textContent = (state.arenaIndex === ARENAS.length - 1) ? "Finish →" : "Next →";
 }
 
-/* ---------------- Render results ---------------- */
+/* ---------------- Render results (CO2 meaningful) ---------------- */
 function renderResults(){
   const { footprintOverall, arenaFootprint } = calcScores();
   const band = scoreBand(footprintOverall);
 
+  const { totalT, byAreaT } = calcCO2Breakdown(footprintOverall, arenaFootprint);
+
   overallScoreEl.textContent = footprintOverall;
   badgeTextEl.textContent = band.badge;
   whereYouAreEl.textContent = band.where;
-  if(co2LineEl) co2LineEl.textContent = fmtCO2(footprintOverall);
 
+  co2TotalEl.textContent = `≈ ${totalT.toFixed(1)} tCO₂e/year`;
+  famSizeEl.textContent = String(familySize);
+  renderComparisonBars(totalT);
+
+  // 5 cards: show score + CO2 + good/bad
   arenaScoresEl.innerHTML = "";
   ARENAS.forEach(a => {
+    const s = arenaFootprint[a];
+    const v = areaVerdict(s);
+
     const box = document.createElement("div");
     box.className = "box";
-    box.innerHTML = `<div class="k">${LABEL[a]}</div><div class="v">${arenaFootprint[a]}/100</div>`;
+    box.innerHTML = `
+      <div class="k">${LABEL[a]}</div>
+      <div class="v">${s}/100</div>
+      <div class="subline"><b>≈ ${byAreaT[a].toFixed(1)} tCO₂e/year</b></div>
+      <div class="subline">${v.text}</div>
+      <div class="tag">${v.tag}</div>
+    `;
     arenaScoresEl.appendChild(box);
   });
 
@@ -518,18 +563,19 @@ async function loadLeaderboard(){
     all.forEach(row => {
       const score = Number(row.overall) || 0;
       const band = scoreBand(score);
+      const totalT = estimateFamilyCO2FromScore(score);
 
       const div = document.createElement("div");
       div.className = "lbrow";
       div.innerHTML = `
         <div><b>${medal(row.rank)}</b></div>
         <div>
-          <div style="font-weight:850">${esc(row.name || row.parentName || "Anonymous")}</div>
-          <div style="opacity:.85;font-size:.92em">${esc(row.className || row.childClass || "-")} • ${band.badge}</div>
+          <div style="font-weight:850">${esc(row.name || "Anonymous")}</div>
+          <div style="opacity:.85;font-size:.92em">${esc(row.className || "-")} • ${band.badge}</div>
         </div>
         <div style="text-align:right;">
-          <b>${score}</b>
-          <div style="opacity:.85;font-size:.85em">${fmtCO2(score)}</div>
+          <b>${totalT.toFixed(1)} tCO₂e/yr</b>
+          <div style="opacity:.85;font-size:.85em">Score: ${score}</div>
         </div>
       `;
       leaderboardEl.appendChild(div);
@@ -600,6 +646,21 @@ btnRestart.onclick = () => {
 
 btnRefreshLB.onclick = async () => {
   await loadLeaderboard();
+};
+
+/* family size controls */
+btnFamMinus.onclick = () => {
+  familySize = clamp(familySize - 1, 1, 10);
+  famSizeEl.textContent = String(familySize);
+  save();
+  // if already on results, re-render comparisons
+  if(stepResults.style.display === "block") renderResults();
+};
+btnFamPlus.onclick = () => {
+  familySize = clamp(familySize + 1, 1, 10);
+  famSizeEl.textContent = String(familySize);
+  save();
+  if(stepResults.style.display === "block") renderResults();
 };
 
 show("profile");
