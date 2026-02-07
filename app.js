@@ -36,7 +36,7 @@ function bandByCO2(totalT){
   return { badge:"🚀 Ready for Change", where:"High footprint today. Choose two improvements this week and stay consistent." };
 }
 
-/* Maps habit footprint score (0 best → 100 worst) to CO2 t/year (family of 4) */
+/* Map habit footprint score (0 best → 100 worst) to family CO2 (t/year) */
 function estimateFamilyCO2FromFootprintScore(score){
   const s = Math.max(0, Math.min(100, Number(score)||0));
   const minT = 2.0;
@@ -45,7 +45,7 @@ function estimateFamilyCO2FromFootprintScore(score){
   return Math.round(t*10)/10;
 }
 
-/* Quiz (15 q) */
+/* Quiz */
 const QUIZ = [
   // transport
   { arena:"transport", text:"How does your child usually go to school?", options:[
@@ -230,8 +230,8 @@ function calcFootprintScores(){
   const arenaFootprint = {};
   ARENAS.forEach(a => {
     const {got, max} = agg[a];
-    const eco = max ? Math.round((got/max)*100) : 0;
-    arenaFootprint[a] = 100 - eco; // lower better
+    const eco = max ? Math.round((got/max)*100) : 0; // higher eco = better habits
+    arenaFootprint[a] = 100 - eco; // footprint score (lower better)
   });
 
   const overall = Math.round(
@@ -281,31 +281,73 @@ function renderComparisonBars(yourT){
   `).join("");
 }
 
+/* ✅ Recommendations based on highest CO2 areas */
 function buildRecommendations(totalT, byAreaT){
-  const sorted = Object.entries(byAreaT).sort((a,b)=>b[1]-a[1]);
-  const worst = sorted[0]?.[0];
+  const sortedDesc = Object.entries(byAreaT).sort((a,b)=>b[1]-a[1]);
+  const worst1 = sortedDesc[0]?.[0];
+  const worst2 = sortedDesc[1]?.[0];
+  const best = Object.entries(byAreaT).sort((a,b)=>a[1]-b[1])[0]?.[0];
 
   const tips = {
-    transport:["Prefer school bus/carpool.","Switch off engine while waiting.","Maintain tyre pressure/service."],
-    home:["Prefer inverter split AC if buying new.","Use LEDs in most-used rooms.","Reduce AC hours where possible."],
-    devices:["Switch off chargers/TV at night.","Reduce background screens."],
-    food:["Plan portions to reduce food waste.","Prefer local + seasonal vegetables."],
-    waste:["Segregate wet/dry daily.","Compost kitchen waste if possible.","Avoid single-use plastic."],
+    transport: [
+      "Prefer school bus or a consistent carpool for daily commute.",
+      "Switch off engine while waiting near school gate (avoid idling).",
+      "Maintain tyre pressure + regular service for better mileage."
+    ],
+    home: [
+      "If buying new: prefer inverter split AC (more efficient than older window AC).",
+      "Reduce AC hours; use fan first where possible.",
+      "Switch remaining bulbs to LED starting with most-used rooms."
+    ],
+    devices: [
+      "Switch off TV/set-top box/chargers at night (reduce standby power).",
+      "Reduce background screen time (TV running while not watching).",
+      "Use microwave only when needed; avoid repeated reheating cycles."
+    ],
+    food: [
+      "Plan portions and store leftovers properly to reduce food waste.",
+      "Prefer seasonal/local fruits and vegetables more often.",
+      "Use pressure cooker/covered cooking when possible to save fuel."
+    ],
+    waste: [
+      "Segregate wet and dry waste daily (two bins).",
+      "Compost kitchen waste (peels/leftovers) if possible.",
+      "Carry reusable cloth bag; reduce single-use plastic."
+    ]
   };
 
-  return `
+  const explainArea = (a) => `${LABEL[a]} ≈ ${byAreaT[a].toFixed(1)} tCO₂e/yr`;
+  const listHTML = (arr) => `<ul>${arr.map(x=>`<li>${x}</li>`).join("")}</ul>`;
+
+  const blocks = [];
+  if(worst1){
+    blocks.push(`
+      <p><b>Top area to reduce first:</b> ${explainArea(worst1)}</p>
+      ${listHTML((tips[worst1]||[]).slice(0,3))}
+    `);
+  }
+  if(worst2){
+    blocks.push(`
+      <p><b>Second focus area:</b> ${explainArea(worst2)}</p>
+      ${listHTML((tips[worst2]||[]).slice(0,3))}
+    `);
+  }
+
+  const meaning = `
     <p><b>Meaning</b></p>
     <ul>
-      <li>This is an <b>approximate CO₂ estimate</b> based on habits.</li>
+      <li>This is an <b>approximate CO₂ estimate</b> based on habits (not a lab measurement).</li>
       <li><b>Lower CO₂ is better</b> (lower emissions).</li>
-      <li>Comparison uses <b>family of 4</b> as reference.</li>
+      <li>Comparison uses <b>family of ${FAMILY_SIZE}</b> as reference.</li>
     </ul>
-    <p><b>Focus area to reduce CO₂ first: ${LABEL[worst] || ""}</b></p>
-    <ul>${(tips[worst] || []).slice(0,3).map(x=>`<li>${x}</li>`).join("")}</ul>
   `;
+
+  const bestNote = best ? `<p><b>Your strongest area:</b> ${LABEL[best]} (keep this habit strong)</p>` : "";
+
+  return `${meaning}${blocks.join("")}${bestNote}`;
 }
 
-/* Render one arena page (3 questions together) */
+/* Render one arena page */
 function renderArenaPage(){
   const arena = ARENAS[state.arenaIndex];
   const qIdx = getArenaQuestionIndexes(arena);
@@ -382,15 +424,7 @@ function renderResults(){
     arenaScoresEl.appendChild(box);
   });
 
-  const recText = buildRecommendations(totalT, byAreaT);
-  recommendationsEl.innerHTML = recText;
-
-  // store for submission
-  state._co2Total = totalT;
-  state._co2ByArea = byAreaT;
-  state._recommendationsText = recommendationsEl.textContent || "";
-  state._badgeLabel = band.badge;
-  save();
+  recommendationsEl.innerHTML = buildRecommendations(totalT, byAreaT);
 }
 
 /* Validate profile */
@@ -426,11 +460,24 @@ function buildAnswerPayload(){
   return out;
 }
 
-/* Submit (no-cors) */
+/* ✅ Submit: recompute CO2 + recs here so Sheet never gets 0 */
 async function submitToSheet(){
   if(state.submittedOnce) return;
 
   submitStatus.textContent = "Saving to Google Sheet...";
+
+  const { overallFootprintScore, arenaFootprint } = calcFootprintScores();
+  const { totalT, byAreaT } = calcCO2Breakdown(overallFootprintScore, arenaFootprint);
+  const band = bandByCO2(totalT);
+
+  const recHTML = buildRecommendations(totalT, byAreaT);
+  const recText = recHTML
+    .replaceAll(/<li>/g, "• ")
+    .replaceAll(/<\/li>/g, "\n")
+    .replaceAll(/<\/p>/g, "\n\n")
+    .replaceAll(/<[^>]*>/g, "")
+    .replaceAll(/\n{3,}/g, "\n\n")
+    .trim();
 
   const payload = {
     submissionId: getSubmissionId(),
@@ -438,15 +485,15 @@ async function submitToSheet(){
     phone: state.profile.phone,
     address: state.profile.address,
     childClass: state.profile.childClass,
-    badgeLabel: state._badgeLabel || "",
-    recommendationsText: state._recommendationsText || "",
+    badgeLabel: band.badge,
+    recommendationsText: recText,
     co2: {
-      total: state._co2Total || 0,
-      transport: state._co2ByArea?.transport || 0,
-      home: state._co2ByArea?.home || 0,
-      devices: state._co2ByArea?.devices || 0,
-      food: state._co2ByArea?.food || 0,
-      waste: state._co2ByArea?.waste || 0,
+      total: totalT,
+      transport: byAreaT.transport,
+      home: byAreaT.home,
+      devices: byAreaT.devices,
+      food: byAreaT.food,
+      waste: byAreaT.waste
     },
     answers: buildAnswerPayload()
   };
@@ -461,13 +508,13 @@ async function submitToSheet(){
 
     state.submittedOnce = true;
     save();
-    submitStatus.textContent = "✅ Saved. Loading leaderboard...";
+    submitStatus.textContent = "✅ Saved. Refreshing leaderboard...";
     setTimeout(loadLeaderboard, 700);
 
   }catch(e){
     state.submittedOnce = false;
     save();
-    submitStatus.textContent = `❌ Save failed. Please try Refresh Leaderboard.`;
+    submitStatus.textContent = "❌ Save failed. Please try Refresh Leaderboard.";
   }
 }
 
