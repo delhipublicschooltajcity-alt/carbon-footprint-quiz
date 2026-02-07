@@ -65,7 +65,6 @@
           <div>
             <div class="pill" id="arenaPill"></div>
             <div class="qtitle" id="qText"></div>
-            <!-- tips removed: keep empty or remove element -->
             <div class="qsub" id="qSub"></div>
           </div>
 
@@ -75,6 +74,7 @@
           </div>
         </div>
 
+        <!-- ✅ now contains 3 questions (arena-wise) -->
         <div class="options" id="options"></div>
 
         <div class="nav">
@@ -89,13 +89,13 @@
 
         <div class="scoreRow">
           <div class="bigScore">
-            <!-- ✅ footprint score -->
             <div class="score" id="overallScore">0</div>
             <div class="badge" id="badgeText">—</div>
             <div class="small" id="whereYouAre">—</div>
-            <div class="small" style="margin-top:8px;opacity:.85">
-              <b>Note:</b> This is a <b>Carbon Footprint Score</b> out of 100. <b>Lower is better.</b>
-              <br/>0–10 = Eco Champion • 11–20 = Green Leader • 21–35 = Eco Smart • 36–55 = Getting Started • 56–100 = Ready for Change
+
+            <div class="small" style="margin-top:10px;opacity:.88">
+              <b>Carbon Footprint Score (0–100)</b>: lower is better.
+              <br/>0–10 Eco Champion • 11–20 Green Leader • 21–35 Eco Smart • 36–55 Getting Started • 56–100 Ready for Change
             </div>
           </div>
 
@@ -103,11 +103,10 @@
         </div>
 
         <div class="insights">
-          <h3>Next steps (what to do, what to avoid, and what to do next)</h3>
+          <h3>Next steps</h3>
           <div id="recommendations" class="recText"></div>
         </div>
 
-        <!-- Only 2 buttons -->
         <div class="actions">
           <button class="btn ghost" id="btnRestart" type="button">Restart</button>
           <button class="btn ghost" id="btnRefreshLB" type="button">Refresh Leaderboard</button>
