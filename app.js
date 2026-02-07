@@ -1,9 +1,9 @@
 /* =========================
-   app.js (FULL) — Arena-wise pages (3 questions together)
+   app.js (FULL) — Arena-wise pages (3 questions together) + CO₂ estimate + leaderboard CO₂
    ========================= */
 
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwv6RkxDakPptLFkBntJx7Q9gZO_46ymanX-lctuh-rvvLKXXgv9lKLFitcmwZYTXsMjQ/exec";
-const LS_KEY = "dps_tajcity_cf_v11";
+const LS_KEY = "dps_tajcity_cf_v12"; // ✅ bump to force fresh state
 
 /* ---------------- Footprint banding (LOWER is better) ---------------- */
 function scoreBand(footprint){
@@ -12,6 +12,20 @@ function scoreBand(footprint){
   if (footprint <= 35) return { badge:"✅ Eco Smart", where:"Good progress. Pick 2–3 habits to reduce footprint further this month." };
   if (footprint <= 55) return { badge:"🌱 Getting Started", where:"Good base. Start with easy wins like shared travel, efficient cooling, and daily waste separation." };
   return { badge:"🚀 Ready for Change", where:"High footprint today. Choose just two improvements this week and stay consistent." };
+}
+
+/* ---------------- CO₂ estimate (simple indicator) ---------------- */
+function estimateCO2FromFootprintScore(score){
+  // Indicator mapping (not direct measurement):
+  // 0   -> ~1.5 tCO₂e/year
+  // 100 -> ~6.0 tCO₂e/year
+  const s = Math.max(0, Math.min(100, Number(score) || 0));
+  const t = 1.5 + (s/100) * 4.5;
+  return { t: Math.round(t * 10) / 10, kg: Math.round(t * 1000) };
+}
+function fmtCO2(score){
+  const e = estimateCO2FromFootprintScore(score);
+  return `≈ ${e.t} tCO₂e/year (${e.kg} kg)`;
 }
 
 /* ---------------- Quiz structure ---------------- */
@@ -140,7 +154,7 @@ const childClassEl = el("childClass");
 
 const btnStart = el("btnStart");
 const arenaPill = el("arenaPill");
-const qText = el("qText");   // used as arena heading now
+const qText = el("qText");   // arena heading
 const qSub = el("qSub");     // kept empty
 const optionsEl = el("options");
 const btnBack = el("btnBack");
@@ -151,6 +165,7 @@ const progText = el("progText");
 const overallScoreEl = el("overallScore");
 const badgeTextEl = el("badgeText");
 const whereYouAreEl = el("whereYouAre");
+const co2LineEl = el("co2Line"); // ✅ added in HTML
 const arenaScoresEl = el("arenaScores");
 const recommendationsEl = el("recommendations");
 
@@ -228,7 +243,7 @@ function calcScores(){
   return { footprintOverall, arenaFootprint };
 }
 
-/* ---------------- Recommendations ---------------- */
+/* ---------------- Recommendations + score meaning ---------------- */
 function buildRecommendations({ footprintOverall, arenaFootprint }){
   const band = scoreBand(footprintOverall);
 
@@ -303,14 +318,16 @@ function buildRecommendations({ footprintOverall, arenaFootprint }){
     "Recheck your score after 2 weeks to see improvement."
   ];
 
+  const co2 = estimateCO2FromFootprintScore(footprintOverall);
+
   const scoreMeaning = `
     <hr/>
     <p><b>What this score means</b></p>
     <ul>
-      <li>This is a <b>Carbon Footprint Score</b> from <b>0 to 100</b>.</li>
       <li><b>Lower score = lower estimated carbon emissions</b> based on daily habits (travel, electricity, food, and waste).</li>
-      <li>It is a <b>simple indicator</b>, not a direct measurement in kg CO₂. But it helps compare habits.</li>
-      <li><b>World context (easy way to understand):</b> Globally, an average person causes roughly “medium-level” emissions. If your score is <b>0–20</b>, it usually means your family habits are <b>better than typical</b>. If it is <b>50+</b>, it means there are <b>clear improvement areas</b> compared to common best practices.</li>
+      <li>Your estimated footprint is <b>${fmtCO2(footprintOverall)}</b>.</li>
+      <li>This is an <b>approximate indicator</b>, not a lab measurement in exact kg CO₂.</li>
+      <li><b>World context:</b> Many households fall in a “medium” band. If your score is <b>0–20</b>, your habits are generally <b>better than typical</b>. If it is <b>50+</b>, there are <b>clear improvement areas</b> compared to common best practices.</li>
     </ul>
   `;
 
@@ -365,7 +382,7 @@ function renderArenaPage(){
         state.answers[qi] = oi;
         save();
         btnNext.disabled = !isArenaComplete(arena);
-        renderArenaPage(); // re-render to highlight selection
+        renderArenaPage();
       };
       optWrap.appendChild(div);
     });
@@ -376,7 +393,6 @@ function renderArenaPage(){
 
   btnBack.disabled = state.arenaIndex === 0;
   btnNext.disabled = !isArenaComplete(arena);
-
   btnNext.textContent = (state.arenaIndex === ARENAS.length - 1) ? "Finish →" : "Next →";
 }
 
@@ -388,6 +404,8 @@ function renderResults(){
   overallScoreEl.textContent = footprintOverall;
   badgeTextEl.textContent = band.badge;
   whereYouAreEl.textContent = band.where;
+
+  if(co2LineEl) co2LineEl.textContent = fmtCO2(footprintOverall);
 
   arenaScoresEl.innerHTML = "";
   ARENAS.forEach(a => {
@@ -512,7 +530,8 @@ async function loadLeaderboard(){
     leaderboardEl.innerHTML = "";
 
     all.forEach(row => {
-      const band = scoreBand(Number(row.overall) || 0);
+      const score = Number(row.overall) || 0;
+      const band = scoreBand(score);
 
       const div = document.createElement("div");
       div.className = "lbrow";
@@ -522,7 +541,10 @@ async function loadLeaderboard(){
           <div style="font-weight:850">${esc(row.name || row.parentName || "Anonymous")}</div>
           <div style="opacity:.85;font-size:.92em">${esc(row.className || row.childClass || "-")} • ${band.badge}</div>
         </div>
-        <div style="text-align:right;"><b>${row.overall}</b></div>
+        <div style="text-align:right;">
+          <b>${score}</b>
+          <div style="opacity:.85;font-size:.85em">${fmtCO2(score)}</div>
+        </div>
       `;
       leaderboardEl.appendChild(div);
     });
