@@ -1,3 +1,6 @@
+<!-- =========================
+     index.html (FULL)
+     ========================= -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -46,8 +49,8 @@
             <input id="address" type="text" placeholder="e.g., Tajganj, Agra" autocomplete="street-address" />
           </label>
 
-          <label>Child Class / Section (format: 6-B)
-            <input id="childClass" type="text" placeholder="e.g., 6-B" />
+          <label>Child Class (1–12)
+            <input id="childClass" type="text" placeholder="e.g., 6" />
           </label>
         </div>
 
@@ -62,6 +65,7 @@
           <div>
             <div class="pill" id="arenaPill"></div>
             <div class="qtitle" id="qText"></div>
+            <!-- tips removed: keep empty or remove element -->
             <div class="qsub" id="qSub"></div>
           </div>
 
@@ -85,9 +89,14 @@
 
         <div class="scoreRow">
           <div class="bigScore">
+            <!-- ✅ footprint score -->
             <div class="score" id="overallScore">0</div>
             <div class="badge" id="badgeText">—</div>
             <div class="small" id="whereYouAre">—</div>
+            <div class="small" style="margin-top:8px;opacity:.85">
+              <b>Note:</b> This is a <b>Carbon Footprint Score</b> out of 100. <b>Lower is better.</b>
+              <br/>0–10 = Eco Champion • 11–20 = Green Leader • 21–35 = Eco Smart • 36–55 = Getting Started • 56–100 = Ready for Change
+            </div>
           </div>
 
           <div class="arenaScores" id="arenaScores"></div>
