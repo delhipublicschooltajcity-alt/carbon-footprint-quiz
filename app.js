@@ -1,9 +1,9 @@
 /* =========================
-   app.js (FULL)
+   app.js (FULL) — Arena-wise pages (3 questions together)
    ========================= */
 
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwv6RkxDakPptLFkBntJx7Q9gZO_46ymanX-lctuh-rvvLKXXgv9lKLFitcmwZYTXsMjQ/exec";
-const LS_KEY = "dps_tajcity_cf_v10";
+const LS_KEY = "dps_tajcity_cf_v11";
 
 /* ---------------- Footprint banding (LOWER is better) ---------------- */
 function scoreBand(footprint){
@@ -26,92 +26,92 @@ const LABEL = {
 
 const QUIZ = [
   // TRANSPORT (3)
-  { arena:"transport", pill:"🚗 Transport", text:"How does your child usually go to school?", options:[
+  { arena:"transport", text:"How does your child usually go to school?", options:[
     {label:"Walk / Cycle", pts:5},
     {label:"School bus / shared van", pts:4},
     {label:"Carpool with other parents", pts:4},
     {label:"Private car (only family)", pts:1},
   ]},
-  { arena:"transport", pill:"🚗 Transport", text:"When waiting near school, the car/vehicle engine is…", options:[
+  { arena:"transport", text:"When waiting near school, the car/vehicle engine is…", options:[
     {label:"Always switched off", pts:5},
     {label:"Sometimes switched off", pts:3},
     {label:"Mostly kept on", pts:1},
   ]},
-  { arena:"transport", pill:"🚗 Transport", text:"Vehicle servicing + tyre pressure checks are…", options:[
+  { arena:"transport", text:"Vehicle servicing + tyre pressure checks are…", options:[
     {label:"Regular", pts:5},
     {label:"Occasional", pts:3},
     {label:"Rare", pts:1},
   ]},
 
-  // HOME (3)  ✅ removed temperature question, added AC type question
-  { arena:"home", pill:"🏠 Home Energy", text:"AC usage at home on most days is…", options:[
+  // HOME (3)
+  { arena:"home", text:"AC usage at home on most days is…", options:[
     {label:"No AC", pts:5},
     {label:"0–2 hours/day", pts:4},
     {label:"2–5 hours/day", pts:3},
     {label:"5+ hours/day", pts:1},
   ]},
-  { arena:"home", pill:"🏠 Home Energy", text:"If you use AC at home, what type is mostly used?", options:[
+  { arena:"home", text:"If you use AC at home, what type is mostly used?", options:[
     {label:"No AC", pts:5},
     {label:"Split AC (inverter / newer)", pts:4},
     {label:"Split AC (older)", pts:3},
     {label:"Window AC (older)", pts:2},
     {label:"Not sure", pts:3},
   ]},
-  { arena:"home", pill:"🏠 Home Energy", text:"Most of your home lighting is…", options:[
+  { arena:"home", text:"Most of your home lighting is…", options:[
     {label:"Mostly LED", pts:5},
     {label:"Mix of LED + old bulbs", pts:3},
     {label:"Mostly old bulbs/tubes", pts:1},
   ]},
 
-  // DEVICES (3) ✅ added microwave question, removed option notes
-  { arena:"devices", pill:"📱 Devices", text:"At night, plugs for TV/chargers are…", options:[
+  // DEVICES (3)
+  { arena:"devices", text:"At night, plugs for TV/chargers are…", options:[
     {label:"Mostly switched off", pts:5},
     {label:"Sometimes switched off", pts:3},
     {label:"Rarely switched off", pts:1},
   ]},
-  { arena:"devices", pill:"📱 Devices", text:"Family screen time per day (TV + mobile + laptop) is…", options:[
+  { arena:"devices", text:"Family screen time per day (TV + mobile + laptop) is…", options:[
     {label:"< 2 hours", pts:5},
     {label:"2–4 hours", pts:4},
     {label:"4–6 hours", pts:2},
     {label:"6+ hours", pts:1},
   ]},
-  { arena:"devices", pill:"📱 Devices", text:"Microwave use at home is…", options:[
+  { arena:"devices", text:"Microwave use at home is…", options:[
     {label:"Rare / almost never", pts:5},
     {label:"1–3 times/week", pts:4},
     {label:"Most days (1–2 times/day)", pts:3},
     {label:"Many times/day", pts:2},
   ]},
 
-  // FOOD (3) ✅ removed “Cooking habits...” replaced with gas vs induction
-  { arena:"food", pill:"🍲 Food", text:"How often does food get wasted at home?", options:[
+  // FOOD (3)
+  { arena:"food", text:"How often does food get wasted at home?", options:[
     {label:"Rarely", pts:5},
     {label:"Sometimes", pts:3},
     {label:"Often", pts:1},
   ]},
-  { arena:"food", pill:"🍲 Food", text:"Your fruits/vegetables at home are mostly…", options:[
+  { arena:"food", text:"Your fruits/vegetables at home are mostly…", options:[
     {label:"Local + seasonal", pts:5},
     {label:"Mixed", pts:3},
     {label:"Mostly packaged/imported", pts:1},
   ]},
-  { arena:"food", pill:"🍲 Food", text:"At home, cooking is mainly done using…", options:[
+  { arena:"food", text:"At home, cooking is mainly done using…", options:[
     {label:"Induction mostly", pts:5},
     {label:"Mix of induction + gas", pts:4},
     {label:"Gas mostly", pts:3},
     {label:"Not sure", pts:3},
   ]},
 
-  // WASTE (3) ✅ removed “Kitchen waste is usually…”
-  { arena:"waste", pill:"🗑️ Waste", text:"Do you segregate wet and dry waste at home?", options:[
+  // WASTE (3)
+  { arena:"waste", text:"Do you segregate wet and dry waste at home?", options:[
     {label:"Yes, regularly", pts:5},
     {label:"Sometimes", pts:3},
     {label:"No", pts:1},
   ]},
-  { arena:"waste", pill:"🗑️ Waste", text:"Where do you usually put kitchen waste (food peels/leftovers)?", options:[
+  { arena:"waste", text:"Where do you usually put kitchen waste (food peels/leftovers)?", options:[
     {label:"Compost at home / give for composting", pts:5},
     {label:"Sometimes compost, sometimes mixed", pts:3},
     {label:"Thrown with all waste", pts:1},
   ]},
-  { arena:"waste", pill:"🗑️ Waste", text:"Single-use plastic (bags/cups) use at home is…", options:[
+  { arena:"waste", text:"Single-use plastic (bags/cups) use at home is…", options:[
     {label:"Rare", pts:5},
     {label:"Sometimes", pts:3},
     {label:"Often", pts:1},
@@ -121,8 +121,8 @@ const QUIZ = [
 /* ---------------- State ---------------- */
 let state = {
   profile:{ parentName:"", phone:"", address:"", childClass:"" },
-  index:0,
-  answers:{},
+  arenaIndex:0,     // ✅ one page per arena
+  answers:{},       // key: questionIndex -> optionIndex
   _submittedOnce:false,
   submissionId:null
 };
@@ -140,8 +140,8 @@ const childClassEl = el("childClass");
 
 const btnStart = el("btnStart");
 const arenaPill = el("arenaPill");
-const qText = el("qText");
-const qSub = el("qSub"); // may exist; we keep but blank it
+const qText = el("qText");   // used as arena heading now
+const qSub = el("qSub");     // kept empty
 const optionsEl = el("options");
 const btnBack = el("btnBack");
 const btnNext = el("btnNext");
@@ -183,6 +183,17 @@ function getSubmissionId(){
   state.submissionId = `sub_${Date.now()}_${Math.random().toString(16).slice(2)}`;
   save();
   return state.submissionId;
+}
+
+/* ---------------- Helpers: arena questions ---------------- */
+function getArenaQuestionIndexes(arena){
+  const idx = [];
+  QUIZ.forEach((q, qi) => { if(q.arena === arena) idx.push(qi); });
+  return idx;
+}
+function isArenaComplete(arena){
+  const qIdx = getArenaQuestionIndexes(arena);
+  return qIdx.every(qi => state.answers[qi] !== undefined);
 }
 
 /* ---------------- Scoring (footprint: LOWER is better) ---------------- */
@@ -250,7 +261,7 @@ function buildRecommendations({ footprintOverall, arenaFootprint }){
     ],
     food: [
       "Plan portions to reduce leftovers and food waste.",
-      "If possible, shift some cooking to induction (efficient for small/medium meals)."
+      "If possible, shift some cooking to induction for daily small/medium meals."
     ],
     waste: [
       "Segregate wet and dry waste daily (two bins).",
@@ -269,7 +280,7 @@ function buildRecommendations({ footprintOverall, arenaFootprint }){
     ],
     devices: [
       "Avoid leaving chargers plugged in continuously.",
-      "Avoid unnecessary multiple microwave cycles for small heating."
+      "Avoid unnecessary repeated heating cycles."
     ],
     food: [
       "Avoid cooking extra that often gets wasted.",
@@ -292,6 +303,17 @@ function buildRecommendations({ footprintOverall, arenaFootprint }){
     "Recheck your score after 2 weeks to see improvement."
   ];
 
+  const scoreMeaning = `
+    <hr/>
+    <p><b>What this score means</b></p>
+    <ul>
+      <li>This is a <b>Carbon Footprint Score</b> from <b>0 to 100</b>.</li>
+      <li><b>Lower score = lower estimated carbon emissions</b> based on daily habits (travel, electricity, food, and waste).</li>
+      <li>It is a <b>simple indicator</b>, not a direct measurement in kg CO₂. But it helps compare habits.</li>
+      <li><b>World context (easy way to understand):</b> Globally, an average person causes roughly “medium-level” emissions. If your score is <b>0–20</b>, it usually means your family habits are <b>better than typical</b>. If it is <b>50+</b>, it means there are <b>clear improvement areas</b> compared to common best practices.</li>
+    </ul>
+  `;
+
   return `
     <p><b>${band.badge}</b></p>
     <p>${band.where}</p>
@@ -302,40 +324,60 @@ function buildRecommendations({ footprintOverall, arenaFootprint }){
     <ul>${avoidList.map(x=>`<li>${x}</li>`).join("")}</ul>
     <p><b>What to do next</b></p>
     <ul>${nextSteps.map(x=>`<li>${x}</li>`).join("")}</ul>
+    ${scoreMeaning}
   `;
 }
 
-/* ---------------- Render quiz ---------------- */
-function renderQuestion(){
-  const q = QUIZ[state.index];
+/* ---------------- Render arena page (3 questions together) ---------------- */
+function renderArenaPage(){
+  const arena = ARENAS[state.arenaIndex];
+  const qIdx = getArenaQuestionIndexes(arena);
 
-  arenaPill.textContent = q.pill;
-  qText.textContent = q.text;
-
-  // Tips removed
+  arenaPill.textContent = LABEL[arena];
+  qText.textContent = "Answer these questions";
   if(qSub) qSub.textContent = "";
 
-  progText.textContent = `${state.index+1}/${QUIZ.length}`;
-  progFill.style.width = `${Math.round((state.index / QUIZ.length) * 100)}%`;
+  progText.textContent = `${state.arenaIndex+1}/${ARENAS.length}`;
+  progFill.style.width = `${Math.round((state.arenaIndex / ARENAS.length) * 100)}%`;
 
   optionsEl.innerHTML = "";
-  const selected = state.answers[state.index];
 
-  q.options.forEach((opt, i) => {
-    const div = document.createElement("div");
-    div.className = "opt" + (selected === i ? " selected" : "");
-    div.innerHTML = `<div class="o1">${opt.label}</div>`;
-    div.onclick = () => {
-      state.answers[state.index] = i;
-      save();
-      btnNext.disabled = false;
-      renderQuestion();
-    };
-    optionsEl.appendChild(div);
+  qIdx.forEach((qi, localPos) => {
+    const q = QUIZ[qi];
+    const selected = state.answers[qi];
+
+    const block = document.createElement("div");
+    block.className = "qblock";
+
+    const title = document.createElement("div");
+    title.className = "qblockTitle";
+    title.textContent = `${localPos+1}. ${q.text}`;
+    block.appendChild(title);
+
+    const optWrap = document.createElement("div");
+    optWrap.className = "qblockOptions";
+
+    q.options.forEach((opt, oi) => {
+      const div = document.createElement("div");
+      div.className = "opt" + (selected === oi ? " selected" : "");
+      div.innerHTML = `<div class="o1">${opt.label}</div>`;
+      div.onclick = () => {
+        state.answers[qi] = oi;
+        save();
+        btnNext.disabled = !isArenaComplete(arena);
+        renderArenaPage(); // re-render to highlight selection
+      };
+      optWrap.appendChild(div);
+    });
+
+    block.appendChild(optWrap);
+    optionsEl.appendChild(block);
   });
 
-  btnBack.disabled = state.index === 0;
-  btnNext.disabled = (state.answers[state.index] === undefined);
+  btnBack.disabled = state.arenaIndex === 0;
+  btnNext.disabled = !isArenaComplete(arena);
+
+  btnNext.textContent = (state.arenaIndex === ARENAS.length - 1) ? "Finish →" : "Next →";
 }
 
 /* ---------------- Render results ---------------- */
@@ -343,7 +385,6 @@ function renderResults(){
   const { footprintOverall, arenaFootprint } = calcScores();
   const band = scoreBand(footprintOverall);
 
-  // ✅ show footprint score (lower better)
   overallScoreEl.textContent = footprintOverall;
   badgeTextEl.textContent = band.badge;
   whereYouAreEl.textContent = band.where;
@@ -497,35 +538,36 @@ btnStart.onclick = () => {
   if(!profile) return;
 
   state.profile = profile;
-  state.index = 0;
+  state.arenaIndex = 0;
   state.answers = {};
   state._submittedOnce = false;
   state.submissionId = null;
   save();
 
   show("quiz");
-  renderQuestion();
+  renderArenaPage();
 };
 
 btnBack.onclick = () => {
-  state.index = Math.max(0, state.index - 1);
+  state.arenaIndex = Math.max(0, state.arenaIndex - 1);
   save();
-  renderQuestion();
+  renderArenaPage();
 };
 
 btnNext.onclick = async () => {
-  if(state.answers[state.index] === undefined) return;
+  const arena = ARENAS[state.arenaIndex];
+  if(!isArenaComplete(arena)) return;
 
-  state.index += 1;
+  state.arenaIndex += 1;
   save();
 
-  if(state.index >= QUIZ.length){
+  if(state.arenaIndex >= ARENAS.length){
     show("results");
     renderResults();
     await submitToSheet();
     setTimeout(loadLeaderboard, 900);
   }else{
-    renderQuestion();
+    renderArenaPage();
   }
 };
 
@@ -533,7 +575,7 @@ btnRestart.onclick = () => {
   clearSave();
   state = {
     profile:{ parentName:"", phone:"", address:"", childClass:"" },
-    index:0,
+    arenaIndex:0,
     answers:{},
     _submittedOnce:false,
     submissionId:null
