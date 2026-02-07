@@ -1,13 +1,17 @@
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwv6RkxDakPptLFkBntJx7Q9gZO_46ymanX-lctuh-rvvLKXXgv9lKLFitcmwZYTXsMjQ/exec";
-const LS_KEY = "dps_tajcity_cf_v9";
+/* =========================
+   app.js (FULL)
+   ========================= */
 
-/* ---------------- Badge banding ---------------- */
-function scoreBand(overall){
-  if (overall >= 90) return { badge:"🏆 Eco Champion", where:"Outstanding habits. You’re already low-footprint—now maintain consistency and inspire others." };
-  if (overall >= 75) return { badge:"🌟 Green Leader", where:"Strong practices across categories. A few routine upgrades can make you even better." };
-  if (overall >= 60) return { badge:"✅ Eco Smart", where:"Good direction. With 2–3 consistent changes, you can reduce footprint noticeably in a month." };
-  if (overall >= 45) return { badge:"🌱 Getting Started", where:"You have a good base. Start with the easiest wins—shared travel, LED, and reducing waste." };
-  return { badge:"🚀 Ready for Change", where:"Big improvement potential. Pick just two habits this week and stick to them—results come fast." };
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwv6RkxDakPptLFkBntJx7Q9gZO_46ymanX-lctuh-rvvLKXXgv9lKLFitcmwZYTXsMjQ/exec";
+const LS_KEY = "dps_tajcity_cf_v10";
+
+/* ---------------- Footprint banding (LOWER is better) ---------------- */
+function scoreBand(footprint){
+  if (footprint <= 10) return { badge:"🏆 Eco Champion", where:"Excellent! Very low footprint habits. Keep it consistent and inspire others." };
+  if (footprint <= 20) return { badge:"🌟 Green Leader", where:"Low footprint overall. A couple of small upgrades can make it even better." };
+  if (footprint <= 35) return { badge:"✅ Eco Smart", where:"Good progress. Pick 2–3 habits to reduce footprint further this month." };
+  if (footprint <= 55) return { badge:"🌱 Getting Started", where:"Good base. Start with easy wins like shared travel, efficient cooling, and daily waste separation." };
+  return { badge:"🚀 Ready for Change", where:"High footprint today. Choose just two improvements this week and stay consistent." };
 }
 
 /* ---------------- Quiz structure ---------------- */
@@ -21,89 +25,96 @@ const LABEL = {
 };
 
 const QUIZ = [
-  { arena:"transport", pill:"🚗 Transport", tip:"Shared travel reduces per-family footprint.", text:"How does your child usually go to school?", options:[
-    {label:"Walk / Cycle", pts:5, note:"Zero fuel + healthier routine"},
-    {label:"School bus / shared van", pts:4, note:"Shared commute lowers per-family emissions"},
-    {label:"Carpool with other parents", pts:4, note:"Good when it’s consistent"},
-    {label:"Private car (only family)", pts:1, note:"Highest footprint for daily school run"},
+  // TRANSPORT (3)
+  { arena:"transport", pill:"🚗 Transport", text:"How does your child usually go to school?", options:[
+    {label:"Walk / Cycle", pts:5},
+    {label:"School bus / shared van", pts:4},
+    {label:"Carpool with other parents", pts:4},
+    {label:"Private car (only family)", pts:1},
   ]},
-  { arena:"transport", pill:"🚗 Transport", tip:"Idling adds local fumes near children.", text:"When waiting near school, the engine is…", options:[
-    {label:"Always switched off", pts:5, note:"Best for air quality near the gate"},
-    {label:"Sometimes switched off", pts:3, note:"Try making it a fixed habit"},
-    {label:"Mostly kept on", pts:1, note:"Avoid idling in queues"},
+  { arena:"transport", pill:"🚗 Transport", text:"When waiting near school, the car/vehicle engine is…", options:[
+    {label:"Always switched off", pts:5},
+    {label:"Sometimes switched off", pts:3},
+    {label:"Mostly kept on", pts:1},
   ]},
-  { arena:"transport", pill:"🚗 Transport", tip:"Maintenance improves mileage.", text:"Vehicle service + tyre pressure checks are…", options:[
-    {label:"Regular", pts:5, note:"Better mileage = less fuel burned"},
-    {label:"Occasional", pts:3, note:"Set a monthly reminder"},
-    {label:"Rare", pts:1, note:"Low mileage increases fuel use"},
-  ]},
-
-  { arena:"home", pill:"🏠 Home Energy", tip:"Cooling choices change electricity use a lot.", text:"AC usage on most days is…", options:[
-    {label:"No AC", pts:5, note:"Lowest electricity load"},
-    {label:"0–2 hours/day", pts:4, note:"Controlled usage"},
-    {label:"2–5 hours/day", pts:3, note:"Moderate usage"},
-    {label:"5+ hours/day", pts:1, note:"High usage"},
-  ]},
-  { arena:"home", pill:"🏠 Home Energy", tip:"A higher setpoint saves electricity.", text:"If AC is used, temperature is usually…", options:[
-    {label:"26–28°C", pts:5, note:"Efficient + comfortable"},
-    {label:"24–25°C", pts:3, note:"Can improve by increasing slightly"},
-    {label:"Below 24°C", pts:1, note:"High electricity use"},
-    {label:"Not sure", pts:2, note:"Try 26°C as default"},
-  ]},
-  { arena:"home", pill:"🏠 Home Energy", tip:"LEDs are one of the fastest wins.", text:"Most of your home lighting is…", options:[
-    {label:"Mostly LED", pts:5, note:"Great—lower electricity use"},
-    {label:"Mix of LED + old bulbs", pts:3, note:"Replace remaining bulbs gradually"},
-    {label:"Mostly old bulbs/tubes", pts:1, note:"Switching to LED helps a lot"},
+  { arena:"transport", pill:"🚗 Transport", text:"Vehicle servicing + tyre pressure checks are…", options:[
+    {label:"Regular", pts:5},
+    {label:"Occasional", pts:3},
+    {label:"Rare", pts:1},
   ]},
 
-  { arena:"devices", pill:"📱 Devices", tip:"Standby power is small but constant.", text:"At night, plugs for TV/chargers are…", options:[
-    {label:"Mostly switched off", pts:5, note:"Excellent routine"},
-    {label:"Sometimes switched off", pts:3, note:"Pick 2–3 plugs daily"},
-    {label:"Rarely switched off", pts:1, note:"Standby adds up over months"},
+  // HOME (3)  ✅ removed temperature question, added AC type question
+  { arena:"home", pill:"🏠 Home Energy", text:"AC usage at home on most days is…", options:[
+    {label:"No AC", pts:5},
+    {label:"0–2 hours/day", pts:4},
+    {label:"2–5 hours/day", pts:3},
+    {label:"5+ hours/day", pts:1},
   ]},
-  { arena:"devices", pill:"📱 Devices", tip:"Balanced screen time helps health + energy use.", text:"Family screen time per day (TV + mobile + laptop) is…", options:[
-    {label:"< 2 hours", pts:5, note:"Great balance"},
-    {label:"2–4 hours", pts:4, note:"Good"},
-    {label:"4–6 hours", pts:2, note:"Try reducing background screens"},
-    {label:"6+ hours", pts:1, note:"High usage"},
+  { arena:"home", pill:"🏠 Home Energy", text:"If you use AC at home, what type is mostly used?", options:[
+    {label:"No AC", pts:5},
+    {label:"Split AC (inverter / newer)", pts:4},
+    {label:"Split AC (older)", pts:3},
+    {label:"Window AC (older)", pts:2},
+    {label:"Not sure", pts:3},
   ]},
-  { arena:"devices", pill:"📱 Devices", tip:"Reuse reduces manufacturing emissions.", text:"Old electronics are usually…", options:[
-    {label:"Reuse / repair / donate", pts:5, note:"Best option"},
-    {label:"Send to e-waste recycler", pts:4, note:"Safe disposal"},
-    {label:"Keep unused at home", pts:2, note:"Try donate/recycle"},
-    {label:"Throw with regular waste", pts:1, note:"Avoid"},
-  ]},
-
-  { arena:"food", pill:"🍲 Food", tip:"Food waste creates avoidable emissions.", text:"How often does food get wasted at home?", options:[
-    {label:"Rarely", pts:5, note:"Good planning"},
-    {label:"Sometimes", pts:3, note:"Plan portions + storage"},
-    {label:"Often", pts:1, note:"Big improvement area"},
-  ]},
-  { arena:"food", pill:"🍲 Food", tip:"Seasonal/local food often needs less transport & storage.", text:"Your fruits/vegetables are mostly…", options:[
-    {label:"Local + seasonal", pts:5, note:"Best choice"},
-    {label:"Mixed", pts:3, note:"Try more seasonal/local"},
-    {label:"Mostly packaged/imported", pts:1, note:"Higher footprint"},
-  ]},
-  { arena:"food", pill:"🍲 Food", tip:"Covered cooking saves fuel.", text:"Cooking habits are mostly…", options:[
-    {label:"Pressure cooker / covered cooking often", pts:5, note:"Efficient"},
-    {label:"Mixed", pts:3, note:"Can optimize"},
-    {label:"Mostly open cooking for long time", pts:1, note:"Higher fuel use"},
+  { arena:"home", pill:"🏠 Home Energy", text:"Most of your home lighting is…", options:[
+    {label:"Mostly LED", pts:5},
+    {label:"Mix of LED + old bulbs", pts:3},
+    {label:"Mostly old bulbs/tubes", pts:1},
   ]},
 
-  { arena:"waste", pill:"🗑️ Waste", tip:"Segregation improves recycling and reduces landfill load.", text:"Do you segregate wet/dry waste at home?", options:[
-    {label:"Yes, regularly", pts:5, note:"Great habit"},
-    {label:"Sometimes", pts:3, note:"Try consistent daily"},
-    {label:"No", pts:1, note:"Start with 2 bins"},
+  // DEVICES (3) ✅ added microwave question, removed option notes
+  { arena:"devices", pill:"📱 Devices", text:"At night, plugs for TV/chargers are…", options:[
+    {label:"Mostly switched off", pts:5},
+    {label:"Sometimes switched off", pts:3},
+    {label:"Rarely switched off", pts:1},
   ]},
-  { arena:"waste", pill:"🗑️ Waste", tip:"Composting reduces landfill methane.", text:"Kitchen waste is usually…", options:[
-    {label:"Composted at home / given for composting", pts:5, note:"Best option"},
-    {label:"Mixed disposal", pts:3, note:"Start small with peels"},
-    {label:"Thrown with all waste", pts:1, note:"Improvement area"},
+  { arena:"devices", pill:"📱 Devices", text:"Family screen time per day (TV + mobile + laptop) is…", options:[
+    {label:"< 2 hours", pts:5},
+    {label:"2–4 hours", pts:4},
+    {label:"4–6 hours", pts:2},
+    {label:"6+ hours", pts:1},
   ]},
-  { arena:"waste", pill:"🗑️ Waste", tip:"Single-use plastic adds waste load.", text:"Single-use plastic (bags/cups) use is…", options:[
-    {label:"Rare", pts:5, note:"Good"},
-    {label:"Sometimes", pts:3, note:"Carry a cloth bag"},
-    {label:"Often", pts:1, note:"Replace with reusable"},
+  { arena:"devices", pill:"📱 Devices", text:"Microwave use at home is…", options:[
+    {label:"Rare / almost never", pts:5},
+    {label:"1–3 times/week", pts:4},
+    {label:"Most days (1–2 times/day)", pts:3},
+    {label:"Many times/day", pts:2},
+  ]},
+
+  // FOOD (3) ✅ removed “Cooking habits...” replaced with gas vs induction
+  { arena:"food", pill:"🍲 Food", text:"How often does food get wasted at home?", options:[
+    {label:"Rarely", pts:5},
+    {label:"Sometimes", pts:3},
+    {label:"Often", pts:1},
+  ]},
+  { arena:"food", pill:"🍲 Food", text:"Your fruits/vegetables at home are mostly…", options:[
+    {label:"Local + seasonal", pts:5},
+    {label:"Mixed", pts:3},
+    {label:"Mostly packaged/imported", pts:1},
+  ]},
+  { arena:"food", pill:"🍲 Food", text:"At home, cooking is mainly done using…", options:[
+    {label:"Induction mostly", pts:5},
+    {label:"Mix of induction + gas", pts:4},
+    {label:"Gas mostly", pts:3},
+    {label:"Not sure", pts:3},
+  ]},
+
+  // WASTE (3) ✅ removed “Kitchen waste is usually…”
+  { arena:"waste", pill:"🗑️ Waste", text:"Do you segregate wet and dry waste at home?", options:[
+    {label:"Yes, regularly", pts:5},
+    {label:"Sometimes", pts:3},
+    {label:"No", pts:1},
+  ]},
+  { arena:"waste", pill:"🗑️ Waste", text:"Where do you usually put kitchen waste (food peels/leftovers)?", options:[
+    {label:"Compost at home / give for composting", pts:5},
+    {label:"Sometimes compost, sometimes mixed", pts:3},
+    {label:"Thrown with all waste", pts:1},
+  ]},
+  { arena:"waste", pill:"🗑️ Waste", text:"Single-use plastic (bags/cups) use at home is…", options:[
+    {label:"Rare", pts:5},
+    {label:"Sometimes", pts:3},
+    {label:"Often", pts:1},
   ]},
 ];
 
@@ -130,7 +141,7 @@ const childClassEl = el("childClass");
 const btnStart = el("btnStart");
 const arenaPill = el("arenaPill");
 const qText = el("qText");
-const qSub = el("qSub");
+const qSub = el("qSub"); // may exist; we keep but blank it
 const optionsEl = el("options");
 const btnBack = el("btnBack");
 const btnNext = el("btnNext");
@@ -174,7 +185,7 @@ function getSubmissionId(){
   return state.submissionId;
 }
 
-/* ---------------- Scoring ---------------- */
+/* ---------------- Scoring (footprint: LOWER is better) ---------------- */
 function calcScores(){
   const agg = Object.fromEntries(ARENAS.map(a => [a, {got:0, max:0}]));
 
@@ -188,32 +199,38 @@ function calcScores(){
     }
   });
 
-  const arenaScores = {};
+  const arenaEco = {};
+  const arenaFootprint = {};
+
   ARENAS.forEach(a => {
     const {got, max} = agg[a];
-    arenaScores[a] = max ? Math.round((got/max)*100) : 0;
+    const eco = max ? Math.round((got/max)*100) : 0;     // higher = better
+    arenaEco[a] = eco;
+    arenaFootprint[a] = 100 - eco;                      // lower = better
   });
 
-  const overall = Math.round(
-    (arenaScores.transport + arenaScores.home + arenaScores.devices + arenaScores.food + arenaScores.waste) / 5
+  const ecoOverall = Math.round(
+    (arenaEco.transport + arenaEco.home + arenaEco.devices + arenaEco.food + arenaEco.waste) / 5
   );
+  const footprintOverall = 100 - ecoOverall;
 
-  return { overall, arenaScores };
+  return { footprintOverall, arenaFootprint };
 }
 
 /* ---------------- Recommendations ---------------- */
-function buildRecommendations({ overall, arenaScores }){
-  const band = scoreBand(overall);
+function buildRecommendations({ footprintOverall, arenaFootprint }){
+  const band = scoreBand(footprintOverall);
 
-  const sorted = Object.entries(arenaScores).sort((a,b)=>a[1]-b[1]);
+  // higher footprint => weakest area
+  const sorted = Object.entries(arenaFootprint).sort((a,b)=>b[1]-a[1]);
   const weakest = sorted[0]?.[0];
 
   const cityContext = `
     <p><b>City context</b></p>
     <ul>
-      <li><b>School hours and market peak time</b> often bring slow-moving traffic and idling near pedestrians.</li>
-      <li><b>Cooling can become inefficient</b> when doors/windows are left open—electricity use increases without better comfort.</li>
-      <li>For most families, the biggest practical gains come from <b>shared commute, sensible cooling, and daily waste separation</b>.</li>
+      <li><b>School gate traffic</b> often increases idling and local air pollution.</li>
+      <li><b>Cooling</b> becomes inefficient if doors/windows are left open.</li>
+      <li>Big practical gains come from <b>shared travel, efficient appliances, and daily waste separation</b>.</li>
     </ul>
   `;
 
@@ -224,35 +241,35 @@ function buildRecommendations({ overall, arenaScores }){
       "Maintain tyre pressure and regular service for better mileage."
     ],
     home: [
-      "Use fan first; if AC is needed, keep it around 26°C and keep doors/windows closed.",
+      "If buying new AC, prefer inverter split AC with a good star rating.",
       "Replace remaining bulbs with LED—start from the most-used rooms."
     ],
     devices: [
-      "Switch off TV/set-top box/chargers at night to reduce standby electricity use.",
-      "Reuse/repair/donate old devices instead of storing unused."
+      "Switch off TV/set-top box/chargers at night to reduce standby power.",
+      "Reduce unnecessary screen-on time (background TV)."
     ],
     food: [
-      "Plan portions to reduce leftovers; store food properly.",
-      "Prefer seasonal/local fruits and vegetables when possible."
+      "Plan portions to reduce leftovers and food waste.",
+      "If possible, shift some cooking to induction (efficient for small/medium meals)."
     ],
     waste: [
       "Segregate wet and dry waste daily (two bins).",
-      "Carry a cloth bag to reduce single-use plastic."
+      "Reduce single-use plastic by keeping cloth bags handy."
     ]
   };
 
   const avoidByArena = {
     transport: [
-      "Avoid idling in long queues near school and markets.",
+      "Avoid idling in long queues near school.",
       "Avoid private car for very short trips when walking/shared options are practical."
     ],
     home: [
-      "Avoid setting AC below 24°C for long hours.",
-      "Avoid running AC with doors/windows open."
+      "Avoid running AC with doors/windows open.",
+      "Avoid very old/inefficient AC for long hours if alternatives exist."
     ],
     devices: [
-      "Avoid throwing e-waste with regular garbage.",
-      "Avoid leaving chargers plugged in continuously."
+      "Avoid leaving chargers plugged in continuously.",
+      "Avoid unnecessary multiple microwave cycles for small heating."
     ],
     food: [
       "Avoid cooking extra that often gets wasted.",
@@ -267,7 +284,7 @@ function buildRecommendations({ overall, arenaScores }){
   const doList = (doByArena[weakest] || []).slice(0,3);
   const avoidList = (avoidByArena[weakest] || []).slice(0,2);
 
-  const nextSteps = (overall >= 90) ? [
+  const nextSteps = (footprintOverall <= 10) ? [
     "Maintain consistency and inspire one more family (carpool/LED/segregation).",
     "Track one habit for 14 days until it becomes automatic."
   ] : [
@@ -294,7 +311,9 @@ function renderQuestion(){
 
   arenaPill.textContent = q.pill;
   qText.textContent = q.text;
-  qSub.textContent = q.tip;
+
+  // Tips removed
+  if(qSub) qSub.textContent = "";
 
   progText.textContent = `${state.index+1}/${QUIZ.length}`;
   progFill.style.width = `${Math.round((state.index / QUIZ.length) * 100)}%`;
@@ -305,7 +324,7 @@ function renderQuestion(){
   q.options.forEach((opt, i) => {
     const div = document.createElement("div");
     div.className = "opt" + (selected === i ? " selected" : "");
-    div.innerHTML = `<div class="o1">${opt.label}</div><div class="o2">${opt.note}</div>`;
+    div.innerHTML = `<div class="o1">${opt.label}</div>`;
     div.onclick = () => {
       state.answers[state.index] = i;
       save();
@@ -321,10 +340,11 @@ function renderQuestion(){
 
 /* ---------------- Render results ---------------- */
 function renderResults(){
-  const { overall, arenaScores } = calcScores();
-  const band = scoreBand(overall);
+  const { footprintOverall, arenaFootprint } = calcScores();
+  const band = scoreBand(footprintOverall);
 
-  overallScoreEl.textContent = overall;
+  // ✅ show footprint score (lower better)
+  overallScoreEl.textContent = footprintOverall;
   badgeTextEl.textContent = band.badge;
   whereYouAreEl.textContent = band.where;
 
@@ -332,11 +352,11 @@ function renderResults(){
   ARENAS.forEach(a => {
     const box = document.createElement("div");
     box.className = "box";
-    box.innerHTML = `<div class="k">${LABEL[a]}</div><div class="v">${arenaScores[a]}/100</div>`;
+    box.innerHTML = `<div class="k">${LABEL[a]}</div><div class="v">${arenaFootprint[a]}/100</div>`;
     arenaScoresEl.appendChild(box);
   });
 
-  recommendationsEl.innerHTML = buildRecommendations({ overall, arenaScores });
+  recommendationsEl.innerHTML = buildRecommendations({ footprintOverall, arenaFootprint });
 }
 
 /* ---------------- Validate profile ---------------- */
@@ -357,8 +377,9 @@ function saveProfileOrAlert(){
     return null;
   }
 
-  if(!/^\d{1,2}\s*-\s*[A-Za-z]$/.test(childClass)){
-    alert("Child Class format should be like 6-B, 10-A, 12-C.");
+  const cls = childClass.replace(/\s+/g,"");
+  if(!/^(?:[1-9]|1[0-2])$/.test(cls)){
+    alert("Child Class should be a number from 1 to 12.");
     return null;
   }
 
@@ -366,7 +387,7 @@ function saveProfileOrAlert(){
     parentName,
     phone: digits,
     address,
-    childClass: childClass.replace(/\s+/g,"")
+    childClass: cls
   };
 }
 
@@ -385,11 +406,9 @@ async function submitToSheet(){
   if(state._submittedOnce) return;
 
   submitStatus.textContent = "Saving to Google Sheet...";
-  state._submittedOnce = true;
-  save();
 
-  const { overall, arenaScores } = calcScores();
-  const band = scoreBand(overall);
+  const { footprintOverall, arenaFootprint } = calcScores();
+  const band = scoreBand(footprintOverall);
 
   const payload = {
     submissionId: getSubmissionId(),
@@ -398,12 +417,12 @@ async function submitToSheet(){
     address: state.profile.address,
     childClass: state.profile.childClass,
     scores: {
-      overall,
-      transport: arenaScores.transport,
-      home: arenaScores.home,
-      devices: arenaScores.devices,
-      food: arenaScores.food,
-      waste: arenaScores.waste
+      overall: footprintOverall,
+      transport: arenaFootprint.transport,
+      home: arenaFootprint.home,
+      devices: arenaFootprint.devices,
+      food: arenaFootprint.food,
+      waste: arenaFootprint.waste
     },
     badgeLabel: band.badge,
     answers: buildAnswerPayload()
@@ -416,6 +435,9 @@ async function submitToSheet(){
       headers: {"Content-Type":"text/plain;charset=utf-8"},
       body: JSON.stringify(payload)
     });
+
+    state._submittedOnce = true;
+    save();
     submitStatus.textContent = "✅ Saved. Refreshing leaderboard...";
   }catch{
     submitStatus.textContent = "❌ Save failed. Tap Refresh Leaderboard to retry.";
@@ -526,10 +548,8 @@ btnRestart.onclick = () => {
   show("profile");
 };
 
+// ✅ Refresh leaderboard should NOT submit
 btnRefreshLB.onclick = async () => {
-  state._submittedOnce = false;
-  save();
-  await submitToSheet();
   await loadLeaderboard();
 };
 
