@@ -1,13 +1,10 @@
-<!-- =========================
-     index.html — FULL
-     ========================= -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>DPS Tajcity Agra • Family Carbon Footprint Check</title>
-  <link rel="stylesheet" href="style.css?v=v12" />
+  <link rel="stylesheet" href="style.css?v=v13" />
 </head>
 <body>
   <div class="bgGlow"></div>
@@ -20,7 +17,7 @@
         </div>
         <div>
           <h1>DPS Tajcity Agra • Family Carbon Footprint Check</h1>
-          <p class="sub">Parents edition • 15 questions • practical improvement plan</p>
+          <p class="sub">Parents edition • 15 questions • CO₂ estimate + improvement plan</p>
         </div>
       </div>
     </header>
@@ -73,7 +70,6 @@
           </div>
         </div>
 
-        <!-- arena-wise: 3 questions together -->
         <div class="options" id="options"></div>
 
         <div class="nav">
@@ -92,12 +88,21 @@
             <div class="badge" id="badgeText">—</div>
             <div class="small" id="whereYouAre">—</div>
 
-            <!-- CO₂ estimate -->
-            <div class="small" id="co2Line" style="margin-top:10px;opacity:.92"></div>
+            <div class="small" style="margin-top:10px;">
+              <b>Estimated total CO₂ footprint</b>
+              <div class="co2big" id="co2Total">—</div>
+              <div class="muted2">This is an approximate indicator based on habits (not a lab measurement).</div>
+            </div>
 
-            <div class="small" style="margin-top:10px;opacity:.88">
-              <b>Carbon Footprint Score (0–100)</b>: lower is better.
-              <br/>0–10 Eco Champion • 11–20 Green Leader • 21–35 Eco Smart • 36–55 Getting Started • 56–100 Ready for Change
+            <div class="compareBox" style="margin-top:14px;">
+              <div class="compareTitle">Comparison (tCO₂e/year)</div>
+              <div id="compareBars"></div>
+              <div class="muted2">Assuming a family size shown below.</div>
+              <div class="row" style="margin-top:10px;">
+                <button class="btn ghost mini" id="btnFamMinus" type="button">–</button>
+                <div class="famSize">Family size: <b id="famSize">4</b></div>
+                <button class="btn ghost mini" id="btnFamPlus" type="button">+</button>
+              </div>
             </div>
           </div>
 
@@ -118,13 +123,13 @@
 
         <hr />
 
-        <h3>🏆 Leaderboard</h3>
+        <h3>🏆 Leaderboard (Lower CO₂ is better)</h3>
         <div class="leaderboard" id="leaderboard"></div>
       </section>
 
     </main>
   </div>
 
-  <script src="app.js?v=v12" defer></script>
+  <script src="app.js?v=v13" defer></script>
 </body>
 </html>
