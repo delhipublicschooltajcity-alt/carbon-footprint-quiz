@@ -119,11 +119,7 @@
       height: 10px; border-radius: 999px; background: rgba(255,255,255,0.10);
       overflow: hidden; border: 1px solid rgba(255,255,255,0.10);
     }
-    .cbarFill {
-      height: 100%; width: 0%;
-      background: linear-gradient(90deg, rgba(116,185,255,.95), rgba(83,255,192,.85));
-      transition: width .6s ease;
-    }
+    .cbarFill { height: 100%; width: 0%; transition: width .6s ease; }
     .cbarVal { text-align: right; opacity: .9; font-size: .9rem; }
     .arenaScores { flex: 1 1 auto; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .box { padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.12); background: rgba(0,0,0,0.14); }
@@ -140,8 +136,6 @@
     .recText li { margin: 6px 0; }
     .actions { margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap; }
     .status { margin-top: 10px; opacity: .9; }
-
-    /* Result status badge */
     .result-status {
       display: inline-flex; align-items: center; gap: 8px;
       padding: 10px 20px; border-radius: 14px; font-weight: 800; font-size: 1.05rem; margin-top: 12px;
@@ -154,8 +148,6 @@
     .result-warning .dot { background: #ffc148; box-shadow: 0 0 8px rgba(255,193,72,.5); }
     .result-alarming { background: rgba(255,88,88,0.12); color: #ff5858; border: 1px solid rgba(255,88,88,0.3); }
     .result-alarming .dot { background: #ff5858; box-shadow: 0 0 8px rgba(255,88,88,.5); animation: pulse-dot 1.8s ease infinite; }
-
-    /* Leaderboard */
     .lb-section { margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.10); }
     .lb-section h3 { font-size: 1.15rem; margin-bottom: 14px; }
     .leaderboard { display: flex; flex-direction: column; gap: 10px; }
@@ -218,8 +210,6 @@
       </div>
     </header>
     <main class="card">
-
-      <!-- STEP 1: PROFILE -->
       <section id="stepProfile">
         <h2>Parent Details</h2>
         <p class="hint">Please fill details and answer 15 questions.
@@ -232,19 +222,10 @@
         </div>
         <div class="row"><button class="btn" id="btnStart" type="button">Start →</button></div>
       </section>
-
-      <!-- STEP 2: QUIZ -->
       <section id="stepQuiz" style="display:none;">
         <div class="toprow">
-          <div>
-            <div class="pill" id="arenaPill"></div>
-            <div class="qtitle" id="qText"></div>
-            <div class="qsub" id="qSub"></div>
-          </div>
-          <div class="progress">
-            <div class="bar"><div class="fill" id="progFill"></div></div>
-            <div class="pct" id="progText"></div>
-          </div>
+          <div><div class="pill" id="arenaPill"></div><div class="qtitle" id="qText"></div><div class="qsub" id="qSub"></div></div>
+          <div class="progress"><div class="bar"><div class="fill" id="progFill"></div></div><div class="pct" id="progText"></div></div>
         </div>
         <div class="options" id="options"></div>
         <div class="nav">
@@ -252,8 +233,6 @@
           <button class="btn" id="btnNext" type="button" disabled>Next →</button>
         </div>
       </section>
-
-      <!-- STEP 3: RESULTS -->
       <section id="stepResults" style="display:none;">
         <h2>Your Family Report</h2>
         <div class="scoreRow">
@@ -264,7 +243,7 @@
             <div class="spacer"></div>
             <div class="kpiTitle">Estimated total CO₂ footprint (family of 4)</div>
             <div class="kpiValue" id="co2Total">—</div>
-            <div class="miniNote">This is an approximate indicator based on habits (not a lab measurement).</div>
+            <div class="miniNote">Approximate indicator based on habits (not a lab measurement).</div>
             <div class="compareCard">
               <div class="compareTitle">Comparison (tCO₂e/year)</div>
               <div class="compareSub">Fixed family size: 4</div>
@@ -273,19 +252,13 @@
           </div>
           <div class="arenaScores" id="arenaScores"></div>
         </div>
-        <div class="insights">
-          <h3>Next steps</h3>
-          <div id="recommendations" class="recText"></div>
-        </div>
+        <div class="insights"><h3>Next steps</h3><div id="recommendations" class="recText"></div></div>
         <div class="actions">
           <button class="btn ghost" id="btnRestart" type="button">Restart</button>
           <button class="btn ghost" id="btnRefreshLB" type="button">Refresh Leaderboard</button>
         </div>
         <p class="status" id="submitStatus"></p>
-        <div class="lb-section">
-          <h3>🏆 Leaderboard — Lowest CO₂ Wins</h3>
-          <div class="leaderboard" id="leaderboard"></div>
-        </div>
+        <div class="lb-section"><h3>🏆 Leaderboard — Lowest CO₂ Wins</h3><div class="leaderboard" id="leaderboard"></div></div>
       </section>
     </main>
   </div>
@@ -295,218 +268,217 @@
    CONFIG
    =================================================================== */
 var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwv6RkxDakPptLFkBntJx7Q9gZO_46ymanX-lctuh-rvvLKXXgv9lKLFitcmwZYTXsMjQ/exec";
-var LS_KEY  = "dps_tajcity_cf_v2";
-var LB_KEY  = "dps_tajcity_lb_v2";
+var LS_KEY  = "dps_tajcity_cf_v3";
+var LB_KEY  = "dps_tajcity_lb_v3";
 var FAMILY_SIZE = 4;
 var BASE_GLOBAL_PER_PERSON_T = 6.6;
 var BASE_INDIA_PER_PERSON_T  = 1.89;
 
 var ARENAS = ["transport","home","devices","food","waste"];
 var LABEL  = {
-  transport: "🚗 Transport", home: "🏠 Home Energy",
-  devices: "📱 Devices", food: "🍲 Food", waste: "🗑️ Waste"
+  transport:"🚗 Transport", home:"🏠 Home Energy",
+  devices:"📱 Devices", food:"🍲 Food", waste:"🗑️ Waste"
 };
-var AREA_WEIGHTS = { transport:0.22, home:0.26, devices:0.10, food:0.28, waste:0.14 };
+
+/* =================================================================
+   DIRECT CO₂ PER OPTION (tCO₂e/year for family of 4)
+   -----------------------------------------------------------------
+   Instead of abstract points, each option now carries a REAL CO₂
+   value. This means different choices produce genuinely different
+   totals. Values based on Indian emission factors.
+   ================================================================= */
+var QUIZ = [
+  /* ── TRANSPORT ── */
+  {arena:"transport", text:"How does your child usually go to school?", options:[
+    {label:"Walk / Cycle",                co2: 0.00},
+    {label:"School bus / shared van",     co2: 0.25},
+    {label:"Carpool with other parents",  co2: 0.40},
+    {label:"Private car (only family)",   co2: 1.20}
+  ]},
+  {arena:"transport", text:"When waiting near school, the vehicle engine is…", options:[
+    {label:"Always switched off",     co2: 0.00},
+    {label:"Sometimes switched off",  co2: 0.15},
+    {label:"Mostly kept on",          co2: 0.45}
+  ]},
+  {arena:"transport", text:"Vehicle servicing + tyre pressure checks are…", options:[
+    {label:"Regular",     co2: 0.05},
+    {label:"Occasional",  co2: 0.20},
+    {label:"Rare",        co2: 0.50}
+  ]},
+
+  /* ── HOME ENERGY ── */
+  {arena:"home", text:"AC usage at home on most days is…", options:[
+    {label:"No AC",            co2: 0.00},
+    {label:"0–2 hours/day",    co2: 0.40},
+    {label:"2–5 hours/day",    co2: 1.10},
+    {label:"5+ hours/day",     co2: 2.20}
+  ]},
+  {arena:"home", text:"If you use AC, which type is mostly used?", options:[
+    {label:"No AC",                        co2: 0.00},
+    {label:"Split AC (inverter / newer)",  co2: 0.20},
+    {label:"Split AC (older)",             co2: 0.45},
+    {label:"Window AC (older)",            co2: 0.75},
+    {label:"Not sure",                     co2: 0.45}
+  ]},
+  {arena:"home", text:"Most of your home lighting is…", options:[
+    {label:"Mostly LED",             co2: 0.10},
+    {label:"Mix of LED + old bulbs", co2: 0.35},
+    {label:"Mostly old bulbs/tubes", co2: 0.70}
+  ]},
+
+  /* ── DEVICES ── */
+  {arena:"devices", text:"At night, plugs for TV/chargers are…", options:[
+    {label:"Mostly switched off",     co2: 0.05},
+    {label:"Sometimes switched off",  co2: 0.20},
+    {label:"Rarely switched off",     co2: 0.45}
+  ]},
+  {arena:"devices", text:"Family screen time per day (TV + mobile + laptop) is…", options:[
+    {label:"< 2 hours",   co2: 0.10},
+    {label:"2–4 hours",   co2: 0.25},
+    {label:"4–6 hours",   co2: 0.50},
+    {label:"6+ hours",    co2: 0.80}
+  ]},
+  {arena:"devices", text:"Microwave use at home is…", options:[
+    {label:"Rare / almost never",        co2: 0.02},
+    {label:"1–3 times/week",             co2: 0.08},
+    {label:"Most days (1–2 times/day)",  co2: 0.18},
+    {label:"Many times/day",             co2: 0.35}
+  ]},
+
+  /* ── FOOD ── */
+  {arena:"food", text:"How often does food get wasted at home?", options:[
+    {label:"Rarely",     co2: 0.10},
+    {label:"Sometimes",  co2: 0.55},
+    {label:"Often",      co2: 1.20}
+  ]},
+  {arena:"food", text:"Fruits/vegetables at home are mostly…", options:[
+    {label:"Local + seasonal",        co2: 0.15},
+    {label:"Mixed",                   co2: 0.45},
+    {label:"Mostly packaged/imported",co2: 0.90}
+  ]},
+  {arena:"food", text:"Cooking at home is mainly done using…", options:[
+    {label:"Induction mostly",        co2: 0.20},
+    {label:"Mix of induction + gas",  co2: 0.45},
+    {label:"Gas mostly",              co2: 0.70},
+    {label:"Not sure",                co2: 0.55}
+  ]},
+
+  /* ── WASTE ── */
+  {arena:"waste", text:"Do you segregate wet and dry waste at home?", options:[
+    {label:"Yes, regularly",  co2: 0.05},
+    {label:"Sometimes",       co2: 0.30},
+    {label:"No",              co2: 0.65}
+  ]},
+  {arena:"waste", text:"Kitchen waste (peels/leftovers) is usually…", options:[
+    {label:"Compost at home / give for composting",  co2: 0.05},
+    {label:"Sometimes compost, sometimes mixed",     co2: 0.25},
+    {label:"Thrown with all waste",                  co2: 0.55}
+  ]},
+  {arena:"waste", text:"Single-use plastic (bags/cups) use is…", options:[
+    {label:"Rare",       co2: 0.05},
+    {label:"Sometimes",  co2: 0.25},
+    {label:"Often",      co2: 0.60}
+  ]}
+];
 
 /* ===================================================================
-   STATUS: Safe / Warning / Alarming
+   STATUS HELPERS
    =================================================================== */
 function getCO2Status(t) {
-  if (t <= 4.5)  return { level:"safe",     label:"Safe",     cls:"safe",     icon:"✅" };
-  if (t <= 7.0)  return { level:"warning",  label:"Warning",  cls:"warning",  icon:"⚠️" };
-  return                 { level:"alarming", label:"Alarming", cls:"alarming", icon:"🚨" };
+  if (t <= 4.0)  return {level:"safe",    label:"Safe",    cls:"safe",    icon:"✅"};
+  if (t <= 7.5)  return {level:"warning", label:"Warning", cls:"warning", icon:"⚠️"};
+  return                {level:"alarming",label:"Alarming",cls:"alarming",icon:"🚨"};
 }
 function statusMessage(s) {
-  if (s.level === "safe")    return "Your carbon footprint is within a safe range. Great habits — keep it up!";
-  if (s.level === "warning") return "Your carbon footprint is moderate. A few habit changes can bring it down.";
-  return "Your carbon footprint is alarmingly high. Immediate action is recommended to reduce emissions.";
+  if (s.level === "safe")    return "Your family's carbon footprint is low. Excellent habits — keep going!";
+  if (s.level === "warning") return "Your footprint is moderate. Targeted changes in 1–2 areas can make a big difference.";
+  return "Your footprint is alarmingly high. Immediate changes are strongly recommended.";
 }
 function areaTag(t) {
-  if (t <= 0.8) return "✅ Good";
-  if (t <= 1.6) return "⚠️ Can Improve";
+  if (t <= 0.6) return "✅ Good";
+  if (t <= 1.5) return "⚠️ Can Improve";
   return "🚨 Needs Focus";
 }
 function bandByCO2(t) {
-  if (t <= 3.0) return { badge:"🏆 Eco Champion",     where:"Excellent! Very low footprint habits." };
-  if (t <= 4.5) return { badge:"🌟 Green Leader",     where:"Low footprint. A couple of upgrades can improve further." };
-  if (t <= 6.0) return { badge:"✅ Eco Smart",        where:"Good progress. Improve 1–2 habits to reduce footprint." };
-  if (t <= 8.0) return { badge:"🌱 Getting Started",  where:"Good base. Start with easy wins." };
-  return                { badge:"🚀 Ready for Change", where:"High footprint. Choose two improvements this week." };
+  if (t <= 2.5) return {badge:"🏆 Eco Champion",    where:"Outstanding! Among the lowest footprint families."};
+  if (t <= 4.0) return {badge:"🌟 Green Leader",    where:"Very good habits. Small tweaks can make you a champion."};
+  if (t <= 6.0) return {badge:"✅ Eco Smart",       where:"Good progress. Focus on your top 1–2 areas to improve."};
+  if (t <= 8.5) return {badge:"🌱 Getting Started", where:"Room to grow. Start with easy wins this week."};
+  return               {badge:"🚀 Ready for Change",where:"High footprint. Pick two changes and start today."};
 }
-
-/* ===================================================================
-   QUIZ (15 questions)
-   =================================================================== */
-var QUIZ = [
-  {arena:"transport",text:"How does your child usually go to school?",options:[{label:"Walk / Cycle",pts:5},{label:"School bus / shared van",pts:4},{label:"Carpool with other parents",pts:4},{label:"Private car (only family)",pts:1}]},
-  {arena:"transport",text:"When waiting near school, the vehicle engine is…",options:[{label:"Always switched off",pts:5},{label:"Sometimes switched off",pts:3},{label:"Mostly kept on",pts:1}]},
-  {arena:"transport",text:"Vehicle servicing + tyre pressure checks are…",options:[{label:"Regular",pts:5},{label:"Occasional",pts:3},{label:"Rare",pts:1}]},
-  {arena:"home",text:"AC usage at home on most days is…",options:[{label:"No AC",pts:5},{label:"0–2 hours/day",pts:4},{label:"2–5 hours/day",pts:3},{label:"5+ hours/day",pts:1}]},
-  {arena:"home",text:"If you use AC, which type is mostly used?",options:[{label:"No AC",pts:5},{label:"Split AC (inverter / newer)",pts:4},{label:"Split AC (older)",pts:3},{label:"Window AC (older)",pts:2},{label:"Not sure",pts:3}]},
-  {arena:"home",text:"Most of your home lighting is…",options:[{label:"Mostly LED",pts:5},{label:"Mix of LED + old bulbs",pts:3},{label:"Mostly old bulbs/tubes",pts:1}]},
-  {arena:"devices",text:"At night, plugs for TV/chargers are…",options:[{label:"Mostly switched off",pts:5},{label:"Sometimes switched off",pts:3},{label:"Rarely switched off",pts:1}]},
-  {arena:"devices",text:"Family screen time per day (TV + mobile + laptop) is…",options:[{label:"< 2 hours",pts:5},{label:"2–4 hours",pts:4},{label:"4–6 hours",pts:2},{label:"6+ hours",pts:1}]},
-  {arena:"devices",text:"Microwave use at home is…",options:[{label:"Rare / almost never",pts:5},{label:"1–3 times/week",pts:4},{label:"Most days (1–2 times/day)",pts:3},{label:"Many times/day",pts:2}]},
-  {arena:"food",text:"How often does food get wasted at home?",options:[{label:"Rarely",pts:5},{label:"Sometimes",pts:3},{label:"Often",pts:1}]},
-  {arena:"food",text:"Fruits/vegetables at home are mostly…",options:[{label:"Local + seasonal",pts:5},{label:"Mixed",pts:3},{label:"Mostly packaged/imported",pts:1}]},
-  {arena:"food",text:"Cooking at home is mainly done using…",options:[{label:"Induction mostly",pts:5},{label:"Mix of induction + gas",pts:4},{label:"Gas mostly",pts:3},{label:"Not sure",pts:3}]},
-  {arena:"waste",text:"Do you segregate wet and dry waste at home?",options:[{label:"Yes, regularly",pts:5},{label:"Sometimes",pts:3},{label:"No",pts:1}]},
-  {arena:"waste",text:"Kitchen waste (peels/leftovers) is usually…",options:[{label:"Compost at home / give for composting",pts:5},{label:"Sometimes compost, sometimes mixed",pts:3},{label:"Thrown with all waste",pts:1}]},
-  {arena:"waste",text:"Single-use plastic (bags/cups) use is…",options:[{label:"Rare",pts:5},{label:"Sometimes",pts:3},{label:"Often",pts:1}]}
-];
 
 /* ===================================================================
    STATE
    =================================================================== */
 var state = {
-  profile: { parentName:"", phone:"", address:"", childClass:"" },
-  arenaIndex: 0,
-  answers: {},          /* key = question index (number), value = option index (number) */
-  submittedOnce: false,
-  submissionId: null
+  profile:{parentName:"",phone:"",address:"",childClass:""},
+  arenaIndex:0, answers:{}, submittedOnce:false, submissionId:null
 };
-
-/* Try restoring from localStorage */
-(function restoreState() {
-  try {
-    var saved = JSON.parse(localStorage.getItem(LS_KEY));
-    if (saved && saved.profile) state = saved;
-  } catch(e) {}
-})();
+(function(){ try { var s=JSON.parse(localStorage.getItem(LS_KEY)); if(s&&s.profile) state=s; } catch(e){} })();
 
 /* ===================================================================
    DOM
    =================================================================== */
-function $(id) { return document.getElementById(id); }
-
-var stepProfile = $("stepProfile"), stepQuiz = $("stepQuiz"), stepResults = $("stepResults");
-var parentNameEl = $("parentName"), phoneEl = $("phone"), addressEl = $("address"), childClassEl = $("childClass");
-var btnStart = $("btnStart"), arenaPill = $("arenaPill"), qText = $("qText"), qSub = $("qSub");
-var optionsEl = $("options"), btnBack = $("btnBack"), btnNext = $("btnNext");
-var progFill = $("progFill"), progText = $("progText");
-var badgeTextEl = $("badgeText"), whereYouAreEl = $("whereYouAre"), resultStatusBadge = $("resultStatusBadge");
-var co2TotalEl = $("co2Total"), compareBarsEl = $("compareBars"), arenaScoresEl = $("arenaScores");
-var recommendationsEl = $("recommendations");
-var btnRestart = $("btnRestart"), btnRefreshLB = $("btnRefreshLB");
-var submitStatus = $("submitStatus"), leaderboardEl = $("leaderboard");
+function $(id){return document.getElementById(id);}
+var stepProfile=$("stepProfile"),stepQuiz=$("stepQuiz"),stepResults=$("stepResults");
+var parentNameEl=$("parentName"),phoneEl=$("phone"),addressEl=$("address"),childClassEl=$("childClass");
+var btnStart=$("btnStart"),arenaPill=$("arenaPill"),qText=$("qText"),qSub=$("qSub");
+var optionsEl=$("options"),btnBack=$("btnBack"),btnNext=$("btnNext");
+var progFill=$("progFill"),progText=$("progText");
+var badgeTextEl=$("badgeText"),whereYouAreEl=$("whereYouAre"),resultStatusBadge=$("resultStatusBadge");
+var co2TotalEl=$("co2Total"),compareBarsEl=$("compareBars"),arenaScoresEl=$("arenaScores");
+var recommendationsEl=$("recommendations");
+var btnRestart=$("btnRestart"),btnRefreshLB=$("btnRefreshLB");
+var submitStatus=$("submitStatus"),leaderboardEl=$("leaderboard");
 
 /* ===================================================================
    HELPERS
    =================================================================== */
-function save() { try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch(e){} }
-function clearSave() { try { localStorage.removeItem(LS_KEY); } catch(e){} }
-
-function show(w) {
-  stepProfile.style.display = w === "profile" ? "block" : "none";
-  stepQuiz.style.display    = w === "quiz"    ? "block" : "none";
-  stepResults.style.display = w === "results" ? "block" : "none";
-  window.scrollTo(0, 0);
+function save(){try{localStorage.setItem(LS_KEY,JSON.stringify(state));}catch(e){}}
+function clearSave(){try{localStorage.removeItem(LS_KEY);}catch(e){}}
+function show(w){
+  stepProfile.style.display=w==="profile"?"block":"none";
+  stepQuiz.style.display=w==="quiz"?"block":"none";
+  stepResults.style.display=w==="results"?"block":"none";
+  window.scrollTo(0,0);
 }
-
-function esc(s) {
-  return String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");}
+function getSubmissionId(){
+  if(state.submissionId) return state.submissionId;
+  state.submissionId="sub_"+Date.now()+"_"+Math.random().toString(36).slice(2);
+  save(); return state.submissionId;
 }
-
-function getSubmissionId() {
-  if (state.submissionId) return state.submissionId;
-  state.submissionId = "sub_" + Date.now() + "_" + Math.random().toString(36).slice(2);
-  save();
-  return state.submissionId;
-}
-
-function getArenaQIs(arena) {
-  var out = [];
-  for (var i = 0; i < QUIZ.length; i++) { if (QUIZ[i].arena === arena) out.push(i); }
-  return out;
-}
-function isArenaComplete(arena) {
-  var qis = getArenaQIs(arena);
-  for (var i = 0; i < qis.length; i++) {
-    if (state.answers[qis[i]] === undefined) return false;
-  }
-  return true;
-}
+function getArenaQIs(arena){var o=[];for(var i=0;i<QUIZ.length;i++){if(QUIZ[i].arena===arena)o.push(i);}return o;}
+function isArenaComplete(arena){var q=getArenaQIs(arena);for(var i=0;i<q.length;i++){if(state.answers[q[i]]===undefined)return false;}return true;}
 
 /* ===================================================================
-   SCORING — this is the critical part that was broken
+   NEW SCORING — Direct CO₂ sum per arena
+   Each option has a real co2 value → just sum them up.
+   No more abstract "footprint score" that compresses everything.
    =================================================================== */
-
-/* Calculate per-arena footprint score (0 = best, 100 = worst) */
-function calcFootprintScores() {
-  var agg = {};
-  var a, i;
-  for (i = 0; i < ARENAS.length; i++) { agg[ARENAS[i]] = { got:0, max:0 }; }
+function calcCO2() {
+  var byArea = {};
+  var i, a;
+  for (i = 0; i < ARENAS.length; i++) byArea[ARENAS[i]] = 0;
 
   for (i = 0; i < QUIZ.length; i++) {
-    var q = QUIZ[i];
-    /* find max pts for this question */
-    var mx = 0;
-    for (var j = 0; j < q.options.length; j++) { if (q.options[j].pts > mx) mx = q.options[j].pts; }
-    agg[q.arena].max += mx;
-
-    var pick = state.answers[i];              /* could be 0, must check !== undefined */
+    var pick = state.answers[i];
     if (pick !== undefined && pick !== null) {
-      agg[q.arena].got += q.options[pick].pts;
+      byArea[QUIZ[i].arena] += QUIZ[i].options[pick].co2;
     }
   }
 
-  var arenaFootprint = {};
-  var totalFP = 0;
+  /* Round each to 2 decimal places */
+  var totalT = 0;
   for (i = 0; i < ARENAS.length; i++) {
     a = ARENAS[i];
-    var eco = agg[a].max > 0 ? Math.round((agg[a].got / agg[a].max) * 100) : 0;
-    arenaFootprint[a] = 100 - eco;    /* higher = worse */
-    totalFP += arenaFootprint[a];
+    byArea[a] = Math.round(byArea[a] * 100) / 100;
+    totalT += byArea[a];
   }
+  totalT = Math.round(totalT * 100) / 100;
 
-  var overall = Math.round(totalFP / ARENAS.length);
-
-  /* DEBUG: log to console so you can verify */
-  console.log("=== FOOTPRINT SCORES ===");
-  console.log("answers:", JSON.stringify(state.answers));
-  console.log("agg:", JSON.stringify(agg));
-  console.log("arenaFootprint:", JSON.stringify(arenaFootprint));
-  console.log("overall:", overall);
-
-  return { overallFootprintScore: overall, arenaFootprint: arenaFootprint };
-}
-
-/* Convert footprint score → family CO₂ (tCO₂e/year) */
-function estimateFamilyCO2(score) {
-  var s = Math.max(0, Math.min(100, Number(score) || 0));
-  var minT = 2.0, maxT = 12.0;
-  var t = minT + (s / 100) * (maxT - minT);
-  return Math.round(t * 10) / 10;
-}
-
-/* Break down total into per-arena CO₂ */
-function calcCO2Breakdown(overallScore, arenaFP) {
-  var totalT = estimateFamilyCO2(overallScore);
-
-  var intensity = {};
-  var rawSum = 0;
-  var raw = {};
-  var i, a;
-
-  for (i = 0; i < ARENAS.length; i++) {
-    a = ARENAS[i];
-    var s = Math.max(0, Math.min(100, arenaFP[a] || 0));
-    intensity[a] = 0.6 + (s / 100) * 0.8;
-    raw[a] = AREA_WEIGHTS[a] * intensity[a];
-    rawSum += raw[a];
-  }
-
-  var byAreaT = {};
-  for (i = 0; i < ARENAS.length; i++) {
-    a = ARENAS[i];
-    byAreaT[a] = rawSum > 0 ? Math.round((totalT * raw[a] / rawSum) * 10) / 10 : 0;
-  }
-
-  console.log("=== CO2 BREAKDOWN ===");
-  console.log("totalT:", totalT, "byAreaT:", JSON.stringify(byAreaT));
-
-  return { totalT: totalT, byAreaT: byAreaT };
+  console.log("CO₂ byArea:", JSON.stringify(byArea), "total:", totalT);
+  return { totalT: totalT, byAreaT: byArea };
 }
 
 /* ===================================================================
@@ -516,18 +488,17 @@ function renderComparisonBars(yourT) {
   var indiaT  = Math.round(BASE_INDIA_PER_PERSON_T * FAMILY_SIZE * 10) / 10;
   var globalT = Math.round(BASE_GLOBAL_PER_PERSON_T * FAMILY_SIZE * 10) / 10;
   var maxV = Math.max(yourT, indiaT, globalT, 0.1);
-  var rows = [
-    { name:"Your family", val:yourT },
-    { name:"India avg",   val:indiaT },
-    { name:"Global avg",  val:globalT }
-  ];
+  var rows = [{name:"Your family",val:yourT},{name:"India avg",val:indiaT},{name:"Global avg",val:globalT}];
   var html = "";
   for (var i = 0; i < rows.length; i++) {
     var r = rows[i];
     var pct = Math.round((r.val / maxV) * 100);
-    html += '<div class="cbar"><div class="cbarName">' + esc(r.name) +
-      '</div><div class="cbarTrack"><div class="cbarFill" style="width:' + pct +
-      '%"></div></div><div class="cbarVal">' + r.val.toFixed(1) + '</div></div>';
+    var color = r.name === "Your family"
+      ? (yourT <= 4.0 ? "background:linear-gradient(90deg,#48db97,#48db97)"
+        : yourT <= 7.5 ? "background:linear-gradient(90deg,#ffc148,#ffc148)"
+        : "background:linear-gradient(90deg,#ff5858,#ff5858)")
+      : "background:linear-gradient(90deg,rgba(116,185,255,.95),rgba(83,255,192,.85))";
+    html += '<div class="cbar"><div class="cbarName">'+esc(r.name)+'</div><div class="cbarTrack"><div class="cbarFill" style="width:'+pct+'%;'+color+'"></div></div><div class="cbarVal">'+r.val.toFixed(1)+'</div></div>';
   }
   compareBarsEl.innerHTML = html;
 }
@@ -537,392 +508,203 @@ function renderComparisonBars(yourT) {
    =================================================================== */
 function buildRecommendations(totalT, byAreaT) {
   var keys = Object.keys(byAreaT);
-  /* Sort descending by CO₂ */
-  keys.sort(function(a,b){ return byAreaT[b] - byAreaT[a]; });
-  var worst1 = keys[0], worst2 = keys[1];
-  /* Sort ascending */
-  var keysAsc = keys.slice().sort(function(a,b){ return byAreaT[a] - byAreaT[b]; });
-  var best = keysAsc[0];
+  keys.sort(function(a,b){return byAreaT[b]-byAreaT[a];});
+  var worst1=keys[0], worst2=keys[1];
+  var keysAsc=keys.slice().sort(function(a,b){return byAreaT[a]-byAreaT[b];});
+  var best=keysAsc[0];
 
   var tips = {
-    transport:["Prefer school bus or carpool for daily commute.","Switch off engine while waiting near school (avoid idling).","Maintain tyre pressure + regular service for better mileage."],
-    home:["Prefer inverter split AC (more efficient than window AC).","Reduce AC hours; use fan first where possible.","Switch remaining bulbs to LED starting with most-used rooms."],
-    devices:["Switch off TV/set-top box/chargers at night.","Reduce background screen time.","Use microwave only when needed."],
-    food:["Plan portions and store leftovers to reduce waste.","Prefer seasonal/local fruits and vegetables.","Use pressure cooker/covered cooking to save fuel."],
-    waste:["Segregate wet and dry waste daily (two bins).","Compost kitchen waste if possible.","Carry reusable cloth bag; reduce single-use plastic."]
+    transport:["Prefer school bus or carpool for daily commute.","Switch off engine while waiting near school.","Maintain tyre pressure + regular service for better mileage."],
+    home:["Prefer inverter split AC (more efficient).","Reduce AC hours; use fan first.","Switch all bulbs to LED."],
+    devices:["Switch off TV/chargers at night (standby power adds up).","Cut background screen time.","Use microwave only when needed."],
+    food:["Plan portions and store leftovers to cut waste.","Buy seasonal/local fruits and vegetables.","Use pressure cooker to save fuel."],
+    waste:["Segregate wet and dry waste daily.","Compost kitchen waste if possible.","Use reusable bags; avoid single-use plastic."]
   };
 
-  function ea(a) { return LABEL[a] + " ≈ " + byAreaT[a].toFixed(1) + " tCO₂e/yr"; }
-  function ul(arr) {
-    var h = "<ul>";
-    for (var i = 0; i < arr.length; i++) h += "<li>" + arr[i] + "</li>";
-    return h + "</ul>";
-  }
+  function ea(a){return LABEL[a]+" ≈ "+byAreaT[a].toFixed(2)+" tCO₂e/yr";}
+  function ul(arr){var h="<ul>";for(var i=0;i<arr.length;i++)h+="<li>"+arr[i]+"</li>";return h+"</ul>";}
 
   var st = getCO2Status(totalT);
+  var out = "<p><b>"+st.icon+" Overall Status: "+st.label+"</b></p><p>"+statusMessage(st)+"</p>";
+  out += "<p><b>Score Guide</b></p><ul>";
+  out += "<li><b>≤ 4.0 tCO₂e</b> = ✅ Safe</li>";
+  out += "<li><b>4.0 – 7.5 tCO₂e</b> = ⚠️ Warning</li>";
+  out += "<li><b>&gt; 7.5 tCO₂e</b> = 🚨 Alarming</li></ul>";
 
-  var out = "<p><b>" + st.icon + " Overall Status: " + st.label + "</b></p>";
-  out += "<p>" + statusMessage(st) + "</p>";
-
-  out += "<p><b>Score Meaning</b></p><ul>";
-  out += "<li>This is an <b>approximate CO₂ estimate</b> based on habits.</li>";
-  out += "<li><b>Lower CO₂ = better</b> (fewer emissions).</li>";
-  out += "<li>Family of <b>" + FAMILY_SIZE + "</b> used as reference.</li>";
-  out += "<li><b>≤ 4.5 tCO₂e</b> = ✅ Safe · <b>4.5–7.0</b> = ⚠️ Warning · <b>&gt; 7.0</b> = 🚨 Alarming</li>";
-  out += "</ul>";
-
-  if (worst1) {
-    out += "<p><b>🔴 Top area to reduce first:</b> " + ea(worst1) + "</p>";
-    out += ul(tips[worst1] || []);
+  if(worst1 && byAreaT[worst1]>0){
+    out += "<p><b>🔴 Top area to reduce:</b> "+ea(worst1)+"</p>"+ul(tips[worst1]||[]);
   }
-  if (worst2) {
-    out += "<p><b>🟡 Second focus area:</b> " + ea(worst2) + "</p>";
-    out += ul(tips[worst2] || []);
+  if(worst2 && byAreaT[worst2]>0){
+    out += "<p><b>🟡 Second focus:</b> "+ea(worst2)+"</p>"+ul(tips[worst2]||[]);
   }
-  if (best) {
-    out += "<p><b>🟢 Your strongest area:</b> " + LABEL[best] + " — keep it up!</p>";
-  }
-
+  if(best) out += "<p><b>🟢 Strongest area:</b> "+LABEL[best]+" ("+byAreaT[best].toFixed(2)+" tCO₂e) — keep it up!</p>";
   return out;
 }
 
 /* ===================================================================
-   RENDER: QUIZ PAGE
+   RENDER: QUIZ
    =================================================================== */
 function renderArenaPage() {
-  var arena = ARENAS[state.arenaIndex];
-  var qis   = getArenaQIs(arena);
-
-  arenaPill.textContent = LABEL[arena];
-  qText.textContent = "Answer these questions";
-  qSub.textContent = "";
-  progText.textContent = (state.arenaIndex + 1) + "/" + ARENAS.length;
-  progFill.style.width = Math.round((state.arenaIndex / ARENAS.length) * 100) + "%";
-
-  optionsEl.innerHTML = "";
-
-  for (var p = 0; p < qis.length; p++) {
-    var qi = qis[p];
-    var q  = QUIZ[qi];
-    var selected = state.answers[qi];
-
-    var block = document.createElement("div");
-    block.className = "qblock";
-
-    var title = document.createElement("div");
-    title.className = "qblockTitle";
-    title.textContent = (p + 1) + ". " + q.text;
-    block.appendChild(title);
-
-    var wrap = document.createElement("div");
-    wrap.className = "qblockOptions";
-
-    for (var oi = 0; oi < q.options.length; oi++) {
-      (function(questionIdx, optionIdx, opt) {
-        var div = document.createElement("div");
-        div.className = "opt" + (selected === optionIdx ? " selected" : "");
-        div.innerHTML = '<div class="o1">' + opt.label + '</div>';
-        div.onclick = function() {
-          state.answers[questionIdx] = optionIdx;
-          save();
-          btnNext.disabled = !isArenaComplete(arena);
-          renderArenaPage();
+  var arena=ARENAS[state.arenaIndex]; var qis=getArenaQIs(arena);
+  arenaPill.textContent=LABEL[arena]; qText.textContent="Answer these questions"; qSub.textContent="";
+  progText.textContent=(state.arenaIndex+1)+"/"+ARENAS.length;
+  progFill.style.width=Math.round((state.arenaIndex/ARENAS.length)*100)+"%";
+  optionsEl.innerHTML="";
+  for(var p=0;p<qis.length;p++){
+    var qi=qis[p]; var q=QUIZ[qi]; var selected=state.answers[qi];
+    var block=document.createElement("div"); block.className="qblock";
+    var title=document.createElement("div"); title.className="qblockTitle";
+    title.textContent=(p+1)+". "+q.text; block.appendChild(title);
+    var wrap=document.createElement("div"); wrap.className="qblockOptions";
+    for(var oi=0;oi<q.options.length;oi++){
+      (function(questionIdx,optionIdx,opt){
+        var div=document.createElement("div");
+        div.className="opt"+(selected===optionIdx?" selected":"");
+        div.innerHTML='<div class="o1">'+opt.label+'</div>';
+        div.onclick=function(){
+          state.answers[questionIdx]=optionIdx; save();
+          btnNext.disabled=!isArenaComplete(arena); renderArenaPage();
         };
         wrap.appendChild(div);
-      })(qi, oi, q.options[oi]);
+      })(qi,oi,q.options[oi]);
     }
-
-    block.appendChild(wrap);
-    optionsEl.appendChild(block);
+    block.appendChild(wrap); optionsEl.appendChild(block);
   }
-
-  btnBack.disabled = state.arenaIndex === 0;
-  btnNext.disabled = !isArenaComplete(arena);
-  btnNext.textContent = (state.arenaIndex === ARENAS.length - 1) ? "Finish →" : "Next →";
+  btnBack.disabled=state.arenaIndex===0;
+  btnNext.disabled=!isArenaComplete(arena);
+  btnNext.textContent=(state.arenaIndex===ARENAS.length-1)?"Finish →":"Next →";
 }
 
 /* ===================================================================
-   RENDER: RESULTS PAGE
+   RENDER: RESULTS
    =================================================================== */
 function renderResults() {
-  console.log("=== renderResults called ===");
-
-  var scores  = calcFootprintScores();
-  var result  = calcCO2Breakdown(scores.overallFootprintScore, scores.arenaFootprint);
+  var result  = calcCO2();
   var totalT  = result.totalT;
   var byAreaT = result.byAreaT;
   var band    = bandByCO2(totalT);
   var status  = getCO2Status(totalT);
 
-  /* Badge & description */
   badgeTextEl.textContent   = band.badge;
   whereYouAreEl.textContent = band.where;
-
-  /* Big status indicator */
   resultStatusBadge.innerHTML =
-    '<div class="result-status result-' + status.cls + '">' +
-    '<span class="dot"></span>' +
-    status.icon + ' ' + status.label + ' — ' + statusMessage(status) +
-    '</div>';
+    '<div class="result-status result-'+status.cls+'"><span class="dot"></span>'+
+    status.icon+' '+status.label+' — '+statusMessage(status)+'</div>';
 
-  /* CO₂ total */
-  co2TotalEl.textContent = "≈ " + totalT.toFixed(1) + " tCO₂e/year (" + Math.round(totalT * 1000) + " kg/year)";
-
-  /* Comparison bars */
+  co2TotalEl.textContent = "≈ "+totalT.toFixed(1)+" tCO₂e/year ("+Math.round(totalT*1000)+" kg/year)";
   renderComparisonBars(totalT);
 
-  /* Arena boxes */
   arenaScoresEl.innerHTML = "";
-  for (var i = 0; i < ARENAS.length; i++) {
-    var a = ARENAS[i];
-    var t = byAreaT[a];
-    var box = document.createElement("div");
-    box.className = "box";
-    box.innerHTML =
-      '<div class="k">' + LABEL[a] + '</div>' +
-      '<div class="co2">≈ ' + t.toFixed(1) + ' tCO₂e/year</div>' +
-      '<div class="kg">(' + Math.round(t * 1000) + ' kg/year)</div>' +
-      '<div class="tag">' + areaTag(t) + '</div>';
+  for(var i=0;i<ARENAS.length;i++){
+    var a=ARENAS[i]; var t=byAreaT[a];
+    var box=document.createElement("div"); box.className="box";
+    box.innerHTML='<div class="k">'+LABEL[a]+'</div><div class="co2">≈ '+t.toFixed(2)+' tCO₂e/year</div><div class="kg">('+Math.round(t*1000)+' kg/year)</div><div class="tag">'+areaTag(t)+'</div>';
     arenaScoresEl.appendChild(box);
   }
-
-  /* Recommendations */
   recommendationsEl.innerHTML = buildRecommendations(totalT, byAreaT);
-
-  console.log("=== Results rendered. totalT=" + totalT + " status=" + status.label + " ===");
 }
 
 /* ===================================================================
    PROFILE VALIDATION
    =================================================================== */
-function validateProfile() {
-  var pn = (parentNameEl.value || "").trim();
-  var ph = (phoneEl.value || "").trim();
-  var ad = (addressEl.value || "").trim();
-  var cc = (childClassEl.value || "").trim().replace(/\s+/g, "");
-
-  if (!pn || !ph || !ad || !cc) {
-    alert("Please fill Parent Name, Phone, Address, and Child Class.");
-    return null;
-  }
-  var digits = ph.replace(/\D/g, "");
-  if (digits.length !== 10) {
-    alert("Please enter a valid 10-digit phone number.");
-    return null;
-  }
-  if (!/^([1-9]|1[0-2])$/.test(cc)) {
-    alert("Child Class should be a number from 1 to 12.");
-    return null;
-  }
-  return { parentName: pn, phone: digits, address: ad, childClass: cc };
+function validateProfile(){
+  var pn=(parentNameEl.value||"").trim(),ph=(phoneEl.value||"").trim(),ad=(addressEl.value||"").trim(),cc=(childClassEl.value||"").trim().replace(/\s+/g,"");
+  if(!pn||!ph||!ad||!cc){alert("Please fill Parent Name, Phone, Address, and Child Class.");return null;}
+  var digits=ph.replace(/\D/g,"");
+  if(digits.length!==10){alert("Please enter a valid 10-digit phone number.");return null;}
+  if(!/^([1-9]|1[0-2])$/.test(cc)){alert("Child Class should be 1 to 12.");return null;}
+  return{parentName:pn,phone:digits,address:ad,childClass:cc};
 }
-
-function buildAnswerPayload() {
-  var out = {};
-  for (var i = 0; i < QUIZ.length; i++) {
-    var pick = state.answers[i];
-    var key  = "Q" + (i + 1) + " (" + QUIZ[i].arena + ")";
-    out[key] = (pick !== undefined && pick !== null) ? QUIZ[i].options[pick].label : "";
-  }
-  return out;
+function buildAnswerPayload(){
+  var out={};for(var i=0;i<QUIZ.length;i++){var p=state.answers[i];out["Q"+(i+1)+" ("+QUIZ[i].arena+")"]=(p!==undefined&&p!==null)?QUIZ[i].options[p].label:"";}return out;
 }
 
 /* ===================================================================
-   LOCAL LEADERBOARD
+   LEADERBOARD (local)
    =================================================================== */
-function getLocalLB() {
-  try { return JSON.parse(localStorage.getItem(LB_KEY)) || []; }
-  catch(e) { return []; }
-}
-
-function saveLocalLB(entry) {
-  var lb = getLocalLB();
-  var exists = -1;
-  for (var i = 0; i < lb.length; i++) {
-    if (lb[i].submissionId === entry.submissionId) { exists = i; break; }
-  }
-  if (exists >= 0) lb[exists] = entry; else lb.push(entry);
-  lb.sort(function(a,b) { return a.co2Total - b.co2Total; });
-  try { localStorage.setItem(LB_KEY, JSON.stringify(lb)); } catch(e){}
+function getLocalLB(){try{return JSON.parse(localStorage.getItem(LB_KEY))||[];}catch(e){return[];}}
+function saveLocalLB(entry){
+  var lb=getLocalLB(); var exists=-1;
+  for(var i=0;i<lb.length;i++){if(lb[i].submissionId===entry.submissionId){exists=i;break;}}
+  if(exists>=0)lb[exists]=entry; else lb.push(entry);
+  lb.sort(function(a,b){return a.co2Total-b.co2Total;});
+  try{localStorage.setItem(LB_KEY,JSON.stringify(lb));}catch(e){}
 }
 
 /* ===================================================================
    SUBMIT
    =================================================================== */
-function submitToSheet() {
-  if (state.submittedOnce) return;
-  submitStatus.textContent = "Saving…";
+function submitToSheet(){
+  if(state.submittedOnce) return;
+  submitStatus.textContent="Saving…";
+  var result=calcCO2(); var totalT=result.totalT; var byAreaT=result.byAreaT;
+  var band=bandByCO2(totalT); var status=getCO2Status(totalT); var sid=getSubmissionId();
 
-  var scores  = calcFootprintScores();
-  var result  = calcCO2Breakdown(scores.overallFootprintScore, scores.arenaFootprint);
-  var totalT  = result.totalT;
-  var byAreaT = result.byAreaT;
-  var band    = bandByCO2(totalT);
-  var status  = getCO2Status(totalT);
-  var sid     = getSubmissionId();
+  saveLocalLB({submissionId:sid,name:state.profile.parentName,childClass:state.profile.childClass,
+    co2Total:totalT,badge:band.badge,status:status.label,statusLevel:status.level});
 
-  /* Save locally first — this guarantees leaderboard always works */
-  saveLocalLB({
-    submissionId: sid,
-    name: state.profile.parentName,
-    childClass: state.profile.childClass,
-    co2Total: totalT,
-    badge: band.badge,
-    status: status.label,
-    statusLevel: status.level
-  });
+  var recText=buildRecommendations(totalT,byAreaT).replace(/<li>/g,"• ").replace(/<\/li>/g,"\n").replace(/<\/p>/g,"\n\n").replace(/<[^>]*>/g,"").replace(/\n{3,}/g,"\n\n").trim();
 
-  var recHTML = buildRecommendations(totalT, byAreaT);
-  var recText = recHTML.replace(/<li>/g,"• ").replace(/<\/li>/g,"\n")
-    .replace(/<\/p>/g,"\n\n").replace(/<[^>]*>/g,"").replace(/\n{3,}/g,"\n\n").trim();
+  var payload={submissionId:sid,parentName:state.profile.parentName,phone:state.profile.phone,
+    address:state.profile.address,childClass:state.profile.childClass,badgeLabel:band.badge,statusLabel:status.label,
+    recommendationsText:recText,
+    co2:{total:totalT,transport:byAreaT.transport,home:byAreaT.home,devices:byAreaT.devices,food:byAreaT.food,waste:byAreaT.waste},
+    answers:buildAnswerPayload()};
 
-  var payload = {
-    submissionId: sid,
-    parentName:  state.profile.parentName,
-    phone:       state.profile.phone,
-    address:     state.profile.address,
-    childClass:  state.profile.childClass,
-    badgeLabel:  band.badge,
-    statusLabel: status.label,
-    recommendationsText: recText,
-    co2: {
-      total:     totalT,
-      transport: byAreaT.transport,
-      home:      byAreaT.home,
-      devices:   byAreaT.devices,
-      food:      byAreaT.food,
-      waste:     byAreaT.waste
-    },
-    answers: buildAnswerPayload()
-  };
+  console.log("SUBMIT co2:",JSON.stringify(payload.co2));
 
-  console.log("=== SUBMITTING ===", JSON.stringify(payload.co2));
-
-  fetch(APPS_SCRIPT_URL, {
-    method: "POST",
-    mode: "no-cors",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify(payload)
-  }).then(function() {
-    state.submittedOnce = true; save();
-    submitStatus.textContent = "✅ Saved!";
-  }).catch(function(err) {
-    state.submittedOnce = true; save();
-    submitStatus.textContent = "⚠️ Could not reach server — saved locally.";
-    console.log("Submit error:", err);
-  }).finally(function() {
-    renderLeaderboard();
-  });
+  fetch(APPS_SCRIPT_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)})
+    .then(function(){state.submittedOnce=true;save();submitStatus.textContent="✅ Saved!";})
+    .catch(function(){state.submittedOnce=true;save();submitStatus.textContent="⚠️ Server unreachable — saved locally.";})
+    .finally(function(){renderLeaderboard();});
 }
 
 /* ===================================================================
    LEADERBOARD RENDER
    =================================================================== */
-function renderLeaderboard() {
-  var lb = getLocalLB();
-  if (!lb.length) {
-    leaderboardEl.innerHTML = '<div class="no-data">No submissions yet. Be the first!</div>';
-    return;
-  }
-  function medal(r) { return r===1?"🥇":r===2?"🥈":r===3?"🥉":"#"+r; }
-
-  leaderboardEl.innerHTML = "";
-  for (var i = 0; i < lb.length; i++) {
-    var row  = lb[i];
-    var rank = i + 1;
-    var co2  = Number(row.co2Total) || 0;
-    var st   = getCO2Status(co2);
-
-    var div = document.createElement("div");
-    div.className = "lbrow";
-    div.innerHTML =
-      '<div class="rank">' + medal(rank) + '</div>' +
-      '<div class="info"><div class="name">' + esc(row.name || "Anonymous") + '</div>' +
-      '<div class="detail">Class ' + esc(row.childClass || "-") + ' • ' + esc(row.badge || "") + '</div></div>' +
-      '<div><span class="status-badge status-' + st.cls + '"><span class="dot"></span>' + st.label + '</span></div>' +
-      '<div class="co2val"><b>' + co2.toFixed(1) + ' tCO₂e/yr</b><div class="sub">(' + Math.round(co2*1000) + ' kg/yr)</div></div>';
+function renderLeaderboard(){
+  var lb=getLocalLB();
+  if(!lb.length){leaderboardEl.innerHTML='<div class="no-data">No submissions yet.</div>';return;}
+  function medal(r){return r===1?"🥇":r===2?"🥈":r===3?"🥉":"#"+r;}
+  leaderboardEl.innerHTML="";
+  for(var i=0;i<lb.length;i++){
+    var row=lb[i]; var rank=i+1; var co2=Number(row.co2Total)||0; var st=getCO2Status(co2);
+    var div=document.createElement("div"); div.className="lbrow";
+    div.innerHTML='<div class="rank">'+medal(rank)+'</div><div class="info"><div class="name">'+esc(row.name||"Anonymous")+'</div><div class="detail">Class '+esc(row.childClass||"-")+' • '+esc(row.badge||"")+'</div></div><div><span class="status-badge status-'+st.cls+'"><span class="dot"></span>'+st.label+'</span></div><div class="co2val"><b>'+co2.toFixed(1)+' tCO₂e/yr</b><div class="sub">('+Math.round(co2*1000)+' kg/yr)</div></div>';
     leaderboardEl.appendChild(div);
   }
 }
-
-function loadRemoteLB() {
-  fetch(APPS_SCRIPT_URL + "?action=leaderboard&limit=20")
-    .then(function(r) { return r.json(); })
-    .then(function(json) {
-      if (!json.ok) return;
-      var all = (json.podium || []).concat(json.others || []);
-      for (var i = 0; i < all.length; i++) {
-        var row = all[i];
-        var co2 = Number(row.co2Total) || 0;
-        if (co2 <= 0) continue;   /* skip zero entries from old broken submissions */
-        var st = getCO2Status(co2);
-        saveLocalLB({
-          submissionId: row.submissionId || ("remote_" + (row.name||"") + "_" + i),
-          name: row.name || "Anonymous",
-          childClass: row.className || "-",
-          co2Total: co2,
-          badge: row.badge || "",
-          status: st.label,
-          statusLevel: st.level
-        });
-      }
-      renderLeaderboard();
-    }).catch(function(e) { console.log("Remote LB unavailable:", e); });
+function loadRemoteLB(){
+  fetch(APPS_SCRIPT_URL+"?action=leaderboard&limit=20").then(function(r){return r.json();}).then(function(json){
+    if(!json.ok)return; var all=(json.podium||[]).concat(json.others||[]);
+    for(var i=0;i<all.length;i++){
+      var row=all[i]; var co2=Number(row.co2Total)||0; if(co2<=0)continue; var st=getCO2Status(co2);
+      saveLocalLB({submissionId:row.submissionId||("r_"+i),name:row.name||"Anonymous",childClass:row.className||"-",co2Total:co2,badge:row.badge||"",status:st.label,statusLevel:st.level});
+    } renderLeaderboard();
+  }).catch(function(){});
 }
 
 /* ===================================================================
    EVENTS
    =================================================================== */
-btnStart.onclick = function() {
-  var profile = validateProfile();
-  if (!profile) return;
-  state.profile       = profile;
-  state.arenaIndex    = 0;
-  state.answers       = {};
-  state.submittedOnce = false;
-  state.submissionId  = null;
-  save();
-  show("quiz");
-  renderArenaPage();
+btnStart.onclick=function(){
+  var p=validateProfile(); if(!p)return;
+  state.profile=p;state.arenaIndex=0;state.answers={};state.submittedOnce=false;state.submissionId=null;save();
+  show("quiz");renderArenaPage();
 };
-
-btnBack.onclick = function() {
-  state.arenaIndex = Math.max(0, state.arenaIndex - 1);
-  save();
-  renderArenaPage();
+btnBack.onclick=function(){state.arenaIndex=Math.max(0,state.arenaIndex-1);save();renderArenaPage();};
+btnNext.onclick=function(){
+  var arena=ARENAS[state.arenaIndex]; if(!isArenaComplete(arena))return;
+  state.arenaIndex++; save();
+  if(state.arenaIndex>=ARENAS.length){show("results");renderResults();submitToSheet();loadRemoteLB();}
+  else renderArenaPage();
 };
-
-btnNext.onclick = function() {
-  var arena = ARENAS[state.arenaIndex];
-  if (!isArenaComplete(arena)) return;
-  state.arenaIndex++;
-  save();
-  if (state.arenaIndex >= ARENAS.length) {
-    show("results");
-    renderResults();
-    submitToSheet();
-    loadRemoteLB();
-  } else {
-    renderArenaPage();
-  }
+btnRestart.onclick=function(){
+  clearSave();state={profile:{parentName:"",phone:"",address:"",childClass:""},arenaIndex:0,answers:{},submittedOnce:false,submissionId:null};
+  parentNameEl.value="";phoneEl.value="";addressEl.value="";childClassEl.value="";submitStatus.textContent="";show("profile");
 };
+btnRefreshLB.onclick=function(){renderLeaderboard();loadRemoteLB();};
 
-btnRestart.onclick = function() {
-  clearSave();
-  state = { profile:{parentName:"",phone:"",address:"",childClass:""}, arenaIndex:0, answers:{}, submittedOnce:false, submissionId:null };
-  parentNameEl.value = ""; phoneEl.value = ""; addressEl.value = ""; childClassEl.value = "";
-  submitStatus.textContent = "";
-  show("profile");
-};
-
-btnRefreshLB.onclick = function() {
-  renderLeaderboard();
-  loadRemoteLB();
-};
-
-/* ===================================================================
-   INIT
-   =================================================================== */
 show("profile");
 </script>
 </body>
