@@ -4,59 +4,237 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>DPS Tajcity Agra • Family Carbon Footprint Check</title>
-  <link rel="stylesheet" href="style.css?v=final" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900;1,9..40,400&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; min-height: 100%; }
+    body {
+      font-family: 'DM Sans', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color: #eaf2ff;
+      background: #070b18;
+      line-height: 1.5;
+    }
+    .bgGlow {
+      position: fixed; inset: 0;
+      pointer-events: none !important; z-index: -1 !important;
+      background:
+        radial-gradient(900px 500px at 15% 15%, rgba(105,150,255,.20), transparent 55%),
+        radial-gradient(800px 500px at 85% 20%, rgba(100,255,200,.14), transparent 60%),
+        radial-gradient(900px 650px at 45% 90%, rgba(255,160,120,.12), transparent 55%);
+    }
+    .app { max-width: 980px; margin: 0 auto; padding: 18px 16px 36px; position: relative; z-index: 1; }
+    .header { padding: 8px 2px 16px; }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .header h1 { margin: 0; font-weight: 800; letter-spacing: .2px; font-size: 1.35rem; }
+    .header .sub { margin: 6px 0 0; opacity: .85; font-size: .98rem; }
+    .appIconWrap {
+      width: 56px; height: 56px; flex: 0 0 56px; border-radius: 14px; overflow: hidden;
+      background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center;
+    }
+    .appIcon { width: 100%; height: 100%; object-fit: contain; display: block; padding: 6px; }
+    .card {
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 18px; padding: 18px; backdrop-filter: blur(10px);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+    }
+    h2 { margin: 0 0 10px; font-size: 1.25rem; font-weight: 800; }
+    h3 { margin: 0 0 10px; font-size: 1.08rem; font-weight: 800; }
+    .hint { margin: 0 0 14px; opacity: .9; line-height: 1.35; }
+    .muted { margin-left: 8px; opacity: .75; font-size: .92em; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    label { display: flex; flex-direction: column; gap: 6px; font-size: .92rem; opacity: .95; font-weight: 600; }
+    label.full { grid-column: 1 / -1; }
+    input {
+      padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.25); color: #eaf2ff; outline: none;
+      font-family: inherit; font-size: .95rem; transition: border-color .2s;
+    }
+    input:focus { border-color: rgba(83,255,192,.55); }
+    input::placeholder { opacity: .55; }
+    .row { margin-top: 14px; display: flex; gap: 10px; }
+    .btn {
+      border: 0; padding: 12px 20px; border-radius: 14px; font-weight: 700; cursor: pointer;
+      font-family: inherit; font-size: .95rem;
+      background: linear-gradient(135deg, rgba(116,185,255,.95), rgba(83,255,192,.85));
+      color: #07101c; box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+      transition: transform .15s, opacity .15s;
+    }
+    .btn:hover:not(:disabled) { transform: translateY(-1px); }
+    .btn:active:not(:disabled) { transform: translateY(0); }
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
+    .btn.ghost {
+      background: rgba(255,255,255,0.08); color: #eaf2ff;
+      border: 1px solid rgba(255,255,255,0.16); box-shadow: none;
+    }
+    .btn.ghost:hover:not(:disabled) { background: rgba(255,255,255,0.12); }
+    .toprow { display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; }
+    .pill {
+      display: inline-block; padding: 6px 12px; border-radius: 999px;
+      background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.14);
+      font-weight: 700; font-size: .92rem; margin-bottom: 8px;
+    }
+    .qtitle { font-size: 1.22rem; font-weight: 800; line-height: 1.25; }
+    .qsub { margin-top: 6px; opacity: .86; font-size: .96rem; }
+    .progress { min-width: 160px; text-align: right; }
+    .bar {
+      height: 9px; border-radius: 999px; background: rgba(255,255,255,0.10);
+      overflow: hidden; border: 1px solid rgba(255,255,255,0.12);
+    }
+    .fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, rgba(116,185,255,.95), rgba(83,255,192,.85));
+      transition: width .4s ease;
+    }
+    .pct { margin-top: 8px; font-size: .9rem; opacity: .85; }
+    .options { margin-top: 14px; display: flex; flex-direction: column; gap: 14px; }
+    .qblock { padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.14); background: rgba(0,0,0,0.14); }
+    .qblockTitle { font-weight: 800; margin-bottom: 10px; }
+    .qblockOptions { display: flex; flex-direction: column; gap: 10px; }
+    .opt {
+      padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.18); cursor: pointer; transition: border-color .2s, background .2s;
+    }
+    .opt:hover { border-color: rgba(255,255,255,0.3); }
+    .opt.selected { border-color: rgba(83,255,192,.55); background: rgba(83,255,192,0.10); }
+    .o1 { font-weight: 700; }
+    .nav { margin-top: 14px; display: flex; justify-content: space-between; gap: 12px; }
+    .scoreRow { display: flex; gap: 14px; align-items: stretch; margin-top: 12px; }
+    .bigScore {
+      min-width: 280px; flex: 0 0 320px; padding: 14px; border-radius: 16px;
+      background: rgba(0,0,0,0.18); border: 1px solid rgba(255,255,255,0.12);
+    }
+    .badge { font-size: 1.1rem; font-weight: 900; }
+    .small { margin-top: 6px; opacity: .86; line-height: 1.35; }
+    .spacer { height: 12px; }
+    .kpiTitle { margin-top: 6px; opacity: .9; font-weight: 800; }
+    .kpiValue { margin-top: 6px; font-size: 1.25rem; font-weight: 900; }
+    .miniNote { margin-top: 8px; opacity: .78; font-size: .9rem; }
+    .compareCard {
+      margin-top: 12px; padding: 12px; border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.12); background: rgba(0,0,0,0.14);
+    }
+    .compareTitle { font-weight: 900; }
+    .compareSub { opacity: .8; font-size: .9rem; margin-top: 4px; }
+    .cbar { display: grid; grid-template-columns: 90px 1fr 55px; gap: 10px; align-items: center; margin-top: 10px; }
+    .cbarName { opacity: .9; font-size: .9rem; }
+    .cbarTrack {
+      height: 10px; border-radius: 999px; background: rgba(255,255,255,0.10);
+      overflow: hidden; border: 1px solid rgba(255,255,255,0.10);
+    }
+    .cbarFill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, rgba(116,185,255,.95), rgba(83,255,192,.85));
+      transition: width .6s ease;
+    }
+    .cbarVal { text-align: right; opacity: .9; font-size: .9rem; }
+    .arenaScores { flex: 1 1 auto; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .box { padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.12); background: rgba(0,0,0,0.14); }
+    .box .k { opacity: .9; font-weight: 900; }
+    .box .co2 { margin-top: 8px; font-size: 1.15rem; font-weight: 900; }
+    .box .kg { margin-top: 3px; opacity: .85; font-size: .9rem; }
+    .box .tag { margin-top: 8px; opacity: .9; font-weight: 800; }
+    .insights {
+      margin-top: 14px; padding: 14px; border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.12); background: rgba(0,0,0,0.14);
+    }
+    .recText p { margin: 8px 0; }
+    .recText ul { margin: 8px 0 8px 18px; }
+    .recText li { margin: 6px 0; }
+    .actions { margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap; }
+    .status { margin-top: 10px; opacity: .9; }
+
+    /* Result status badge */
+    .result-status {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 14px; font-weight: 800; font-size: 1.05rem; margin-top: 12px;
+    }
+    .result-status .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .result-safe { background: rgba(72,219,151,0.12); color: #48db97; border: 1px solid rgba(72,219,151,0.3); }
+    .result-safe .dot { background: #48db97; box-shadow: 0 0 8px rgba(72,219,151,.5); }
+    .result-warning { background: rgba(255,193,72,0.12); color: #ffc148; border: 1px solid rgba(255,193,72,0.3); }
+    .result-warning .dot { background: #ffc148; box-shadow: 0 0 8px rgba(255,193,72,.5); }
+    .result-alarming { background: rgba(255,88,88,0.12); color: #ff5858; border: 1px solid rgba(255,88,88,0.3); }
+    .result-alarming .dot { background: #ff5858; box-shadow: 0 0 8px rgba(255,88,88,.5); animation: pulse-dot 1.8s ease infinite; }
+
+    /* Leaderboard */
+    .lb-section { margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.10); }
+    .lb-section h3 { font-size: 1.15rem; margin-bottom: 14px; }
+    .leaderboard { display: flex; flex-direction: column; gap: 10px; }
+    .lbrow {
+      display: grid; grid-template-columns: 48px 1fr auto 140px; gap: 10px; align-items: center;
+      padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.12); transition: background .2s;
+    }
+    .lbrow:hover { background: rgba(255,255,255,0.04); }
+    .lbrow .rank { font-weight: 900; font-size: 1.1rem; text-align: center; }
+    .lbrow .info .name { font-weight: 800; }
+    .lbrow .info .detail { opacity: .85; font-size: .92em; margin-top: 2px; }
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 12px; border-radius: 999px; font-weight: 700; font-size: .82rem;
+      white-space: nowrap; letter-spacing: .02em;
+    }
+    .status-badge .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .status-safe { background: rgba(72,219,151,0.15); color: #48db97; border: 1px solid rgba(72,219,151,0.3); }
+    .status-safe .dot { background: #48db97; box-shadow: 0 0 6px rgba(72,219,151,.6); }
+    .status-warning { background: rgba(255,193,72,0.15); color: #ffc148; border: 1px solid rgba(255,193,72,0.3); }
+    .status-warning .dot { background: #ffc148; box-shadow: 0 0 6px rgba(255,193,72,.6); }
+    .status-alarming { background: rgba(255,88,88,0.15); color: #ff5858; border: 1px solid rgba(255,88,88,0.3); }
+    .status-alarming .dot { background: #ff5858; box-shadow: 0 0 6px rgba(255,88,88,.6); animation: pulse-dot 1.8s ease infinite; }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .6; transform: scale(1.3); }
+    }
+    .lbrow .co2val { text-align: right; }
+    .lbrow .co2val b { font-size: 1rem; }
+    .lbrow .co2val .sub { opacity: .85; font-size: .85em; }
+    .no-data { text-align: center; padding: 24px; opacity: .7; }
+    @media (max-width:740px) {
+      .grid { grid-template-columns: 1fr; }
+      label.full { grid-column: auto; }
+      .scoreRow { flex-direction: column; }
+      .bigScore { flex: 1 1 auto; min-width: 0; }
+      .arenaScores { grid-template-columns: 1fr; }
+      .lbrow { grid-template-columns: 40px 1fr auto 110px; gap: 8px; padding: 10px; }
+    }
+    @media (max-width:480px) {
+      .lbrow { grid-template-columns: 36px 1fr; gap: 6px; }
+      .lbrow .status-badge { grid-column: 1 / -1; justify-self: start; }
+      .lbrow .co2val { grid-column: 1 / -1; text-align: left; }
+    }
+  </style>
 </head>
 <body>
   <div class="bgGlow"></div>
-
   <div class="app">
     <header class="header">
       <div class="brand">
         <div class="appIconWrap">
           <img class="appIcon" src="dps-logo.jpg" alt="DPS Tajcity logo" />
         </div>
-
         <div>
           <h1>DPS Tajcity Agra • Family Carbon Footprint Check</h1>
           <p class="sub">Parents edition • 15 questions • CO₂ estimate + improvement plan</p>
         </div>
       </div>
     </header>
-
     <main class="card">
-
-      <!-- STEP 1 -->
+      <!-- STEP 1: PROFILE -->
       <section id="stepProfile">
         <h2>Parent Details</h2>
-        <p class="hint">
-          Please fill details and answer 15 questions.
-          <span class="muted"><i>(Details are used only for the school survey)</i></span>
-        </p>
-
+        <p class="hint">Please fill details and answer 15 questions.
+          <span class="muted"><i>(Details are used only for the school survey)</i></span></p>
         <div class="grid">
-          <label>Parent Name
-            <input id="parentName" type="text" placeholder="e.g., Rahul Sharma" autocomplete="name" />
-          </label>
-
-          <label>Phone Number
-            <input id="phone" type="tel" placeholder="e.g., 98XXXXXXXX" autocomplete="tel" />
-          </label>
-
-          <label class="full">Address
-            <input id="address" type="text" placeholder="e.g., Tajganj, Agra" autocomplete="street-address" />
-          </label>
-
-          <label>Child Class (1–12)
-            <input id="childClass" type="text" placeholder="e.g., 6" inputmode="numeric" />
-          </label>
+          <label>Parent Name<input id="parentName" type="text" placeholder="e.g., Rahul Sharma" autocomplete="name" /></label>
+          <label>Phone Number<input id="phone" type="tel" placeholder="e.g., 98XXXXXXXX" autocomplete="tel" /></label>
+          <label class="full">Address<input id="address" type="text" placeholder="e.g., Tajganj, Agra" autocomplete="street-address" /></label>
+          <label>Child Class (1–12)<input id="childClass" type="text" placeholder="e.g., 6" inputmode="numeric" /></label>
         </div>
-
-        <div class="row">
-          <button class="btn" id="btnStart" type="button">Start →</button>
-        </div>
+        <div class="row"><button class="btn" id="btnStart" type="button">Start →</button></div>
       </section>
 
-      <!-- STEP 2 -->
+      <!-- STEP 2: QUIZ -->
       <section id="stepQuiz" style="display:none;">
         <div class="toprow">
           <div>
@@ -64,68 +242,306 @@
             <div class="qtitle" id="qText"></div>
             <div class="qsub" id="qSub"></div>
           </div>
-
           <div class="progress">
             <div class="bar"><div class="fill" id="progFill"></div></div>
             <div class="pct" id="progText"></div>
           </div>
         </div>
-
         <div class="options" id="options"></div>
-
         <div class="nav">
           <button class="btn ghost" id="btnBack" type="button">← Back</button>
           <button class="btn" id="btnNext" type="button" disabled>Next →</button>
         </div>
       </section>
 
-      <!-- STEP 3 -->
+      <!-- STEP 3: RESULTS + LEADERBOARD -->
       <section id="stepResults" style="display:none;">
         <h2>Your Family Report</h2>
-
         <div class="scoreRow">
           <div class="bigScore">
             <div class="badge" id="badgeText">—</div>
             <div class="small" id="whereYouAre">—</div>
-
+            <div id="resultStatusBadge"></div>
             <div class="spacer"></div>
-
             <div class="kpiTitle">Estimated total CO₂ footprint (family of 4)</div>
             <div class="kpiValue" id="co2Total">—</div>
-
             <div class="miniNote">This is an approximate indicator based on habits (not a lab measurement).</div>
-
             <div class="compareCard">
               <div class="compareTitle">Comparison (tCO₂e/year)</div>
               <div class="compareSub">Fixed family size: 4</div>
               <div id="compareBars"></div>
             </div>
           </div>
-
           <div class="arenaScores" id="arenaScores"></div>
         </div>
-
         <div class="insights">
           <h3>Next steps</h3>
           <div id="recommendations" class="recText"></div>
         </div>
-
         <div class="actions">
           <button class="btn ghost" id="btnRestart" type="button">Restart</button>
           <button class="btn ghost" id="btnRefreshLB" type="button">Refresh Leaderboard</button>
         </div>
-
         <p class="status" id="submitStatus"></p>
-
-        <hr />
-
-        <h3>🏆 Leaderboard (Lowest CO₂ is best)</h3>
-        <div class="leaderboard" id="leaderboard"></div>
+        <div class="lb-section">
+          <h3>🏆 Leaderboard — Lowest CO₂ Wins</h3>
+          <div class="leaderboard" id="leaderboard"></div>
+        </div>
       </section>
-
     </main>
   </div>
 
-  <script src="app.js?v=final" defer></script>
+<script>
+var APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbwv6RkxDakPptLFkBntJx7Q9gZO_46ymanX-lctuh-rvvLKXXgv9lKLFitcmwZYTXsMjQ/exec";
+var LS_KEY="dps_tajcity_cf_vfinal";
+var LB_KEY="dps_tajcity_leaderboard";
+var FAMILY_SIZE=4;
+var BASE_GLOBAL_PER_PERSON_T=6.6;
+var BASE_INDIA_PER_PERSON_T=1.89;
+var ARENAS=["transport","home","devices","food","waste"];
+var LABEL={transport:"🚗 Transport",home:"🏠 Home Energy",devices:"📱 Devices",food:"🍲 Food",waste:"🗑️ Waste"};
+var AREA_WEIGHTS={transport:0.22,home:0.26,devices:0.10,food:0.28,waste:0.14};
+
+function getCO2Status(t){
+  if(t<=4.5) return{level:"safe",label:"Safe",cls:"safe",icon:"✅"};
+  if(t<=7.0) return{level:"warning",label:"Warning",cls:"warning",icon:"⚠️"};
+  return{level:"alarming",label:"Alarming",cls:"alarming",icon:"🚨"};
+}
+function statusMessage(s){
+  if(s.level==="safe") return"Your carbon footprint is within a safe range. Great habits — keep it up!";
+  if(s.level==="warning") return"Your carbon footprint is moderate. A few habit changes can bring it down.";
+  return"Your carbon footprint is alarmingly high. Immediate action is recommended to reduce emissions.";
+}
+function areaTag(t){if(t<=0.8)return"✅ Good";if(t<=1.6)return"⚠️ Can Improve";return"🚨 Needs Focus";}
+function bandByCO2(t){
+  if(t<=3)return{badge:"🏆 Eco Champion",where:"Excellent! Very low footprint habits."};
+  if(t<=4.5)return{badge:"🌟 Green Leader",where:"Low footprint overall. A couple of small upgrades can improve further."};
+  if(t<=6)return{badge:"✅ Eco Smart",where:"Good progress. Improve 1–2 habits to reduce footprint further."};
+  if(t<=8)return{badge:"🌱 Getting Started",where:"Good base. Start with easy wins (shared travel, efficient cooling, waste separation)."};
+  return{badge:"🚀 Ready for Change",where:"High footprint today. Choose two improvements this week and stay consistent."};
+}
+function estimateFamilyCO2FromFootprintScore(score){
+  var s=Math.max(0,Math.min(100,Number(score)||0));
+  return Math.round((2+(s/100)*10)*10)/10;
+}
+
+var QUIZ=[
+  {arena:"transport",text:"How does your child usually go to school?",options:[{label:"Walk / Cycle",pts:5},{label:"School bus / shared van",pts:4},{label:"Carpool with other parents",pts:4},{label:"Private car (only family)",pts:1}]},
+  {arena:"transport",text:"When waiting near school, the vehicle engine is…",options:[{label:"Always switched off",pts:5},{label:"Sometimes switched off",pts:3},{label:"Mostly kept on",pts:1}]},
+  {arena:"transport",text:"Vehicle servicing + tyre pressure checks are…",options:[{label:"Regular",pts:5},{label:"Occasional",pts:3},{label:"Rare",pts:1}]},
+  {arena:"home",text:"AC usage at home on most days is…",options:[{label:"No AC",pts:5},{label:"0–2 hours/day",pts:4},{label:"2–5 hours/day",pts:3},{label:"5+ hours/day",pts:1}]},
+  {arena:"home",text:"If you use AC, which type is mostly used?",options:[{label:"No AC",pts:5},{label:"Split AC (inverter / newer)",pts:4},{label:"Split AC (older)",pts:3},{label:"Window AC (older)",pts:2},{label:"Not sure",pts:3}]},
+  {arena:"home",text:"Most of your home lighting is…",options:[{label:"Mostly LED",pts:5},{label:"Mix of LED + old bulbs",pts:3},{label:"Mostly old bulbs/tubes",pts:1}]},
+  {arena:"devices",text:"At night, plugs for TV/chargers are…",options:[{label:"Mostly switched off",pts:5},{label:"Sometimes switched off",pts:3},{label:"Rarely switched off",pts:1}]},
+  {arena:"devices",text:"Family screen time per day (TV + mobile + laptop) is…",options:[{label:"< 2 hours",pts:5},{label:"2–4 hours",pts:4},{label:"4–6 hours",pts:2},{label:"6+ hours",pts:1}]},
+  {arena:"devices",text:"Microwave use at home is…",options:[{label:"Rare / almost never",pts:5},{label:"1–3 times/week",pts:4},{label:"Most days (1–2 times/day)",pts:3},{label:"Many times/day",pts:2}]},
+  {arena:"food",text:"How often does food get wasted at home?",options:[{label:"Rarely",pts:5},{label:"Sometimes",pts:3},{label:"Often",pts:1}]},
+  {arena:"food",text:"Fruits/vegetables at home are mostly…",options:[{label:"Local + seasonal",pts:5},{label:"Mixed",pts:3},{label:"Mostly packaged/imported",pts:1}]},
+  {arena:"food",text:"Cooking at home is mainly done using…",options:[{label:"Induction mostly",pts:5},{label:"Mix of induction + gas",pts:4},{label:"Gas mostly",pts:3},{label:"Not sure",pts:3}]},
+  {arena:"waste",text:"Do you segregate wet and dry waste at home?",options:[{label:"Yes, regularly",pts:5},{label:"Sometimes",pts:3},{label:"No",pts:1}]},
+  {arena:"waste",text:"Kitchen waste (peels/leftovers) is usually…",options:[{label:"Compost at home / give for composting",pts:5},{label:"Sometimes compost, sometimes mixed",pts:3},{label:"Thrown with all waste",pts:1}]},
+  {arena:"waste",text:"Single-use plastic (bags/cups) use is…",options:[{label:"Rare",pts:5},{label:"Sometimes",pts:3},{label:"Often",pts:1}]}
+];
+
+var state={profile:{parentName:"",phone:"",address:"",childClass:""},arenaIndex:0,answers:{},submittedOnce:false,submissionId:null};
+
+var el=function(id){return document.getElementById(id);};
+var stepProfile=el("stepProfile"),stepQuiz=el("stepQuiz"),stepResults=el("stepResults");
+var parentNameEl=el("parentName"),phoneEl=el("phone"),addressEl=el("address"),childClassEl=el("childClass");
+var btnStart=el("btnStart"),arenaPill=el("arenaPill"),qText=el("qText"),qSub=el("qSub");
+var optionsEl=el("options"),btnBack=el("btnBack"),btnNext=el("btnNext"),progFill=el("progFill"),progText=el("progText");
+var badgeTextEl=el("badgeText"),whereYouAreEl=el("whereYouAre"),resultStatusBadge=el("resultStatusBadge");
+var co2TotalEl=el("co2Total"),compareBarsEl=el("compareBars"),arenaScoresEl=el("arenaScores"),recommendationsEl=el("recommendations");
+var btnRestart=el("btnRestart"),btnRefreshLB=el("btnRefreshLB"),submitStatus=el("submitStatus"),leaderboardEl=el("leaderboard");
+
+function save(){localStorage.setItem(LS_KEY,JSON.stringify(state));}
+function clearSave(){localStorage.removeItem(LS_KEY);}
+function show(w){
+  stepProfile.style.display=w==="profile"?"block":"none";
+  stepQuiz.style.display=w==="quiz"?"block":"none";
+  stepResults.style.display=w==="results"?"block":"none";
+}
+function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");}
+function getSubmissionId(){
+  if(state.submissionId)return state.submissionId;
+  state.submissionId="sub_"+Date.now()+"_"+Math.random().toString(16).slice(2);save();return state.submissionId;
+}
+function getArenaQuestionIndexes(arena){var idx=[];QUIZ.forEach(function(q,qi){if(q.arena===arena)idx.push(qi);});return idx;}
+function isArenaComplete(arena){return getArenaQuestionIndexes(arena).every(function(qi){return state.answers[qi]!==undefined;});}
+
+function calcFootprintScores(){
+  var agg={};ARENAS.forEach(function(a){agg[a]={got:0,max:0};});
+  QUIZ.forEach(function(q,qi){
+    var mx=Math.max.apply(null,q.options.map(function(o){return o.pts;}));
+    agg[q.arena].max+=mx;
+    var pick=state.answers[qi];
+    if(pick!==undefined)agg[q.arena].got+=q.options[pick].pts;
+  });
+  var af={};ARENAS.forEach(function(a){var e=agg[a].max?Math.round((agg[a].got/agg[a].max)*100):0;af[a]=100-e;});
+  var sum=0;ARENAS.forEach(function(a){sum+=af[a];});
+  return{overallFootprintScore:Math.round(sum/ARENAS.length),arenaFootprint:af};
+}
+
+function calcCO2Breakdown(ov,af){
+  var totalT=estimateFamilyCO2FromFootprintScore(ov);
+  var intensity={};ARENAS.forEach(function(a){intensity[a]=0.6+(Math.max(0,Math.min(100,af[a]))/100)*0.8;});
+  var sum=0,raw={};ARENAS.forEach(function(a){raw[a]=AREA_WEIGHTS[a]*intensity[a];sum+=raw[a];});
+  var byAreaT={};ARENAS.forEach(function(a){byAreaT[a]=Math.round((totalT*(raw[a]/sum))*10)/10;});
+  return{totalT:totalT,byAreaT:byAreaT};
+}
+
+function renderComparisonBars(yourT){
+  var indiaT=Math.round(BASE_INDIA_PER_PERSON_T*FAMILY_SIZE*10)/10;
+  var globalT=Math.round(BASE_GLOBAL_PER_PERSON_T*FAMILY_SIZE*10)/10;
+  var maxV=Math.max(yourT,indiaT,globalT,0.1);
+  var rows=[{name:"Your family",val:yourT},{name:"India avg",val:indiaT},{name:"Global avg",val:globalT}];
+  compareBarsEl.innerHTML=rows.map(function(r){
+    return'<div class="cbar"><div class="cbarName">'+esc(r.name)+'</div><div class="cbarTrack"><div class="cbarFill" style="width:'+Math.round((r.val/maxV)*100)+'%"></div></div><div class="cbarVal">'+r.val.toFixed(1)+'</div></div>';
+  }).join("");
+}
+
+function buildRecommendations(totalT,byAreaT){
+  var sorted=Object.keys(byAreaT).sort(function(a,b){return byAreaT[b]-byAreaT[a];});
+  var worst1=sorted[0],worst2=sorted[1];
+  var best=Object.keys(byAreaT).sort(function(a,b){return byAreaT[a]-byAreaT[b];})[0];
+  var tips={
+    transport:["Prefer school bus or a consistent carpool for daily commute.","Switch off engine while waiting near school gate (avoid idling).","Maintain tyre pressure + regular service for better mileage."],
+    home:["If buying new: prefer inverter split AC (more efficient than older window AC).","Reduce AC hours; use fan first where possible.","Switch remaining bulbs to LED starting with most-used rooms."],
+    devices:["Switch off TV/set-top box/chargers at night (reduce standby power).","Reduce background screen time (TV running while not watching).","Use microwave only when needed; avoid repeated reheating cycles."],
+    food:["Plan portions and store leftovers properly to reduce food waste.","Prefer seasonal/local fruits and vegetables more often.","Use pressure cooker/covered cooking when possible to save fuel."],
+    waste:["Segregate wet and dry waste daily (two bins).","Compost kitchen waste (peels/leftovers) if possible.","Carry reusable cloth bag; reduce single-use plastic."]
+  };
+  function ea(a){return LABEL[a]+" ≈ "+byAreaT[a].toFixed(1)+" tCO₂e/yr";}
+  function lh(arr){return"<ul>"+arr.map(function(x){return"<li>"+x+"</li>";}).join("")+"</ul>";}
+  var blocks=[];
+  if(worst1)blocks.push("<p><b>Top area to reduce first:</b> "+ea(worst1)+"</p>"+lh(tips[worst1].slice(0,3)));
+  if(worst2)blocks.push("<p><b>Second focus area:</b> "+ea(worst2)+"</p>"+lh(tips[worst2].slice(0,3)));
+  var st=getCO2Status(totalT);
+  var sb="<p><b>"+st.icon+" Overall status: "+st.label+"</b></p><p>"+statusMessage(st)+"</p>";
+  var meaning="<p><b>Meaning</b></p><ul><li>This is an <b>approximate CO₂ estimate</b> based on habits (not a lab measurement).</li><li><b>Lower CO₂ is better</b> (lower emissions).</li><li>Comparison uses <b>family of "+FAMILY_SIZE+"</b> as reference.</li><li><b>≤ 4.5 tCO₂e</b> = ✅ Safe &nbsp;|&nbsp; <b>4.5–7.0</b> = ⚠️ Warning &nbsp;|&nbsp; <b>&gt; 7.0</b> = 🚨 Alarming</li></ul>";
+  var bn=best?"<p><b>Your strongest area:</b> "+LABEL[best]+" (keep this habit strong)</p>":"";
+  return sb+meaning+blocks.join("")+bn;
+}
+
+function renderArenaPage(){
+  var arena=ARENAS[state.arenaIndex];var qIdx=getArenaQuestionIndexes(arena);
+  arenaPill.textContent=LABEL[arena];qText.textContent="Answer these questions";qSub.textContent="";
+  progText.textContent=(state.arenaIndex+1)+"/"+ARENAS.length;
+  progFill.style.width=Math.round((state.arenaIndex/ARENAS.length)*100)+"%";
+  optionsEl.innerHTML="";
+  qIdx.forEach(function(qi,pos){
+    var q=QUIZ[qi];var selected=state.answers[qi];
+    var block=document.createElement("div");block.className="qblock";
+    var title=document.createElement("div");title.className="qblockTitle";
+    title.textContent=(pos+1)+". "+q.text;block.appendChild(title);
+    var wrap=document.createElement("div");wrap.className="qblockOptions";
+    q.options.forEach(function(opt,oi){
+      var div=document.createElement("div");
+      div.className="opt"+(selected===oi?" selected":"");
+      div.innerHTML='<div class="o1">'+opt.label+'</div>';
+      div.onclick=function(){state.answers[qi]=oi;save();btnNext.disabled=!isArenaComplete(arena);renderArenaPage();};
+      wrap.appendChild(div);
+    });
+    block.appendChild(wrap);optionsEl.appendChild(block);
+  });
+  btnBack.disabled=state.arenaIndex===0;
+  btnNext.disabled=!isArenaComplete(arena);
+  btnNext.textContent=(state.arenaIndex===ARENAS.length-1)?"Finish →":"Next →";
+}
+
+function renderResults(){
+  var sc=calcFootprintScores();var co2=calcCO2Breakdown(sc.overallFootprintScore,sc.arenaFootprint);
+  var totalT=co2.totalT,byAreaT=co2.byAreaT;var band=bandByCO2(totalT);var status=getCO2Status(totalT);
+  badgeTextEl.textContent=band.badge;whereYouAreEl.textContent=band.where;
+  resultStatusBadge.innerHTML='<div class="result-status result-'+status.cls+'"><span class="dot"></span>'+status.icon+" "+status.label+" — "+statusMessage(status)+'</div>';
+  co2TotalEl.textContent="≈ "+totalT.toFixed(1)+" tCO₂e/year ("+Math.round(totalT*1000)+" kg/year)";
+  renderComparisonBars(totalT);
+  arenaScoresEl.innerHTML="";
+  ARENAS.forEach(function(a){
+    var t=byAreaT[a];var box=document.createElement("div");box.className="box";
+    box.innerHTML='<div class="k">'+LABEL[a]+'</div><div class="co2">≈ '+t.toFixed(1)+' tCO₂e/year</div><div class="kg">('+Math.round(t*1000)+' kg/year)</div><div class="tag">'+areaTag(t)+'</div>';
+    arenaScoresEl.appendChild(box);
+  });
+  recommendationsEl.innerHTML=buildRecommendations(totalT,byAreaT);
+}
+
+function saveProfileOrAlert(){
+  var pn=(parentNameEl.value||"").trim(),ph=(phoneEl.value||"").trim(),ad=(addressEl.value||"").trim(),cc=(childClassEl.value||"").trim().replace(/\s+/g,"");
+  if(!pn||!ph||!ad||!cc){alert("Please fill Parent Name, Phone, Address, and Child Class.");return null;}
+  var digits=ph.replace(/\D/g,"");if(digits.length!==10){alert("Please enter a valid 10-digit phone number.");return null;}
+  if(!/^(?:[1-9]|1[0-2])$/.test(cc)){alert("Child Class should be a number from 1 to 12.");return null;}
+  return{parentName:pn,phone:digits,address:ad,childClass:cc};
+}
+function buildAnswerPayload(){
+  var out={};QUIZ.forEach(function(q,qi){var pick=state.answers[qi];out["Q"+(qi+1)+" ("+q.arena+")"]=(pick!==undefined)?q.options[pick].label:"";});return out;
+}
+
+function getLocalLeaderboard(){try{return JSON.parse(localStorage.getItem(LB_KEY))||[];}catch(e){return[];}}
+function saveToLocalLeaderboard(entry){
+  var lb=getLocalLeaderboard();var exists=-1;
+  for(var i=0;i<lb.length;i++){if(lb[i].submissionId===entry.submissionId){exists=i;break;}}
+  if(exists>=0)lb[exists]=entry;else lb.push(entry);
+  lb.sort(function(a,b){return a.co2Total-b.co2Total;});
+  localStorage.setItem(LB_KEY,JSON.stringify(lb));
+}
+
+function submitToSheet(){
+  if(state.submittedOnce)return;submitStatus.textContent="Saving…";
+  var sc=calcFootprintScores();var co2=calcCO2Breakdown(sc.overallFootprintScore,sc.arenaFootprint);
+  var totalT=co2.totalT,byAreaT=co2.byAreaT;var band=bandByCO2(totalT);var status=getCO2Status(totalT);
+  var recHTML=buildRecommendations(totalT,byAreaT);
+  var recText=recHTML.replace(/<li>/g,"• ").replace(/<\/li>/g,"\n").replace(/<\/p>/g,"\n\n").replace(/<[^>]*>/g,"").replace(/\n{3,}/g,"\n\n").trim();
+  var sid=getSubmissionId();
+  saveToLocalLeaderboard({submissionId:sid,name:state.profile.parentName,childClass:state.profile.childClass,co2Total:totalT,badge:band.badge,status:status.label,statusLevel:status.level});
+  var payload={submissionId:sid,parentName:state.profile.parentName,phone:state.profile.phone,address:state.profile.address,childClass:state.profile.childClass,badgeLabel:band.badge,statusLabel:status.label,recommendationsText:recText,co2:{total:totalT,transport:byAreaT.transport,home:byAreaT.home,devices:byAreaT.devices,food:byAreaT.food,waste:byAreaT.waste},answers:buildAnswerPayload()};
+  fetch(APPS_SCRIPT_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)}).then(function(){
+    state.submittedOnce=true;save();submitStatus.textContent="✅ Saved!";
+  }).catch(function(){
+    state.submittedOnce=true;save();submitStatus.textContent="⚠️ Could not reach server — saved locally.";
+  }).finally(function(){renderLeaderboard();});
+}
+
+function renderLeaderboard(){
+  var lb=getLocalLeaderboard();
+  if(!lb.length){leaderboardEl.innerHTML='<div class="no-data">No submissions yet. Be the first!</div>';return;}
+  function medal(r){if(r===1)return"🥇";if(r===2)return"🥈";if(r===3)return"🥉";return"#"+r;}
+  leaderboardEl.innerHTML="";
+  lb.forEach(function(row,i){
+    var rank=i+1;var co2=Number(row.co2Total)||0;var status=getCO2Status(co2);
+    var div=document.createElement("div");div.className="lbrow";
+    div.innerHTML='<div class="rank">'+medal(rank)+'</div><div class="info"><div class="name">'+esc(row.name||"Anonymous")+'</div><div class="detail">Class '+esc(row.childClass||"-")+' • '+esc(row.badge||"")+'</div></div><div><span class="status-badge status-'+status.cls+'"><span class="dot"></span>'+status.label+'</span></div><div class="co2val"><b>'+co2.toFixed(1)+' tCO₂e/yr</b><div class="sub">('+Math.round(co2*1000)+' kg/yr)</div></div>';
+    leaderboardEl.appendChild(div);
+  });
+}
+
+function loadRemoteLeaderboard(){
+  fetch(APPS_SCRIPT_URL+"?action=leaderboard&limit=20").then(function(res){return res.json();}).then(function(json){
+    if(!json.ok)return;var all=(json.podium||[]).concat(json.others||[]);if(!all.length)return;
+    all.forEach(function(row){var co2=Number(row.co2Total)||0;var status=getCO2Status(co2);
+      saveToLocalLeaderboard({submissionId:row.submissionId||("remote_"+row.name+"_"+row.className),name:row.name||"Anonymous",childClass:row.className||"-",co2Total:co2,badge:row.badge||"",status:status.label,statusLevel:status.level});
+    });renderLeaderboard();
+  }).catch(function(){});
+}
+
+btnStart.onclick=function(){
+  var profile=saveProfileOrAlert();if(!profile)return;
+  state.profile=profile;state.arenaIndex=0;state.answers={};state.submittedOnce=false;state.submissionId=null;save();
+  show("quiz");renderArenaPage();
+};
+btnBack.onclick=function(){state.arenaIndex=Math.max(0,state.arenaIndex-1);save();renderArenaPage();};
+btnNext.onclick=function(){
+  var arena=ARENAS[state.arenaIndex];if(!isArenaComplete(arena))return;
+  state.arenaIndex+=1;save();
+  if(state.arenaIndex>=ARENAS.length){show("results");renderResults();submitToSheet();loadRemoteLeaderboard();}
+  else{renderArenaPage();}
+};
+btnRestart.onclick=function(){
+  clearSave();state={profile:{parentName:"",phone:"",address:"",childClass:""},arenaIndex:0,answers:{},submittedOnce:false,submissionId:null};
+  parentNameEl.value="";phoneEl.value="";addressEl.value="";childClassEl.value="";submitStatus.textContent="";show("profile");
+};
+btnRefreshLB.onclick=function(){renderLeaderboard();loadRemoteLeaderboard();};
+
+show("profile");
+</script>
 </body>
 </html>
