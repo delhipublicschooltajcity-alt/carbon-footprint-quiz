@@ -6,194 +6,7 @@
   <title>DPS Tajcity Agra • Family Carbon Footprint Check</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900;1,9..40,400&display=swap" rel="stylesheet">
-  <style>
-    * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; min-height: 100%; }
-    body {
-      font-family: 'DM Sans', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      color: #eaf2ff; background: #070b18; line-height: 1.5;
-    }
-    .bgGlow {
-      position: fixed; inset: 0; pointer-events: none !important; z-index: -1 !important;
-      background:
-        radial-gradient(900px 500px at 15% 15%, rgba(105,150,255,.20), transparent 55%),
-        radial-gradient(800px 500px at 85% 20%, rgba(100,255,200,.14), transparent 60%),
-        radial-gradient(900px 650px at 45% 90%, rgba(255,160,120,.12), transparent 55%);
-    }
-    .app { max-width: 980px; margin: 0 auto; padding: 18px 16px 36px; position: relative; z-index: 1; }
-    .header { padding: 8px 2px 16px; }
-    .brand { display: flex; align-items: center; gap: 14px; }
-    .header h1 { margin: 0; font-weight: 800; letter-spacing: .2px; font-size: 1.35rem; }
-    .header .sub { margin: 6px 0 0; opacity: .85; font-size: .98rem; }
-    .appIconWrap {
-      width: 56px; height: 56px; flex: 0 0 56px; border-radius: 14px; overflow: hidden;
-      background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center;
-    }
-    .appIcon { width: 100%; height: 100%; object-fit: contain; display: block; padding: 6px; }
-    .card {
-      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
-      border-radius: 18px; padding: 18px; backdrop-filter: blur(10px);
-      box-shadow: 0 18px 40px rgba(0,0,0,0.35);
-    }
-    h2 { margin: 0 0 10px; font-size: 1.25rem; font-weight: 800; }
-    h3 { margin: 0 0 10px; font-size: 1.08rem; font-weight: 800; }
-    .hint { margin: 0 0 14px; opacity: .9; line-height: 1.35; }
-    .muted { margin-left: 8px; opacity: .75; font-size: .92em; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    label { display: flex; flex-direction: column; gap: 6px; font-size: .92rem; opacity: .95; font-weight: 600; }
-    label.full { grid-column: 1 / -1; }
-    input {
-      padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(0,0,0,0.25); color: #eaf2ff; outline: none;
-      font-family: inherit; font-size: .95rem; transition: border-color .2s;
-    }
-    input:focus { border-color: rgba(83,255,192,.55); }
-    input::placeholder { opacity: .55; }
-    .row { margin-top: 14px; display: flex; gap: 10px; }
-    .btn {
-      border: 0; padding: 12px 20px; border-radius: 14px; font-weight: 700; cursor: pointer;
-      font-family: inherit; font-size: .95rem;
-      background: linear-gradient(135deg, rgba(116,185,255,.95), rgba(83,255,192,.85));
-      color: #07101c; box-shadow: 0 10px 24px rgba(0,0,0,0.35);
-      transition: transform .15s, opacity .15s;
-    }
-    .btn:hover:not(:disabled) { transform: translateY(-1px); }
-    .btn:active:not(:disabled) { transform: translateY(0); }
-    .btn:disabled { opacity: .45; cursor: not-allowed; }
-    .btn.ghost {
-      background: rgba(255,255,255,0.08); color: #eaf2ff;
-      border: 1px solid rgba(255,255,255,0.16); box-shadow: none;
-    }
-    .btn.ghost:hover:not(:disabled) { background: rgba(255,255,255,0.12); }
-    .toprow { display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; }
-    .pill {
-      display: inline-block; padding: 6px 12px; border-radius: 999px;
-      background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.14);
-      font-weight: 700; font-size: .92rem; margin-bottom: 8px;
-    }
-    .qtitle { font-size: 1.22rem; font-weight: 800; line-height: 1.25; }
-    .qsub { margin-top: 6px; opacity: .86; font-size: .96rem; }
-    .progress { min-width: 160px; text-align: right; }
-    .bar {
-      height: 9px; border-radius: 999px; background: rgba(255,255,255,0.10);
-      overflow: hidden; border: 1px solid rgba(255,255,255,0.12);
-    }
-    .fill {
-      height: 100%; width: 0%;
-      background: linear-gradient(90deg, rgba(116,185,255,.95), rgba(83,255,192,.85));
-      transition: width .4s ease;
-    }
-    .pct { margin-top: 8px; font-size: .9rem; opacity: .85; }
-    .options { margin-top: 14px; display: flex; flex-direction: column; gap: 14px; }
-    .qblock { padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.14); background: rgba(0,0,0,0.14); }
-    .qblockTitle { font-weight: 800; margin-bottom: 10px; }
-    .qblockOptions { display: flex; flex-direction: column; gap: 10px; }
-    .opt {
-      padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(0,0,0,0.18); cursor: pointer; transition: border-color .2s, background .2s;
-    }
-    .opt:hover { border-color: rgba(255,255,255,0.3); }
-    .opt.selected { border-color: rgba(83,255,192,.55); background: rgba(83,255,192,0.10); }
-    .o1 { font-weight: 700; }
-    .nav { margin-top: 14px; display: flex; justify-content: space-between; gap: 12px; }
-    .scoreRow { display: flex; gap: 14px; align-items: stretch; margin-top: 12px; }
-    .bigScore {
-      min-width: 280px; flex: 0 0 320px; padding: 14px; border-radius: 16px;
-      background: rgba(0,0,0,0.18); border: 1px solid rgba(255,255,255,0.12);
-    }
-    .badge { font-size: 1.1rem; font-weight: 900; }
-    .small { margin-top: 6px; opacity: .86; line-height: 1.35; }
-    .spacer { height: 12px; }
-    .kpiTitle { margin-top: 6px; opacity: .9; font-weight: 800; }
-    .kpiValue { margin-top: 6px; font-size: 1.25rem; font-weight: 900; color: #53ffc0; }
-    .miniNote { margin-top: 8px; opacity: .78; font-size: .9rem; }
-    .compareCard {
-      margin-top: 12px; padding: 12px; border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.12); background: rgba(0,0,0,0.14);
-    }
-    .compareTitle { font-weight: 900; }
-    .compareSub { opacity: .8; font-size: .9rem; margin-top: 4px; }
-    .cbar { display: grid; grid-template-columns: 90px 1fr 55px; gap: 10px; align-items: center; margin-top: 10px; }
-    .cbarName { opacity: .9; font-size: .9rem; }
-    .cbarTrack {
-      height: 10px; border-radius: 999px; background: rgba(255,255,255,0.10);
-      overflow: hidden; border: 1px solid rgba(255,255,255,0.10);
-    }
-    .cbarFill { height: 100%; width: 0%; transition: width .6s ease; }
-    .cbarVal { text-align: right; opacity: .9; font-size: .9rem; }
-    .arenaScores { flex: 1 1 auto; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .box { padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.12); background: rgba(0,0,0,0.14); }
-    .box .k { opacity: .9; font-weight: 900; }
-    .box .co2 { margin-top: 8px; font-size: 1.15rem; font-weight: 900; }
-    .box .kg { margin-top: 3px; opacity: .85; font-size: .9rem; }
-    .box .tag { margin-top: 8px; opacity: .9; font-weight: 800; }
-    .insights {
-      margin-top: 14px; padding: 14px; border-radius: 16px;
-      border: 1px solid rgba(255,255,255,0.12); background: rgba(0,0,0,0.14);
-    }
-    .recText p { margin: 8px 0; }
-    .recText ul { margin: 8px 0 8px 18px; }
-    .recText li { margin: 6px 0; }
-    .actions { margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap; }
-    .status { margin-top: 10px; opacity: .9; }
-    .result-status {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 10px 20px; border-radius: 14px; font-weight: 800; font-size: 1.05rem; margin-top: 12px;
-      line-height: 1.4;
-    }
-    .result-status .dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
-    .result-safe { background: rgba(72,219,151,0.12); color: #48db97; border: 1px solid rgba(72,219,151,0.3); }
-    .result-safe .dot { background: #48db97; box-shadow: 0 0 8px rgba(72,219,151,.5); }
-    .result-warning { background: rgba(255,193,72,0.12); color: #ffc148; border: 1px solid rgba(255,193,72,0.3); }
-    .result-warning .dot { background: #ffc148; box-shadow: 0 0 8px rgba(255,193,72,.5); }
-    .result-alarming { background: rgba(255,88,88,0.12); color: #ff5858; border: 1px solid rgba(255,88,88,0.3); }
-    .result-alarming .dot { background: #ff5858; box-shadow: 0 0 8px rgba(255,88,88,.5); animation: pulse-dot 1.8s ease infinite; }
-    .lb-section { margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.10); }
-    .lb-section h3 { font-size: 1.15rem; margin-bottom: 14px; }
-    .leaderboard { display: flex; flex-direction: column; gap: 10px; }
-    .lbrow {
-      display: grid; grid-template-columns: 48px 1fr auto 140px; gap: 10px; align-items: center;
-      padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(0,0,0,0.12); transition: background .2s;
-    }
-    .lbrow:hover { background: rgba(255,255,255,0.04); }
-    .lbrow .rank { font-weight: 900; font-size: 1.1rem; text-align: center; }
-    .lbrow .info .name { font-weight: 800; }
-    .lbrow .info .detail { opacity: .85; font-size: .92em; margin-top: 2px; }
-    .status-badge {
-      display: inline-flex; align-items: center; gap: 5px;
-      padding: 5px 12px; border-radius: 999px; font-weight: 700; font-size: .82rem;
-      white-space: nowrap; letter-spacing: .02em;
-    }
-    .status-badge .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .status-safe { background: rgba(72,219,151,0.15); color: #48db97; border: 1px solid rgba(72,219,151,0.3); }
-    .status-safe .dot { background: #48db97; box-shadow: 0 0 6px rgba(72,219,151,.6); }
-    .status-warning { background: rgba(255,193,72,0.15); color: #ffc148; border: 1px solid rgba(255,193,72,0.3); }
-    .status-warning .dot { background: #ffc148; box-shadow: 0 0 6px rgba(255,193,72,.6); }
-    .status-alarming { background: rgba(255,88,88,0.15); color: #ff5858; border: 1px solid rgba(255,88,88,0.3); }
-    .status-alarming .dot { background: #ff5858; box-shadow: 0 0 6px rgba(255,88,88,.6); animation: pulse-dot 1.8s ease infinite; }
-    @keyframes pulse-dot {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: .6; transform: scale(1.3); }
-    }
-    .lbrow .co2val { text-align: right; }
-    .lbrow .co2val b { font-size: 1rem; }
-    .lbrow .co2val .sub { opacity: .85; font-size: .85em; }
-    .no-data { text-align: center; padding: 24px; opacity: .7; }
-    @media (max-width:740px) {
-      .grid { grid-template-columns: 1fr; }
-      label.full { grid-column: auto; }
-      .scoreRow { flex-direction: column; }
-      .bigScore { flex: 1 1 auto; min-width: 0; }
-      .arenaScores { grid-template-columns: 1fr; }
-      .lbrow { grid-template-columns: 40px 1fr auto 110px; gap: 8px; padding: 10px; }
-    }
-    @media (max-width:480px) {
-      .lbrow { grid-template-columns: 36px 1fr; gap: 6px; }
-      .lbrow .status-badge { grid-column: 1 / -1; justify-self: start; }
-      .lbrow .co2val { grid-column: 1 / -1; text-align: left; }
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="bgGlow"></div>
@@ -205,23 +18,42 @@
         </div>
         <div>
           <h1>DPS Tajcity Agra • Family Carbon Footprint Check</h1>
-          <p class="sub">Parents edition • 15 questions • CO₂ estimate + improvement plan</p>
+          <p class="sub">Parents edition • 11 questions • CO₂ estimate + improvement plan</p>
         </div>
       </div>
     </header>
     <main class="card">
+
+      <!-- ==================== PROFILE ==================== -->
       <section id="stepProfile">
         <h2>Parent Details</h2>
-        <p class="hint">Please fill details and answer 15 questions.
+        <p class="hint">Please fill details and answer the quiz.
           <span class="muted"><i>(Details are used only for the school survey)</i></span></p>
         <div class="grid">
           <label>Parent Name<input id="parentName" type="text" placeholder="e.g., Rahul Sharma" autocomplete="name" /></label>
           <label>Phone Number<input id="phone" type="tel" placeholder="e.g., 98XXXXXXXX" autocomplete="tel" /></label>
           <label class="full">Address<input id="address" type="text" placeholder="e.g., Tajganj, Agra" autocomplete="street-address" /></label>
-          <label>Child Class (1–12)<input id="childClass" type="text" placeholder="e.g., 6" inputmode="numeric" /></label>
+          <label>Child Class (EY-8)
+            <select id="childClass">
+              <option value="">Select class…</option>
+              <option value="EY 1">EY 1</option>
+              <option value="EY 2">EY 2</option>
+              <option value="EY 3">EY 3</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+            </select>
+          </label>
         </div>
         <div class="row"><button class="btn" id="btnStart" type="button">Start →</button></div>
       </section>
+
+      <!-- ==================== QUIZ ==================== -->
       <section id="stepQuiz" style="display:none;">
         <div class="toprow">
           <div><div class="pill" id="arenaPill"></div><div class="qtitle" id="qText"></div><div class="qsub" id="qSub"></div></div>
@@ -233,479 +65,60 @@
           <button class="btn" id="btnNext" type="button" disabled>Next →</button>
         </div>
       </section>
+
+      <!-- ==================== RESULTS ==================== -->
       <section id="stepResults" style="display:none;">
-        <h2>Your Family Report</h2>
-        <div class="scoreRow">
-          <div class="bigScore">
-            <div class="badge" id="badgeText">—</div>
-            <div class="small" id="whereYouAre">—</div>
-            <div id="resultStatusBadge"></div>
-            <div class="spacer"></div>
-            <div class="kpiTitle">Estimated total CO₂ footprint (family of 4)</div>
-            <div class="kpiValue" id="co2Total">—</div>
-            <div class="miniNote">Approximate indicator based on habits (not a lab measurement).</div>
-            <div class="compareCard">
-              <div class="compareTitle">Comparison (tCO₂e/year)</div>
-              <div class="compareSub">Fixed family size: 4</div>
-              <div id="compareBars"></div>
+        <h2>Your Family's Carbon Report</h2>
+
+        <div class="result-hero">
+          <div class="hero-badge" id="badgeText">—</div>
+          <div class="hero-sub" id="whereYouAre">—</div>
+          <div id="resultStatusBadge"></div>
+        </div>
+
+        <div class="score-gauge-section">
+          <div class="gauge-label">Your Family's Annual CO₂</div>
+          <div class="gauge-big" id="co2Total">—</div>
+          <div class="gauge-note">Approximate indicator based on daily habits (not a lab measurement)</div>
+          <div class="gauge-meter">
+            <div class="gauge-track">
+              <div class="gauge-fill" id="gaugeFill"></div>
+            </div>
+            <div class="gauge-scale">
+              <span>0</span><span>3</span><span>6</span><span>9</span><span>12 tCO₂e</span>
             </div>
           </div>
+        </div>
+
+        <div class="compare-section">
+          <div class="compareTitle">How You Compare (tCO₂e/year, family of 4)</div>
+          <div id="compareBars"></div>
+        </div>
+
+        <div class="breakdown-section">
+          <h3>Category Breakdown</h3>
           <div class="arenaScores" id="arenaScores"></div>
         </div>
-        <div class="insights"><h3>Next steps</h3><div id="recommendations" class="recText"></div></div>
+
+        <div class="insights">
+          <h3>What You Can Do</h3>
+          <div id="recommendations" class="recText"></div>
+        </div>
+
         <div class="actions">
-          <button class="btn ghost" id="btnRestart" type="button">Restart</button>
+          <button class="btn ghost" id="btnRestart" type="button">Take Again</button>
           <button class="btn ghost" id="btnRefreshLB" type="button">Refresh Leaderboard</button>
         </div>
         <p class="status" id="submitStatus"></p>
-        <div class="lb-section"><h3>🏆 Leaderboard — Lowest CO₂ Wins</h3><div class="leaderboard" id="leaderboard"></div></div>
+
+        <div class="lb-section">
+          <h3>🏆 Leaderboard — Lowest CO₂ Wins</h3>
+          <div class="leaderboard" id="leaderboard"></div>
+        </div>
       </section>
+
     </main>
   </div>
-
-<script>
-/* ===================================================================
-   CONFIG
-   =================================================================== */
-var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwv6RkxDakPptLFkBntJx7Q9gZO_46ymanX-lctuh-rvvLKXXgv9lKLFitcmwZYTXsMjQ/exec";
-var LS_KEY  = "dps_tajcity_cf_v3";
-var LB_KEY  = "dps_tajcity_lb_v3";
-var FAMILY_SIZE = 4;
-var BASE_GLOBAL_PER_PERSON_T = 6.6;
-var BASE_INDIA_PER_PERSON_T  = 1.89;
-
-var ARENAS = ["transport","home","devices","food","waste"];
-var LABEL  = {
-  transport:"🚗 Transport", home:"🏠 Home Energy",
-  devices:"📱 Devices", food:"🍲 Food", waste:"🗑️ Waste"
-};
-
-/* =================================================================
-   DIRECT CO₂ PER OPTION (tCO₂e/year for family of 4)
-   -----------------------------------------------------------------
-   Instead of abstract points, each option now carries a REAL CO₂
-   value. This means different choices produce genuinely different
-   totals. Values based on Indian emission factors.
-   ================================================================= */
-var QUIZ = [
-  /* ── TRANSPORT ── */
-  {arena:"transport", text:"How does your child usually go to school?", options:[
-    {label:"Walk / Cycle",                co2: 0.00},
-    {label:"School bus / shared van",     co2: 0.25},
-    {label:"Carpool with other parents",  co2: 0.40},
-    {label:"Private car (only family)",   co2: 1.20}
-  ]},
-  {arena:"transport", text:"When waiting near school, the vehicle engine is…", options:[
-    {label:"Always switched off",     co2: 0.00},
-    {label:"Sometimes switched off",  co2: 0.15},
-    {label:"Mostly kept on",          co2: 0.45}
-  ]},
-  {arena:"transport", text:"Vehicle servicing + tyre pressure checks are…", options:[
-    {label:"Regular",     co2: 0.05},
-    {label:"Occasional",  co2: 0.20},
-    {label:"Rare",        co2: 0.50}
-  ]},
-
-  /* ── HOME ENERGY ── */
-  {arena:"home", text:"AC usage at home on most days is…", options:[
-    {label:"No AC",            co2: 0.00},
-    {label:"0–2 hours/day",    co2: 0.40},
-    {label:"2–5 hours/day",    co2: 1.10},
-    {label:"5+ hours/day",     co2: 2.20}
-  ]},
-  {arena:"home", text:"If you use AC, which type is mostly used?", options:[
-    {label:"No AC",                        co2: 0.00},
-    {label:"Split AC (inverter / newer)",  co2: 0.20},
-    {label:"Split AC (older)",             co2: 0.45},
-    {label:"Window AC (older)",            co2: 0.75},
-    {label:"Not sure",                     co2: 0.45}
-  ]},
-  {arena:"home", text:"Most of your home lighting is…", options:[
-    {label:"Mostly LED",             co2: 0.10},
-    {label:"Mix of LED + old bulbs", co2: 0.35},
-    {label:"Mostly old bulbs/tubes", co2: 0.70}
-  ]},
-
-  /* ── DEVICES ── */
-  {arena:"devices", text:"At night, plugs for TV/chargers are…", options:[
-    {label:"Mostly switched off",     co2: 0.05},
-    {label:"Sometimes switched off",  co2: 0.20},
-    {label:"Rarely switched off",     co2: 0.45}
-  ]},
-  {arena:"devices", text:"Family screen time per day (TV + mobile + laptop) is…", options:[
-    {label:"< 2 hours",   co2: 0.10},
-    {label:"2–4 hours",   co2: 0.25},
-    {label:"4–6 hours",   co2: 0.50},
-    {label:"6+ hours",    co2: 0.80}
-  ]},
-  {arena:"devices", text:"Microwave use at home is…", options:[
-    {label:"Rare / almost never",        co2: 0.02},
-    {label:"1–3 times/week",             co2: 0.08},
-    {label:"Most days (1–2 times/day)",  co2: 0.18},
-    {label:"Many times/day",             co2: 0.35}
-  ]},
-
-  /* ── FOOD ── */
-  {arena:"food", text:"How often does food get wasted at home?", options:[
-    {label:"Rarely",     co2: 0.10},
-    {label:"Sometimes",  co2: 0.55},
-    {label:"Often",      co2: 1.20}
-  ]},
-  {arena:"food", text:"Fruits/vegetables at home are mostly…", options:[
-    {label:"Local + seasonal",        co2: 0.15},
-    {label:"Mixed",                   co2: 0.45},
-    {label:"Mostly packaged/imported",co2: 0.90}
-  ]},
-  {arena:"food", text:"Cooking at home is mainly done using…", options:[
-    {label:"Induction mostly",        co2: 0.20},
-    {label:"Mix of induction + gas",  co2: 0.45},
-    {label:"Gas mostly",              co2: 0.70},
-    {label:"Not sure",                co2: 0.55}
-  ]},
-
-  /* ── WASTE ── */
-  {arena:"waste", text:"Do you segregate wet and dry waste at home?", options:[
-    {label:"Yes, regularly",  co2: 0.05},
-    {label:"Sometimes",       co2: 0.30},
-    {label:"No",              co2: 0.65}
-  ]},
-  {arena:"waste", text:"Kitchen waste (peels/leftovers) is usually…", options:[
-    {label:"Compost at home / give for composting",  co2: 0.05},
-    {label:"Sometimes compost, sometimes mixed",     co2: 0.25},
-    {label:"Thrown with all waste",                  co2: 0.55}
-  ]},
-  {arena:"waste", text:"Single-use plastic (bags/cups) use is…", options:[
-    {label:"Rare",       co2: 0.05},
-    {label:"Sometimes",  co2: 0.25},
-    {label:"Often",      co2: 0.60}
-  ]}
-];
-
-/* ===================================================================
-   STATUS HELPERS
-   =================================================================== */
-function getCO2Status(t) {
-  if (t <= 4.0)  return {level:"safe",    label:"Safe",    cls:"safe",    icon:"✅"};
-  if (t <= 7.5)  return {level:"warning", label:"Warning", cls:"warning", icon:"⚠️"};
-  return                {level:"alarming",label:"Alarming",cls:"alarming",icon:"🚨"};
-}
-function statusMessage(s) {
-  if (s.level === "safe")    return "Your family's carbon footprint is low. Excellent habits — keep going!";
-  if (s.level === "warning") return "Your footprint is moderate. Targeted changes in 1–2 areas can make a big difference.";
-  return "Your footprint is alarmingly high. Immediate changes are strongly recommended.";
-}
-function areaTag(t) {
-  if (t <= 0.6) return "✅ Good";
-  if (t <= 1.5) return "⚠️ Can Improve";
-  return "🚨 Needs Focus";
-}
-function bandByCO2(t) {
-  if (t <= 2.5) return {badge:"🏆 Eco Champion",    where:"Outstanding! Among the lowest footprint families."};
-  if (t <= 4.0) return {badge:"🌟 Green Leader",    where:"Very good habits. Small tweaks can make you a champion."};
-  if (t <= 6.0) return {badge:"✅ Eco Smart",       where:"Good progress. Focus on your top 1–2 areas to improve."};
-  if (t <= 8.5) return {badge:"🌱 Getting Started", where:"Room to grow. Start with easy wins this week."};
-  return               {badge:"🚀 Ready for Change",where:"High footprint. Pick two changes and start today."};
-}
-
-/* ===================================================================
-   STATE
-   =================================================================== */
-var state = {
-  profile:{parentName:"",phone:"",address:"",childClass:""},
-  arenaIndex:0, answers:{}, submittedOnce:false, submissionId:null
-};
-(function(){ try { var s=JSON.parse(localStorage.getItem(LS_KEY)); if(s&&s.profile) state=s; } catch(e){} })();
-
-/* ===================================================================
-   DOM
-   =================================================================== */
-function $(id){return document.getElementById(id);}
-var stepProfile=$("stepProfile"),stepQuiz=$("stepQuiz"),stepResults=$("stepResults");
-var parentNameEl=$("parentName"),phoneEl=$("phone"),addressEl=$("address"),childClassEl=$("childClass");
-var btnStart=$("btnStart"),arenaPill=$("arenaPill"),qText=$("qText"),qSub=$("qSub");
-var optionsEl=$("options"),btnBack=$("btnBack"),btnNext=$("btnNext");
-var progFill=$("progFill"),progText=$("progText");
-var badgeTextEl=$("badgeText"),whereYouAreEl=$("whereYouAre"),resultStatusBadge=$("resultStatusBadge");
-var co2TotalEl=$("co2Total"),compareBarsEl=$("compareBars"),arenaScoresEl=$("arenaScores");
-var recommendationsEl=$("recommendations");
-var btnRestart=$("btnRestart"),btnRefreshLB=$("btnRefreshLB");
-var submitStatus=$("submitStatus"),leaderboardEl=$("leaderboard");
-
-/* ===================================================================
-   HELPERS
-   =================================================================== */
-function save(){try{localStorage.setItem(LS_KEY,JSON.stringify(state));}catch(e){}}
-function clearSave(){try{localStorage.removeItem(LS_KEY);}catch(e){}}
-function show(w){
-  stepProfile.style.display=w==="profile"?"block":"none";
-  stepQuiz.style.display=w==="quiz"?"block":"none";
-  stepResults.style.display=w==="results"?"block":"none";
-  window.scrollTo(0,0);
-}
-function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");}
-function getSubmissionId(){
-  if(state.submissionId) return state.submissionId;
-  state.submissionId="sub_"+Date.now()+"_"+Math.random().toString(36).slice(2);
-  save(); return state.submissionId;
-}
-function getArenaQIs(arena){var o=[];for(var i=0;i<QUIZ.length;i++){if(QUIZ[i].arena===arena)o.push(i);}return o;}
-function isArenaComplete(arena){var q=getArenaQIs(arena);for(var i=0;i<q.length;i++){if(state.answers[q[i]]===undefined)return false;}return true;}
-
-/* ===================================================================
-   NEW SCORING — Direct CO₂ sum per arena
-   Each option has a real co2 value → just sum them up.
-   No more abstract "footprint score" that compresses everything.
-   =================================================================== */
-function calcCO2() {
-  var byArea = {};
-  var i, a;
-  for (i = 0; i < ARENAS.length; i++) byArea[ARENAS[i]] = 0;
-
-  for (i = 0; i < QUIZ.length; i++) {
-    var pick = state.answers[i];
-    if (pick !== undefined && pick !== null) {
-      byArea[QUIZ[i].arena] += QUIZ[i].options[pick].co2;
-    }
-  }
-
-  /* Round each to 2 decimal places */
-  var totalT = 0;
-  for (i = 0; i < ARENAS.length; i++) {
-    a = ARENAS[i];
-    byArea[a] = Math.round(byArea[a] * 100) / 100;
-    totalT += byArea[a];
-  }
-  totalT = Math.round(totalT * 100) / 100;
-
-  console.log("CO₂ byArea:", JSON.stringify(byArea), "total:", totalT);
-  return { totalT: totalT, byAreaT: byArea };
-}
-
-/* ===================================================================
-   COMPARISON BARS
-   =================================================================== */
-function renderComparisonBars(yourT) {
-  var indiaT  = Math.round(BASE_INDIA_PER_PERSON_T * FAMILY_SIZE * 10) / 10;
-  var globalT = Math.round(BASE_GLOBAL_PER_PERSON_T * FAMILY_SIZE * 10) / 10;
-  var maxV = Math.max(yourT, indiaT, globalT, 0.1);
-  var rows = [{name:"Your family",val:yourT},{name:"India avg",val:indiaT},{name:"Global avg",val:globalT}];
-  var html = "";
-  for (var i = 0; i < rows.length; i++) {
-    var r = rows[i];
-    var pct = Math.round((r.val / maxV) * 100);
-    var color = r.name === "Your family"
-      ? (yourT <= 4.0 ? "background:linear-gradient(90deg,#48db97,#48db97)"
-        : yourT <= 7.5 ? "background:linear-gradient(90deg,#ffc148,#ffc148)"
-        : "background:linear-gradient(90deg,#ff5858,#ff5858)")
-      : "background:linear-gradient(90deg,rgba(116,185,255,.95),rgba(83,255,192,.85))";
-    html += '<div class="cbar"><div class="cbarName">'+esc(r.name)+'</div><div class="cbarTrack"><div class="cbarFill" style="width:'+pct+'%;'+color+'"></div></div><div class="cbarVal">'+r.val.toFixed(1)+'</div></div>';
-  }
-  compareBarsEl.innerHTML = html;
-}
-
-/* ===================================================================
-   RECOMMENDATIONS
-   =================================================================== */
-function buildRecommendations(totalT, byAreaT) {
-  var keys = Object.keys(byAreaT);
-  keys.sort(function(a,b){return byAreaT[b]-byAreaT[a];});
-  var worst1=keys[0], worst2=keys[1];
-  var keysAsc=keys.slice().sort(function(a,b){return byAreaT[a]-byAreaT[b];});
-  var best=keysAsc[0];
-
-  var tips = {
-    transport:["Prefer school bus or carpool for daily commute.","Switch off engine while waiting near school.","Maintain tyre pressure + regular service for better mileage."],
-    home:["Prefer inverter split AC (more efficient).","Reduce AC hours; use fan first.","Switch all bulbs to LED."],
-    devices:["Switch off TV/chargers at night (standby power adds up).","Cut background screen time.","Use microwave only when needed."],
-    food:["Plan portions and store leftovers to cut waste.","Buy seasonal/local fruits and vegetables.","Use pressure cooker to save fuel."],
-    waste:["Segregate wet and dry waste daily.","Compost kitchen waste if possible.","Use reusable bags; avoid single-use plastic."]
-  };
-
-  function ea(a){return LABEL[a]+" ≈ "+byAreaT[a].toFixed(2)+" tCO₂e/yr";}
-  function ul(arr){var h="<ul>";for(var i=0;i<arr.length;i++)h+="<li>"+arr[i]+"</li>";return h+"</ul>";}
-
-  var st = getCO2Status(totalT);
-  var out = "<p><b>"+st.icon+" Overall Status: "+st.label+"</b></p><p>"+statusMessage(st)+"</p>";
-  out += "<p><b>Score Guide</b></p><ul>";
-  out += "<li><b>≤ 4.0 tCO₂e</b> = ✅ Safe</li>";
-  out += "<li><b>4.0 – 7.5 tCO₂e</b> = ⚠️ Warning</li>";
-  out += "<li><b>&gt; 7.5 tCO₂e</b> = 🚨 Alarming</li></ul>";
-
-  if(worst1 && byAreaT[worst1]>0){
-    out += "<p><b>🔴 Top area to reduce:</b> "+ea(worst1)+"</p>"+ul(tips[worst1]||[]);
-  }
-  if(worst2 && byAreaT[worst2]>0){
-    out += "<p><b>🟡 Second focus:</b> "+ea(worst2)+"</p>"+ul(tips[worst2]||[]);
-  }
-  if(best) out += "<p><b>🟢 Strongest area:</b> "+LABEL[best]+" ("+byAreaT[best].toFixed(2)+" tCO₂e) — keep it up!</p>";
-  return out;
-}
-
-/* ===================================================================
-   RENDER: QUIZ
-   =================================================================== */
-function renderArenaPage() {
-  var arena=ARENAS[state.arenaIndex]; var qis=getArenaQIs(arena);
-  arenaPill.textContent=LABEL[arena]; qText.textContent="Answer these questions"; qSub.textContent="";
-  progText.textContent=(state.arenaIndex+1)+"/"+ARENAS.length;
-  progFill.style.width=Math.round((state.arenaIndex/ARENAS.length)*100)+"%";
-  optionsEl.innerHTML="";
-  for(var p=0;p<qis.length;p++){
-    var qi=qis[p]; var q=QUIZ[qi]; var selected=state.answers[qi];
-    var block=document.createElement("div"); block.className="qblock";
-    var title=document.createElement("div"); title.className="qblockTitle";
-    title.textContent=(p+1)+". "+q.text; block.appendChild(title);
-    var wrap=document.createElement("div"); wrap.className="qblockOptions";
-    for(var oi=0;oi<q.options.length;oi++){
-      (function(questionIdx,optionIdx,opt){
-        var div=document.createElement("div");
-        div.className="opt"+(selected===optionIdx?" selected":"");
-        div.innerHTML='<div class="o1">'+opt.label+'</div>';
-        div.onclick=function(){
-          state.answers[questionIdx]=optionIdx; save();
-          btnNext.disabled=!isArenaComplete(arena); renderArenaPage();
-        };
-        wrap.appendChild(div);
-      })(qi,oi,q.options[oi]);
-    }
-    block.appendChild(wrap); optionsEl.appendChild(block);
-  }
-  btnBack.disabled=state.arenaIndex===0;
-  btnNext.disabled=!isArenaComplete(arena);
-  btnNext.textContent=(state.arenaIndex===ARENAS.length-1)?"Finish →":"Next →";
-}
-
-/* ===================================================================
-   RENDER: RESULTS
-   =================================================================== */
-function renderResults() {
-  var result  = calcCO2();
-  var totalT  = result.totalT;
-  var byAreaT = result.byAreaT;
-  var band    = bandByCO2(totalT);
-  var status  = getCO2Status(totalT);
-
-  badgeTextEl.textContent   = band.badge;
-  whereYouAreEl.textContent = band.where;
-  resultStatusBadge.innerHTML =
-    '<div class="result-status result-'+status.cls+'"><span class="dot"></span>'+
-    status.icon+' '+status.label+' — '+statusMessage(status)+'</div>';
-
-  co2TotalEl.textContent = "≈ "+totalT.toFixed(1)+" tCO₂e/year ("+Math.round(totalT*1000)+" kg/year)";
-  renderComparisonBars(totalT);
-
-  arenaScoresEl.innerHTML = "";
-  for(var i=0;i<ARENAS.length;i++){
-    var a=ARENAS[i]; var t=byAreaT[a];
-    var box=document.createElement("div"); box.className="box";
-    box.innerHTML='<div class="k">'+LABEL[a]+'</div><div class="co2">≈ '+t.toFixed(2)+' tCO₂e/year</div><div class="kg">('+Math.round(t*1000)+' kg/year)</div><div class="tag">'+areaTag(t)+'</div>';
-    arenaScoresEl.appendChild(box);
-  }
-  recommendationsEl.innerHTML = buildRecommendations(totalT, byAreaT);
-}
-
-/* ===================================================================
-   PROFILE VALIDATION
-   =================================================================== */
-function validateProfile(){
-  var pn=(parentNameEl.value||"").trim(),ph=(phoneEl.value||"").trim(),ad=(addressEl.value||"").trim(),cc=(childClassEl.value||"").trim().replace(/\s+/g,"");
-  if(!pn||!ph||!ad||!cc){alert("Please fill Parent Name, Phone, Address, and Child Class.");return null;}
-  var digits=ph.replace(/\D/g,"");
-  if(digits.length!==10){alert("Please enter a valid 10-digit phone number.");return null;}
-  if(!/^([1-9]|1[0-2])$/.test(cc)){alert("Child Class should be 1 to 12.");return null;}
-  return{parentName:pn,phone:digits,address:ad,childClass:cc};
-}
-function buildAnswerPayload(){
-  var out={};for(var i=0;i<QUIZ.length;i++){var p=state.answers[i];out["Q"+(i+1)+" ("+QUIZ[i].arena+")"]=(p!==undefined&&p!==null)?QUIZ[i].options[p].label:"";}return out;
-}
-
-/* ===================================================================
-   LEADERBOARD (local)
-   =================================================================== */
-function getLocalLB(){try{return JSON.parse(localStorage.getItem(LB_KEY))||[];}catch(e){return[];}}
-function saveLocalLB(entry){
-  var lb=getLocalLB(); var exists=-1;
-  for(var i=0;i<lb.length;i++){if(lb[i].submissionId===entry.submissionId){exists=i;break;}}
-  if(exists>=0)lb[exists]=entry; else lb.push(entry);
-  lb.sort(function(a,b){return a.co2Total-b.co2Total;});
-  try{localStorage.setItem(LB_KEY,JSON.stringify(lb));}catch(e){}
-}
-
-/* ===================================================================
-   SUBMIT
-   =================================================================== */
-function submitToSheet(){
-  if(state.submittedOnce) return;
-  submitStatus.textContent="Saving…";
-  var result=calcCO2(); var totalT=result.totalT; var byAreaT=result.byAreaT;
-  var band=bandByCO2(totalT); var status=getCO2Status(totalT); var sid=getSubmissionId();
-
-  saveLocalLB({submissionId:sid,name:state.profile.parentName,childClass:state.profile.childClass,
-    co2Total:totalT,badge:band.badge,status:status.label,statusLevel:status.level});
-
-  var recText=buildRecommendations(totalT,byAreaT).replace(/<li>/g,"• ").replace(/<\/li>/g,"\n").replace(/<\/p>/g,"\n\n").replace(/<[^>]*>/g,"").replace(/\n{3,}/g,"\n\n").trim();
-
-  var payload={submissionId:sid,parentName:state.profile.parentName,phone:state.profile.phone,
-    address:state.profile.address,childClass:state.profile.childClass,badgeLabel:band.badge,statusLabel:status.label,
-    recommendationsText:recText,
-    co2:{total:totalT,transport:byAreaT.transport,home:byAreaT.home,devices:byAreaT.devices,food:byAreaT.food,waste:byAreaT.waste},
-    answers:buildAnswerPayload()};
-
-  console.log("SUBMIT co2:",JSON.stringify(payload.co2));
-
-  fetch(APPS_SCRIPT_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)})
-    .then(function(){state.submittedOnce=true;save();submitStatus.textContent="✅ Saved!";})
-    .catch(function(){state.submittedOnce=true;save();submitStatus.textContent="⚠️ Server unreachable — saved locally.";})
-    .finally(function(){renderLeaderboard();});
-}
-
-/* ===================================================================
-   LEADERBOARD RENDER
-   =================================================================== */
-function renderLeaderboard(){
-  var lb=getLocalLB();
-  if(!lb.length){leaderboardEl.innerHTML='<div class="no-data">No submissions yet.</div>';return;}
-  function medal(r){return r===1?"🥇":r===2?"🥈":r===3?"🥉":"#"+r;}
-  leaderboardEl.innerHTML="";
-  for(var i=0;i<lb.length;i++){
-    var row=lb[i]; var rank=i+1; var co2=Number(row.co2Total)||0; var st=getCO2Status(co2);
-    var div=document.createElement("div"); div.className="lbrow";
-    div.innerHTML='<div class="rank">'+medal(rank)+'</div><div class="info"><div class="name">'+esc(row.name||"Anonymous")+'</div><div class="detail">Class '+esc(row.childClass||"-")+' • '+esc(row.badge||"")+'</div></div><div><span class="status-badge status-'+st.cls+'"><span class="dot"></span>'+st.label+'</span></div><div class="co2val"><b>'+co2.toFixed(1)+' tCO₂e/yr</b><div class="sub">('+Math.round(co2*1000)+' kg/yr)</div></div>';
-    leaderboardEl.appendChild(div);
-  }
-}
-function loadRemoteLB(){
-  fetch(APPS_SCRIPT_URL+"?action=leaderboard&limit=20").then(function(r){return r.json();}).then(function(json){
-    if(!json.ok)return; var all=(json.podium||[]).concat(json.others||[]);
-    for(var i=0;i<all.length;i++){
-      var row=all[i]; var co2=Number(row.co2Total)||0; if(co2<=0)continue; var st=getCO2Status(co2);
-      saveLocalLB({submissionId:row.submissionId||("r_"+i),name:row.name||"Anonymous",childClass:row.className||"-",co2Total:co2,badge:row.badge||"",status:st.label,statusLevel:st.level});
-    } renderLeaderboard();
-  }).catch(function(){});
-}
-
-/* ===================================================================
-   EVENTS
-   =================================================================== */
-btnStart.onclick=function(){
-  var p=validateProfile(); if(!p)return;
-  state.profile=p;state.arenaIndex=0;state.answers={};state.submittedOnce=false;state.submissionId=null;save();
-  show("quiz");renderArenaPage();
-};
-btnBack.onclick=function(){state.arenaIndex=Math.max(0,state.arenaIndex-1);save();renderArenaPage();};
-btnNext.onclick=function(){
-  var arena=ARENAS[state.arenaIndex]; if(!isArenaComplete(arena))return;
-  state.arenaIndex++; save();
-  if(state.arenaIndex>=ARENAS.length){show("results");renderResults();submitToSheet();loadRemoteLB();}
-  else renderArenaPage();
-};
-btnRestart.onclick=function(){
-  clearSave();state={profile:{parentName:"",phone:"",address:"",childClass:""},arenaIndex:0,answers:{},submittedOnce:false,submissionId:null};
-  parentNameEl.value="";phoneEl.value="";addressEl.value="";childClassEl.value="";submitStatus.textContent="";show("profile");
-};
-btnRefreshLB.onclick=function(){renderLeaderboard();loadRemoteLB();};
-
-show("profile");
-</script>
+  <script src="app.js"></script>
 </body>
 </html>
